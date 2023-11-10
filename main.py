@@ -13,6 +13,7 @@ class MainApplication(tk.Tk):
         # Initial setup
         self._initial_setup()
         
+        # Start at LoginView
         self.current_view = None
         self.switch_view(LoginView)
         
