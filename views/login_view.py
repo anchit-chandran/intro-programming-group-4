@@ -10,6 +10,7 @@ class LoginView(tk.Frame):
         super().__init__(master)
         self.master = master
         self.render_widgets()
+        
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -39,31 +40,98 @@ class LoginView(tk.Frame):
             master=self.container,
         )
         self.username_frame.pack()
-        
+
         self.username_label = tk.Label(
             master=self.username_frame,
             text="Username",
             justify="left",
             font=(20),
         )
-        self.username_label.pack(anchor='w')
-        
-        self.username_entry_box = tk.Entry(master=self.username_frame, width=50)
+        self.username_label.pack(anchor="w")
+
+        self.username = tk.StringVar()
+        self.username_entry_box = tk.Entry(
+            master=self.username_frame, width=50, textvariable=self.username
+        )
         self.username_entry_box.pack()
-        
+
         # Password
         self.password_frame = tk.Frame(
             master=self.container,
         )
         self.password_frame.pack()
-        
+
         self.password_label = tk.Label(
             master=self.password_frame,
             text="Password",
             justify="left",
             font=(20),
         )
-        self.password_label.pack(anchor='w')
-        
-        self.password_entry_box = tk.Entry(master=self.password_frame, width=50)
+        self.password_label.pack(anchor="w")
+
+        self.password = tk.StringVar()
+        self.password_entry_box = tk.Entry(
+            master=self.password_frame, width=50, textvariable=self.password
+        )
         self.password_entry_box.pack()
+
+        # Login Button
+        self.login_button = tk.Button(
+            master=self.password_frame,
+            text="Login",
+            height=1,
+            width=10,
+            command=self._on_login,
+        )
+        self.login_button.pack(pady=10, anchor="w")
+
+    def _input_valid(self, username: str, password: str) -> bool:
+        if not username or not password:
+            return False
+
+        return True
+
+    def _delete_window(self, window: tk.Toplevel) -> None:
+        window.destroy()
+
+    def _render_error_popup_window(self, message: str) -> None:
+        self.error_popup_window = tk.Toplevel(self.master)
+        self.error_popup_window.title("❌ Error")
+        tk.Label(
+            master=self.error_popup_window,
+            text=message,
+        ).pack(
+            padx=10,
+            pady=2,
+        )
+        tk.Button(
+            master=self.error_popup_window,
+            text="Ok",
+            command=lambda: self._delete_window(self.error_popup_window),
+        ).pack(
+            padx=5,
+            pady=2,
+        )
+
+    def _on_login(self) -> None:
+        """Callback fn for login button"""
+        username = self.username.get()
+        password = self.password.get()
+
+        if not self._input_valid(username, password):
+            self._render_error_popup_window(message="Fields cannot be blank.")
+            return None
+
+        # Passes all frontend validation. Check username + pw correct
+
+        # Query db
+        CORRECT_USERNAME = "anchit"
+        CORRECT_PASSWORD = "pw"
+
+        # U/n or pw incorrect
+        if not ((username == CORRECT_USERNAME) and (password == CORRECT_PASSWORD)):
+            self._render_error_popup_window(message="Username or password incorrect. Please check and try again.")
+            return None
+
+        # Handle login logic
+        print("Login logic...")
