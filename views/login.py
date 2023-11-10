@@ -1,23 +1,25 @@
 # Python imports
+import logging
 import tkinter as tk
 
 # Project imports
 from constants import config
+from .dashboard import DashboardView
 
 
 class LoginView(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
+        logging.debug("LoginView created")
         self.master = master
         self.render_widgets()
-        
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
         # Create container
         self.container = tk.Frame(
-            master=self.master,
+            master=self,
             width=500,
             height=300,
         )
@@ -112,11 +114,9 @@ class LoginView(tk.Frame):
             padx=5,
             pady=2,
         )
-        
+
         # Disable main window
         self.error_popup_window.grab_set()
-        
-        
 
     def _on_login(self) -> None:
         """Callback fn for login button"""
@@ -135,8 +135,10 @@ class LoginView(tk.Frame):
 
         # U/n or pw incorrect
         if not ((username == CORRECT_USERNAME) and (password == CORRECT_PASSWORD)):
-            self._render_error_popup_window(message="Username or password incorrect. Please check and try again.")
+            self._render_error_popup_window(
+                message="Username or password incorrect. Please check and try again."
+            )
             return None
 
-        # Handle login logic
-        print("Login logic...")
+        # Handle sucessful login logic
+        self.master.switch_view(DashboardView)
