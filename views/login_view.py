@@ -112,6 +112,11 @@ class LoginView(tk.Frame):
             padx=5,
             pady=2,
         )
+        
+        # Disable main window
+        self.error_popup_window.grab_set()
+        
+        
 
     def _on_login(self) -> None:
         """Callback fn for login button"""
