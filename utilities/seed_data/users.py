@@ -1,0 +1,43 @@
+user_data = [
+    {
+        'username' : 'admin',
+        'password' : '111',
+        'dob' : '1997-10-18',
+        'sex' : 'F',
+        'phone_number' : '07777777777',
+        'is_active': True,
+        'is_admin' : True,
+        'camp_id' : None,
+    },
+    {
+        'username' : 'volunteer1',
+        'password' : '111',
+        'dob' : '1997-10-18',
+        'sex' : 'F',
+        'phone_number' : '07777777777',
+        'is_active': True,
+        'is_admin' : False,
+        'camp_id' : None,
+    },
+    {
+        'username' : 'volunteer2',
+        'password' : '111',
+        'dob' : '1997-10-18',
+        'sex' : 'F',
+        'phone_number' : '07777777777',
+        'is_active': True,
+        'is_admin' : False,
+        'camp_id' : None,
+    },
+    {
+        'username' : 'volunteer3',
+        'password' : '111',
+        'dob' : '1997-10-18',
+        'sex' : 'F',
+        'phone_number' : '07777777777',
+        'is_active': True,
+        'is_admin' : False,
+        'camp_id' : None,
+    },
+
+]
