@@ -5,6 +5,7 @@ import tkinter as tk
 # Project imports
 from constants import config
 from .dashboard import DashboardView
+from utilities.db import run_query_get_rows
 
 
 class LoginView(tk.Frame):
@@ -130,11 +131,12 @@ class LoginView(tk.Frame):
         # Passes all frontend validation. Check username + pw correct
 
         # Query db
-        CORRECT_USERNAME = "anchit"
-        CORRECT_PASSWORD = "pw"
+        un_pw_correct = run_query_get_rows(
+                query=f"SELECT username, password FROM User WHERE username='{username}' and password='{password}'"
+            )
 
         # U/n or pw incorrect
-        if not ((username == CORRECT_USERNAME) and (password == CORRECT_PASSWORD)):
+        if not un_pw_correct:
             self._render_error_popup_window(
                 message="Username or password incorrect. Please check and try again."
             )
