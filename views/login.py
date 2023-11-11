@@ -121,7 +121,7 @@ class LoginView(tk.Frame):
 
     def _on_login(self) -> None:
         """Callback fn for login button"""
-        username = self.username.get()
+        username = self.username.get().strip()
         password = self.password.get()
 
         if not self._input_valid(username, password):
