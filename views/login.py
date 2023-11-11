@@ -128,7 +128,7 @@ class LoginView(tk.Frame):
             self._render_error_popup_window(message="Fields cannot be blank.")
             return None
 
-        # Passes all frontend validation. Check username + pw correct
+        # Passes all form validation. Check username + pw correct
 
         # Query db
         un_pw_correct = run_query_get_rows(
