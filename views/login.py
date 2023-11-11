@@ -9,7 +9,7 @@ from utilities.db import run_query_get_rows
 
 
 class LoginView(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master:tk.Tk=None):
         super().__init__(master)
         logging.debug("LoginView created")
         self.master = master
@@ -142,5 +142,10 @@ class LoginView(tk.Frame):
             )
             return None
 
+        # Set global state variables
+        current_state = self.master.get_global_state()
+        current_state.update({'username':username})
+        self.master.set_global_state(current_state)
+        
         # Handle sucessful login logic
         self.master.switch_view(DashboardView)

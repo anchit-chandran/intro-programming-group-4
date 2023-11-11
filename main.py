@@ -40,6 +40,13 @@ class MainApplication(tk.Tk):
 
         self.current_view = new_view(self)
         self.current_view.pack()
+        logging.debug(f'Current state: {self.get_global_state()}')
+    
+    def get_global_state(self)->dict:
+        return self.GLOBAL_STATE
+    
+    def set_global_state(self, new_state:dict)->None:
+        self.GLOBAL_STATE = new_state
     
         
 
