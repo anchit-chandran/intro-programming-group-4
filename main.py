@@ -34,8 +34,6 @@ class MainApplication(tk.Tk):
         # Clear current view
         if self.current_view is not None:
             logging.debug(f'Destroying {self.current_view}')
-            for frame in self.current_view.container.winfo_children():
-                frame.destroy()
             self.current_view.destroy()
 
         self.current_view = new_view(self)

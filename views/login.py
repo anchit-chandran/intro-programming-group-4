@@ -9,7 +9,7 @@ from utilities.db import run_query_get_rows
 
 
 class LoginView(tk.Frame):
-    def __init__(self, master:tk.Tk=None):
+    def __init__(self, master: tk.Tk = None):
         super().__init__(master)
         logging.debug("LoginView created")
         self.master = master
@@ -74,7 +74,7 @@ class LoginView(tk.Frame):
 
         self.password = tk.StringVar()
         self.password_entry_box = tk.Entry(
-            master=self.password_frame, width=50, textvariable=self.password
+            master=self.password_frame, show="*", width=50, textvariable=self.password
         )
         self.password_entry_box.pack()
 
@@ -132,8 +132,8 @@ class LoginView(tk.Frame):
 
         # Query db
         un_pw_correct = run_query_get_rows(
-                query=f"SELECT username, password FROM User WHERE username='{username}' and password='{password}'"
-            )
+            query=f"SELECT id, username, password FROM User WHERE username='{username}' and password='{password}'"
+        )
 
         # U/n or pw incorrect
         if not un_pw_correct:
@@ -144,8 +144,13 @@ class LoginView(tk.Frame):
 
         # Set global state variables
         current_state = self.master.get_global_state()
-        current_state.update({'username':username})
+        current_state.update(
+            {
+                "user_id": un_pw_correct[0]["id"],
+                "username": username,
+            }
+        )
         self.master.set_global_state(current_state)
-        
+
         # Handle sucessful login logic
         self.master.switch_view(DashboardView)
