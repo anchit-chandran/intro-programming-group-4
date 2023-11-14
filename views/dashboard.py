@@ -4,6 +4,7 @@ import tkinter as tk
 
 # Project imports
 from constants import config
+from utilities.db import run_query_get_rows
 
 
 class DashboardView(tk.Frame):
@@ -31,7 +32,7 @@ class DashboardView(tk.Frame):
         # Header
         self.header = tk.Label(
             master=self.container,
-            text="DASHBOARD",
+            text=f"DASHBOARD\nWelcome, {self.master.get_global_state()['username']}! 👋",
             font=(60),
         )
         self.header.pack()
