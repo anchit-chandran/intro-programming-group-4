@@ -132,7 +132,7 @@ class LoginView(tk.Frame):
 
         # Query db
         un_pw_correct = run_query_get_rows(
-            query=f"SELECT id, username, password FROM User WHERE username='{username}' and password='{password}'"
+            query=f"SELECT id, username, is_admin, password FROM User WHERE username='{username}' and password='{password}'"
         )
 
         # U/n or pw incorrect
@@ -148,6 +148,7 @@ class LoginView(tk.Frame):
             {
                 "user_id": un_pw_correct[0]["id"],
                 "username": username,
+                "is_admin": un_pw_correct[0]["is_admin"],
             }
         )
         self.master.set_global_state(current_state)
