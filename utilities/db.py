@@ -3,7 +3,15 @@ import logging
 
 # Project imports
 from constants import config
-from utilities.seed_data import camp_data, plan_data, user_data
+from utilities.seed_data import camp_data, camp_resource_data, plan_data, user_data
+
+
+def reset_db() -> None:
+    logging.debug("Resetting database")
+    run_query("DROP TABLE IF EXISTS User;")
+    run_query("DROP TABLE IF EXISTS Plan;")
+    run_query("DROP TABLE IF EXISTS Camp;")
+    run_query("DROP TABLE IF EXISTS CampResources;")
 
 
 def get_connection() -> sqlite3.Connection:
@@ -55,9 +63,6 @@ def insert_query_with_values(query: str, values: dict) -> None:
 
 
 def create_and_seed_user_table() -> None:
-    logging.debug("Resetting User table.")
-    run_query("DROP TABLE IF EXISTS User;")
-
     # FIXME: CHANGE `camp_id` to FK
     logging.debug("Creating User table")
     run_query(
@@ -114,9 +119,6 @@ def create_and_seed_user_table() -> None:
 
 
 def create_and_seed_plan_table() -> None:
-    logging.debug("Resetting Plan table.")
-    run_query("DROP TABLE IF EXISTS Plan;")
-
     logging.debug("Creating Plan table")
     run_query(
         """CREATE TABLE `Plan` (
@@ -166,9 +168,6 @@ def create_and_seed_plan_table() -> None:
 
 
 def create_and_seed_camp_table() -> None:
-    logging.debug("Resetting Camp table.")
-    run_query("DROP TABLE IF EXISTS Camp;")
-
     logging.debug("Creating Camp table")
     run_query(
         """CREATE TABLE `Camp` (
@@ -176,7 +175,10 @@ def create_and_seed_camp_table() -> None:
         `name` TEXT,
         `location` TEXT,
         `maxCapacity` INT,
-        `plan_id` INT, FOREIGN KEY (plan_id) REFERENCES Plan (id)
+        `plan_id` INT, 
+        FOREIGN KEY (plan_id) REFERENCES Plan (id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
         );"""
     )
     logging.debug("Done!")
@@ -208,8 +210,54 @@ def create_and_seed_camp_table() -> None:
         )
 
 
-def setup_db() -> None:
+def create_and_seed_camp_resources_table() -> None:
+    logging.debug("Creating CampResources table")
+    run_query(
+        """CREATE TABLE `CampResources` (
+        `id` INTEGER PRIMARY KEY,
+        `name` TEXT,
+        `amount` TEXT,
+        `camp_id` INT, 
+        FOREIGN KEY (camp_id) REFERENCES Camp (id) 
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+        );"""
+    )
+    logging.debug("Done!")
+
+    logging.debug("Seeding CampResources table")
+    for camp_resource in camp_resource_data:
+        logging.debug(
+            f'Creating CampResources {camp_resource["name"]} for Camp {camp_resource["camp_id"]}'
+        )
+
+        insert_query_with_values(
+            query="""INSERT INTO CampResources 
+                  (
+                    name,
+                    amount,
+                    camp_id
+                      ) VALUES (
+                      :name, 
+                      :amount, 
+                      :camp_id
+                  );
+                  """,
+            values={
+                "name": camp_resource["name"],
+                "amount": camp_resource["amount"],
+                "camp_id": camp_resource["camp_id"],
+            },
+        )
+
+
+def setup_db(reset_database=True) -> None:
     """Creates and seeds tables."""
+
+    if reset_database:
+        reset_db()
+
     create_and_seed_user_table()
     create_and_seed_plan_table()
     create_and_seed_camp_table()
+    create_and_seed_camp_resources_table()
