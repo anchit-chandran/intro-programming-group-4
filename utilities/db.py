@@ -3,12 +3,18 @@ import logging
 
 # Project imports
 from constants import config
-from utilities.seed_data import users, plans
+from utilities.seed_data import camp_data, plan_data, user_data
+
+
+def get_connection() -> sqlite3.Connection:
+    conn = sqlite3.connect(config.DATABASE_NAME)
+    conn.execute("PRAGMA foreign_keys = ON")  # foreign key constraint
+    return conn
 
 
 def run_query(query: str = "") -> None:
     """Simply runs a query which does not produce output."""
-    conn = sqlite3.connect(config.DATABASE_NAME)
+    conn = get_connection()
 
     cursor = conn.cursor()
 
@@ -20,7 +26,8 @@ def run_query(query: str = "") -> None:
 
 def run_query_get_rows(query: str = "") -> list[dict]:
     """Runs query and returns rows as list of dictionaries."""
-    conn = sqlite3.connect(config.DATABASE_NAME)
+    conn = get_connection()
+
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
@@ -37,7 +44,7 @@ def run_query_get_rows(query: str = "") -> list[dict]:
 
 def insert_query_with_values(query: str, values: dict) -> None:
     """Inserts values into db."""
-    conn = sqlite3.connect(config.DATABASE_NAME)
+    conn = get_connection()
 
     cursor = conn.cursor()
 
@@ -69,7 +76,7 @@ def create_and_seed_user_table() -> None:
     logging.debug("Done!")
 
     logging.debug("Seeding User table")
-    for user in users.user_data:
+    for user in user_data:
         logging.debug(f'Creating User {user["username"]}')
 
         insert_query_with_values(
@@ -126,7 +133,7 @@ def create_and_seed_plan_table() -> None:
     logging.debug("Done!")
 
     logging.debug("Seeding Plan table")
-    for plan in plans.plan_data:
+    for plan in plan_data:
         logging.debug(f'Creating plan {plan["title"]}')
 
         insert_query_with_values(
@@ -158,7 +165,51 @@ def create_and_seed_plan_table() -> None:
         )
 
 
+def create_and_seed_camp_table() -> None:
+    logging.debug("Resetting Camp table.")
+    run_query("DROP TABLE IF EXISTS Camp;")
+
+    logging.debug("Creating Camp table")
+    run_query(
+        """CREATE TABLE `Camp` (
+        `id` INTEGER PRIMARY KEY,
+        `name` TEXT,
+        `location` TEXT,
+        `maxCapacity` INT,
+        `plan_id` INT, FOREIGN KEY (plan_id) REFERENCES Plan (id)
+        );"""
+    )
+    logging.debug("Done!")
+
+    logging.debug("Seeding Camp table")
+    for camp in camp_data:
+        logging.debug(f'Creating Camp {camp["name"]} for Plan {camp["plan_id"]}')
+
+        insert_query_with_values(
+            query="""INSERT INTO Camp 
+                  (
+                    name,
+                    location,
+                    maxCapacity,
+                    plan_id
+                      ) VALUES (
+                      :name, 
+                      :location, 
+                      :maxCapacity, 
+                      :plan_id
+                  );
+                  """,
+            values={
+                "name": camp["name"],
+                "location": camp["location"],
+                "maxCapacity": camp["maxCapacity"],
+                "plan_id": camp["plan_id"],
+            },
+        )
+
+
 def setup_db() -> None:
     """Creates and seeds tables."""
     create_and_seed_user_table()
     create_and_seed_plan_table()
+    create_and_seed_camp_table()
