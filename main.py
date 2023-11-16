@@ -4,7 +4,7 @@ import tkinter as tk
 import sqlite3
 
 # Project imports
-from views import DashboardView, LoginView, AllPlansView, AllVolunteersView
+from views import DashboardView, LoginView, AllPlansView, AllVolunteersView, MessagesView
 from constants import config
 from utilities.db import setup_db
 
@@ -28,6 +28,7 @@ class MainApplication(tk.Tk):
             "dashboard": DashboardView,
             "all_plans": AllPlansView,
             "all_volunteers": AllVolunteersView,
+            'messages' : MessagesView,
         }
         self.switch_view(view_map[new_view])
 

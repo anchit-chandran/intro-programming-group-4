@@ -15,6 +15,8 @@ class BaseView(tk.Frame):
         self.master = master
         if render_nav:
             self.render_nav()
+            
+        self.current_nav_item = None
 
     def _handle_logout(self) -> None:
         logging.debug("Logging out")
@@ -25,6 +27,9 @@ class BaseView(tk.Frame):
 
     def _handle_volunteers_list_click(self) -> None:
         self.master.switch_to_view("all_volunteers")
+
+    def _handle_messages_click(self) -> None:
+        self.master.switch_to_view("messages")
 
     def render_nav(self) -> None:
         # Create Navbar
@@ -43,6 +48,7 @@ class BaseView(tk.Frame):
             row=0,
             column=0,
             sticky="w",
+            
         )
 
         self.all_plans_button = tk.Button(
@@ -60,7 +66,9 @@ class BaseView(tk.Frame):
         self.volunteer_list_button.grid(row=0, column=1, sticky="w")
 
         self.messages_button = tk.Button(
-            master=self.nav_items_left_container, text="Messages"
+            master=self.nav_items_left_container,
+            text="Messages",
+            command=self._handle_messages_click,
         )
         self.messages_button.grid(row=0, column=2, sticky="w")
 
@@ -76,6 +84,7 @@ class BaseView(tk.Frame):
             master=self.nav_items_right_container,
             text="Logout",
             command=self._handle_logout,
+            relief=tk.FLAT,
         )
         self.logout_button.pack(
             side="right",
