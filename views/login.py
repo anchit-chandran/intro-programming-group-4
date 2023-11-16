@@ -5,20 +5,19 @@ import tkinter as tk
 # Project imports
 from constants import config
 from .dashboard import DashboardView
+from .base import BaseView
 from utilities.db import run_query_get_rows
 
 
-class LoginView(tk.Frame):
-    def __init__(self, master: tk.Tk = None):
-        super().__init__(master)
-        logging.debug("LoginView created")
+class LoginView(BaseView):
+    def __init__(self, master=None):
+        super().__init__(master, render_nav=False)
         self.master = master
         self.render_widgets()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
         
-
         # Create container
         self.container = tk.Frame(
             master=self,

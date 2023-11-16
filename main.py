@@ -21,6 +21,12 @@ class MainApplication(tk.Tk):
         self.current_view = None
         self.switch_view(DashboardView)
 
+    def set_view_to_login(self)->None:
+        # Reset state
+        self.set_global_state({})
+        
+        self.switch_view(LoginView)
+    
     def _initial_setup(self) -> None:
         
         # Initial attributes

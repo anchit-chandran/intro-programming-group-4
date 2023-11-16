@@ -5,11 +5,20 @@ import tkinter as tk
 from constants import config
 from constants.console_color_codes import PrintColor
 
+
 class BaseView(tk.Frame):
-    def __init__(self, master=None):
+    def __init__(self, master=None, render_nav: bool = True):
         super().__init__(master)
-        logging.debug(f"{PrintColor.HEADER}{self.__class__.__name__} created {PrintColor.ENDC}")
-        self.render_nav()
+        logging.debug(
+            f"{PrintColor.HEADER}{self.__class__.__name__} created {PrintColor.ENDC}"
+        )
+        self.master = master
+        if render_nav:
+            self.render_nav()
+
+    def _handle_logout(self) -> None:
+        logging.debug("Logging out")
+        self.master.set_view_to_login()
 
     def render_nav(self) -> None:
         # Create Navbar
@@ -56,6 +65,7 @@ class BaseView(tk.Frame):
         self.logout_button = tk.Button(
             master=self.nav_items_right_container,
             text="Logout",
+            command=self._handle_logout,
         )
         self.logout_button.pack(
             side="right",
