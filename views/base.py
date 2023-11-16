@@ -23,6 +23,9 @@ class BaseView(tk.Frame):
     def _handle_all_plans_click(self) -> None:
         self.master.switch_to_view("all_plans")
 
+    def _handle_volunteers_list_click(self) -> None:
+        self.master.switch_to_view("all_volunteers")
+
     def render_nav(self) -> None:
         # Create Navbar
         self.nav_container = tk.Frame(
@@ -50,7 +53,9 @@ class BaseView(tk.Frame):
         self.all_plans_button.grid(row=0, column=0, sticky="w")
 
         self.volunteer_list_button = tk.Button(
-            master=self.nav_items_left_container, text="Volunteer List"
+            master=self.nav_items_left_container,
+            text="Volunteer List",
+            command=self._handle_volunteers_list_click,
         )
         self.volunteer_list_button.grid(row=0, column=1, sticky="w")
 
