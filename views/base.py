@@ -15,7 +15,7 @@ class BaseView(tk.Frame):
         self.master = master
         if render_nav:
             self.render_nav()
-            
+
         self.current_nav_item = None
 
     def _handle_logout(self) -> None:
@@ -37,9 +37,13 @@ class BaseView(tk.Frame):
             master=self,
             width=config.SCREEN_WIDTH,
             height=20,
-            relief=tk.SUNKEN,
+            relief=tk.FLAT,
+            bg="black",
+            borderwidth=1,
         )
-        self.nav_container.pack(fill="x", expand=True)
+        self.nav_container.pack(
+            pady=10,
+        )
 
         self.nav_items_left_container = tk.Frame(
             master=self.nav_container,
@@ -48,7 +52,6 @@ class BaseView(tk.Frame):
             row=0,
             column=0,
             sticky="w",
-            
         )
 
         self.all_plans_button = tk.Button(
@@ -63,7 +66,11 @@ class BaseView(tk.Frame):
             text="Volunteer List",
             command=self._handle_volunteers_list_click,
         )
-        self.volunteer_list_button.grid(row=0, column=1, sticky="w")
+        self.volunteer_list_button.grid(
+            row=0,
+            column=1,
+            sticky="w",
+        )
 
         self.messages_button = tk.Button(
             master=self.nav_items_left_container,
