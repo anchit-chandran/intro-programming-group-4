@@ -17,6 +17,7 @@ class LoginView(tk.Frame):
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
+        
 
         # Create container
         self.container = tk.Frame(

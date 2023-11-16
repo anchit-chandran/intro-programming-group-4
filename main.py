@@ -4,7 +4,7 @@ import tkinter as tk
 import sqlite3
 
 # Project imports
-from views.login import LoginView
+from views.login import LoginView, DashboardView
 from constants import config
 from utilities.db import setup_db
 
@@ -19,7 +19,7 @@ class MainApplication(tk.Tk):
 
         # Start at LoginView
         self.current_view = None
-        self.switch_view(LoginView)
+        self.switch_view(DashboardView)
 
     def _initial_setup(self) -> None:
         

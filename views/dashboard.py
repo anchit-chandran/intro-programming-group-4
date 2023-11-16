@@ -5,18 +5,18 @@ import tkinter as tk
 # Project imports
 from constants import config
 from utilities.db import run_query_get_rows
+from .base import BaseView
 
 
-class DashboardView(tk.Frame):
+class DashboardView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
-        logging.debug('DashboardView created')
         self.master = master
         self.render_widgets()
-        
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
+
         # Create container
         self.container = tk.Frame(
             master=self,
@@ -32,7 +32,7 @@ class DashboardView(tk.Frame):
         # Header
         self.header = tk.Label(
             master=self.container,
-            text=f"DASHBOARD\nWelcome, {self.master.get_global_state()['username']}! 👋",
+            text=f"DASHBOARD\nWelcome, {self.master.get_global_state().get('username')}! 👋",
             font=(60),
         )
         self.header.pack()
