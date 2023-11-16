@@ -28,7 +28,7 @@ class MainApplication(tk.Tk):
         self.geometry(config.SIZE)
         
         # DB Setup
-        setup_db()
+        setup_db(reset_database=True)
 
     def switch_view(self, new_view) -> None:
         # Clear current view
