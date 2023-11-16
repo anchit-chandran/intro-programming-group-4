@@ -16,4 +16,4 @@ Global state variables can be accessed through `MainApplication.get_global_state
 
 sqlite3 doesn't have a `datetime` type. All of those fields are `text`.
 
-Therefore, ensure you save any `datetime` values using the Python `datetime` object's `.strftime('%Y-%m-%d %H:%M:%S')` method.
+Therefore, ensure you save any `datetime` values using `convert_to_sqlite3_date` helper function.
