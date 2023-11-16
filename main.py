@@ -4,7 +4,7 @@ import tkinter as tk
 import sqlite3
 
 # Project imports
-from views.login import LoginView, DashboardView
+from views import DashboardView, LoginView, AllPlansView
 from constants import config
 from utilities.db import setup_db
 
@@ -21,7 +21,16 @@ class MainApplication(tk.Tk):
         self.current_view = None
         self.switch_view(DashboardView)
 
-    def set_view_to_login(self)->None:
+    def switch_to_view(self, new_view:str)->None:
+        "Helper method to overcome python circular import errors"
+        view_map = {
+            'login' : LoginView,
+            'dashboard' : DashboardView,
+            'all_plans': AllPlansView,
+        }
+        self.switch_view(view_map[new_view])
+    
+    def logout_set_view_to_login(self)->None:
         # Reset state
         self.set_global_state({})
         

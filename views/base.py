@@ -18,7 +18,10 @@ class BaseView(tk.Frame):
 
     def _handle_logout(self) -> None:
         logging.debug("Logging out")
-        self.master.set_view_to_login()
+        self.master.logout_set_view_to_login()
+
+    def _handle_all_plans_click(self) -> None:
+        self.master.switch_to_view("all_plans")
 
     def render_nav(self) -> None:
         # Create Navbar
@@ -40,7 +43,9 @@ class BaseView(tk.Frame):
         )
 
         self.all_plans_button = tk.Button(
-            master=self.nav_items_left_container, text="All Plans"
+            master=self.nav_items_left_container,
+            text="All Plans",
+            command=self._handle_all_plans_click,
         )
         self.all_plans_button.grid(row=0, column=0, sticky="w")
 
