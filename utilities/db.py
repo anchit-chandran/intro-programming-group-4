@@ -354,6 +354,32 @@ def create_and_seed_refugee_family_table() -> None:
         )
 
 
+def create_and_message_table() -> None:
+    logging.debug("Creating Message table")
+    run_query(
+        """CREATE TABLE `Messages` (
+            `id` INTEGER PRIMARY KEY,
+            `message` TEXT,
+            `sent_at` TEXT,
+            `urgency` TEXT,
+            `is_resolved` INT,
+            `camp_id` INT,
+            `plan_id` INT,
+            `sender_id` INT,
+            FOREIGN KEY (`camp_id`) REFERENCES Camp (id) 
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+            FOREIGN KEY (`plan_id`) REFERENCES Plan (id) 
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+            FOREIGN KEY (`sender_id`) REFERENCES User (id) 
+                ON DELETE CASCADE
+                ON UPDATE CASCADE
+            );"""
+    )
+    logging.debug("Done!")
+
+
 def setup_db(reset_database=True) -> None:
     """Creates and seeds tables."""
 
@@ -365,3 +391,5 @@ def setup_db(reset_database=True) -> None:
     create_and_seed_camp_resources_table()
     create_and_seed_refugee_family_table()
     create_and_seed_user_table()
+    create_and_message_table()
+    
