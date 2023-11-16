@@ -14,11 +14,27 @@ from utilities.seed_data import (
 
 def reset_db() -> None:
     logging.debug("Resetting database")
+    
+    logging.debug("Dropping User table")
     run_query("DROP TABLE IF EXISTS User;")
-    run_query("DROP TABLE IF EXISTS Plan;")
-    run_query("DROP TABLE IF EXISTS Camp;")
+    
+    logging.debug("Dropping Message table")
+    run_query("DROP TABLE IF EXISTS Messages;")
+    
+    logging.debug("Dropping CampResources table")
     run_query("DROP TABLE IF EXISTS CampResources;")
+    
+    logging.debug("Dropping RefugeeFamily table")
     run_query("DROP TABLE IF EXISTS RefugeeFamily;")
+    
+    logging.debug("Dropping Camp table")
+    run_query("DROP TABLE IF EXISTS Camp;")
+    
+    logging.debug("Dropping Plan table")
+    run_query("DROP TABLE IF EXISTS Plan;")
+    
+    
+
 
 
 def get_connection() -> sqlite3.Connection:
