@@ -1,6 +1,3 @@
-from ..sqlite3_date_formatter import convert_to_sqlite3_date
-
-
 camp_data = []
 camp_resource_data = []
 
@@ -29,6 +26,3 @@ for camp_id in range(1, len(camp_data) + 1):
         }
 
         camp_resource_data.append(new_resource)
-
-
-print(f'{camp_data=}\n{camp_resource_data=}')

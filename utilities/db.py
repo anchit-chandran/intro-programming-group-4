@@ -3,7 +3,13 @@ import logging
 
 # Project imports
 from constants import config
-from utilities.seed_data import camp_data, camp_resource_data, plan_data, user_data
+from utilities.seed_data import (
+    camp_data,
+    camp_resource_data,
+    plan_data,
+    user_data,
+    refugee_family_data,
+)
 
 
 def reset_db() -> None:
@@ -12,6 +18,7 @@ def reset_db() -> None:
     run_query("DROP TABLE IF EXISTS Plan;")
     run_query("DROP TABLE IF EXISTS Camp;")
     run_query("DROP TABLE IF EXISTS CampResources;")
+    run_query("DROP TABLE IF EXISTS RefugeeFamily;")
 
 
 def get_connection() -> sqlite3.Connection:
@@ -251,6 +258,75 @@ def create_and_seed_camp_resources_table() -> None:
         )
 
 
+def create_and_seed_refugee_family_table() -> None:
+    logging.debug("Creating RefugeeFamily table")
+    run_query(
+        """CREATE TABLE `RefugeeFamily` (
+        `id` INTEGER PRIMARY KEY,
+        `main_rep_name` TEXT,
+        `medical_conditions` TEXT,
+        `n_adults` INT,
+        `n_children` INT,
+        `main_rep_home_town` TEXT,
+        `main_rep_age` INT,
+        `main_rep_sex` INT,
+        `n_missing_members` INT,
+        `is_in_camp` INT Default 1,
+        `camp_id` INT,
+            FOREIGN KEY (camp_id) REFERENCES Camp (id) 
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        );"""
+    )
+    logging.debug("Done!")
+
+    logging.debug("Seeding RefugeeFamily table")
+    for refugee_family in refugee_family_data:
+        logging.debug(
+            f'Creating RefugeeFamily {refugee_family["main_rep_name"]} inside Camp {refugee_family["camp_id"]}'
+        )
+
+        insert_query_with_values(
+            query="""INSERT INTO RefugeeFamily 
+                  (
+                    main_rep_name,
+                    medical_conditions,
+                    n_adults,
+                    n_children,
+                    main_rep_home_town,
+                    main_rep_age,
+                    main_rep_sex,
+                    n_missing_members,
+                    is_in_camp,
+                    camp_id
+                      ) VALUES (
+                        :main_rep_name,
+                        :medical_conditions,
+                        :n_adults,
+                        :n_children,
+                        :main_rep_home_town,
+                        :main_rep_age,
+                        :main_rep_sex,
+                        :n_missing_members,
+                        :is_in_camp,
+                        :camp_id
+                  );
+                  """,
+            values={
+                "main_rep_name": refugee_family["main_rep_name"],
+                "medical_conditions": refugee_family["medical_conditions"],
+                "n_adults": refugee_family["n_adults"],
+                "n_children": refugee_family["n_children"],
+                "main_rep_home_town": refugee_family["main_rep_home_town"],
+                "main_rep_age": refugee_family["main_rep_age"],
+                "main_rep_sex": refugee_family["main_rep_sex"],
+                "n_missing_members": refugee_family["n_missing_members"],
+                "is_in_camp": refugee_family["is_in_camp"],
+                "camp_id": refugee_family["camp_id"],
+            },
+        )
+
+
 def setup_db(reset_database=True) -> None:
     """Creates and seeds tables."""
 
@@ -261,3 +337,4 @@ def setup_db(reset_database=True) -> None:
     create_and_seed_plan_table()
     create_and_seed_camp_table()
     create_and_seed_camp_resources_table()
+    create_and_seed_refugee_family_table()
