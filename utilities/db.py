@@ -70,20 +70,28 @@ def insert_query_with_values(query: str, values: dict) -> None:
 
 
 def create_and_seed_user_table() -> None:
-    # FIXME: CHANGE `camp_id` to FK
     logging.debug("Creating User table")
     run_query(
-        """CREATE TABLE User (
-            id INTEGER PRIMARY KEY,
-            username TEXT,
-            password TEXT,
-            dob TEXT,
-            sex TEXT,
-            phone_number TEXT,
-            is_active BOOL DEFAULT True,
-            is_admin BOOL DEFAULT False,
-            camp_id INT DEFAULT NULL
-        )"""
+        """CREATE TABLE `User` (
+            `id` INTEGER PRIMARY KEY,
+            `username` TEXT,
+            `password` TEXT NOT NULL,
+            `dob` TEXT NOT NULL,
+            `sex` INT NOT NULL,
+            `phone_number` INT,
+            `is_active` INT default 1,
+            `is_admin` INT default 0,
+            `first_name` TEXT,
+            `last_name` TEXT,
+            `languages_spoken` TEXT,
+            `skills` TEXT,
+            `emergency_contact_name` TEXT,
+            `emergency_contact_number` TEXT,
+            `camp_id` INT,
+                FOREIGN KEY (camp_id) REFERENCES Camp (id) 
+                ON DELETE CASCADE
+                ON UPDATE CASCADE
+            );"""
     )
     logging.debug("Done!")
 
@@ -93,23 +101,36 @@ def create_and_seed_user_table() -> None:
 
         insert_query_with_values(
             query="""INSERT INTO User 
-                  (username, 
-                      password, 
-                      dob,
-                      sex,
-                      phone_number,
-                      is_active,
-                      is_admin,
-                      camp_id
+                  (
+                        username,
+                        password,
+                        dob,
+                        sex,
+                        phone_number,
+                        is_active,
+                        is_admin,
+                        first_name,
+                        last_name,
+                        languages_spoken,
+                        skills,
+                        emergency_contact_name,
+                        emergency_contact_number,
+                        camp_id
                       ) VALUES (
-                      :username, 
-                      :password, 
-                      :dob,
-                      :sex,
-                      :phone_number,
-                      :is_active,
-                      :is_admin,
-                      :camp_id
+                        :username,
+                        :password,
+                        :dob,
+                        :sex,
+                        :phone_number,
+                        :is_active,
+                        :is_admin,
+                        :first_name,
+                        :last_name,
+                        :languages_spoken,
+                        :skills,
+                        :emergency_contact_name,
+                        :emergency_contact_number,
+                        :camp_id
                   );
                   """,
             values={
@@ -120,6 +141,12 @@ def create_and_seed_user_table() -> None:
                 "phone_number": user["phone_number"],
                 "is_active": user["is_active"],
                 "is_admin": user["is_admin"],
+                "first_name": user["first_name"],
+                "last_name": user["last_name"],
+                "languages_spoken": user["languages_spoken"],
+                "skills": user["skills"],
+                "emergency_contact_name": user["emergency_contact_name"],
+                "emergency_contact_number": user["emergency_contact_number"],
                 "camp_id": user["camp_id"],
             },
         )
@@ -333,8 +360,8 @@ def setup_db(reset_database=True) -> None:
     if reset_database:
         reset_db()
 
-    create_and_seed_user_table()
     create_and_seed_plan_table()
     create_and_seed_camp_table()
     create_and_seed_camp_resources_table()
     create_and_seed_refugee_family_table()
+    create_and_seed_user_table()
