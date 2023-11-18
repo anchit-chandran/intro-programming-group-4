@@ -31,69 +31,72 @@ class BaseView(tk.Frame):
     def _handle_messages_click(self) -> None:
         self.master.switch_to_view("messages")
 
+    def _handle_home_click(self) -> None:
+        self.master.switch_to_view("dashboard")
+
     def render_nav(self) -> None:
         # Create Navbar
         self.nav_container = tk.Frame(
             master=self,
-            width=config.SCREEN_WIDTH,
+            width=800,
             height=20,
-            relief=tk.FLAT,
-            bg="black",
-            borderwidth=1,
+            bg='black',
         )
         self.nav_container.pack(
             pady=10,
         )
 
-        self.nav_items_left_container = tk.Frame(
+        self.volunteer_list_button = tk.Button(
             master=self.nav_container,
+            text="Home",
+            command=self._handle_home_click,
         )
-        self.nav_items_left_container.grid(
+        self.volunteer_list_button.grid(
             row=0,
             column=0,
             sticky="w",
         )
 
         self.all_plans_button = tk.Button(
-            master=self.nav_items_left_container,
+            master=self.nav_container,
             text="All Plans",
             command=self._handle_all_plans_click,
         )
-        self.all_plans_button.grid(row=0, column=0, sticky="w")
-
-        self.volunteer_list_button = tk.Button(
-            master=self.nav_items_left_container,
-            text="Volunteer List",
-            command=self._handle_volunteers_list_click,
-        )
-        self.volunteer_list_button.grid(
+        self.all_plans_button.grid(
             row=0,
             column=1,
             sticky="w",
         )
 
+        self.volunteer_list_button = tk.Button(
+            master=self.nav_container,
+            text="Volunteer List",
+            command=self._handle_volunteers_list_click,
+        )
+        self.volunteer_list_button.grid(
+            row=0,
+            column=2,
+            sticky="w",
+        )
+
         self.messages_button = tk.Button(
-            master=self.nav_items_left_container,
+            master=self.nav_container,
             text="Messages",
             command=self._handle_messages_click,
         )
-        self.messages_button.grid(row=0, column=2, sticky="w")
-
-        self.nav_items_right_container = tk.Frame(
-            master=self.nav_container,
-        )
-        self.nav_items_right_container.grid(
+        self.messages_button.grid(
             row=0,
-            column=1,
-            sticky="e",
+            column=3,
+            sticky="w",
         )
+
         self.logout_button = tk.Button(
-            master=self.nav_items_right_container,
+            master=self.nav_container,
             text="Logout",
             command=self._handle_logout,
-            relief=tk.FLAT,
         )
-        self.logout_button.pack(
-            side="right",
-            anchor="e",
+        self.logout_button.grid(
+            row=0,
+            column=4,
+            sticky="e",
         )
