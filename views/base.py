@@ -33,9 +33,16 @@ class BaseView(tk.Frame):
 
     def _handle_home_click(self) -> None:
         self.master.switch_to_view("dashboard")
+    
+    def _handle_my_camp_click(self) -> None:
+        self.master.switch_to_view("my_camp")
+    
+    def _handle_profile(self) -> None:
+        self.master.switch_to_view("profile")
 
     def render_nav(self) -> None:
         # Create Navbar
+        
         self.nav_container = tk.Frame(
             master=self,
             width=800,
@@ -46,50 +53,73 @@ class BaseView(tk.Frame):
             pady=10,
         )
 
-        self.volunteer_list_button = tk.Button(
-            master=self.nav_container,
-            text="Home",
-            command=self._handle_home_click,
-        )
-        self.volunteer_list_button.grid(
-            row=0,
-            column=0,
-            sticky="w",
-        )
+        if self.master.get_global_state().get("is_admin"):
+            self.volunteer_list_button = tk.Button(
+                master=self.nav_container,
+                text="Home",
+                command=self._handle_home_click,
+            )
+            self.volunteer_list_button.grid(
+                row=0,
+                column=0,
+                sticky="w",
+            )
 
-        self.all_plans_button = tk.Button(
-            master=self.nav_container,
-            text="All Plans",
-            command=self._handle_all_plans_click,
-        )
-        self.all_plans_button.grid(
-            row=0,
-            column=1,
-            sticky="w",
-        )
+            self.all_plans_button = tk.Button(
+                master=self.nav_container,
+                text="All Plans",
+                command=self._handle_all_plans_click,
+            )
+            self.all_plans_button.grid(
+                row=0,
+                column=1,
+                sticky="w",
+            )
 
-        self.volunteer_list_button = tk.Button(
-            master=self.nav_container,
-            text="Volunteer List",
-            command=self._handle_volunteers_list_click,
-        )
-        self.volunteer_list_button.grid(
-            row=0,
-            column=2,
-            sticky="w",
-        )
+            self.volunteer_list_button = tk.Button(
+                master=self.nav_container,
+                text="Volunteer List",
+                command=self._handle_volunteers_list_click,
+            )
+            self.volunteer_list_button.grid(
+                row=0,
+                column=2,
+                sticky="w",
+            )
 
-        self.messages_button = tk.Button(
-            master=self.nav_container,
-            text="Messages",
-            command=self._handle_messages_click,
-        )
-        self.messages_button.grid(
-            row=0,
-            column=3,
-            sticky="w",
-        )
+            self.messages_button = tk.Button(
+                master=self.nav_container,
+                text="Messages",
+                command=self._handle_messages_click,
+            )
+            self.messages_button.grid(
+                row=0,
+                column=3,
+                sticky="w",
+            )
+        else:
+            # volunteer buttons
+            self.my_camp_button = tk.Button(
+                master=self.nav_container,
+                text="My Camp",
+                command=self._handle_my_camp_click,
+            )
+            self.my_camp_button.grid(
+                row=0,
+                column=3,
+                sticky="w",
+            )
 
+        self.profile_button = tk.Button(
+            master=self.nav_container,
+            text="My Profile",
+            command=self._handle_profile,
+        )
+        self.profile_button.grid(
+            row=0,
+            column=4,
+            sticky="e",
+        )
         self.logout_button = tk.Button(
             master=self.nav_container,
             text="Logout",
@@ -97,6 +127,6 @@ class BaseView(tk.Frame):
         )
         self.logout_button.grid(
             row=0,
-            column=4,
+            column=5,
             sticky="e",
         )

@@ -4,7 +4,7 @@ import tkinter as tk
 
 # Project imports
 from constants import config
-from .dashboard import DashboardView
+from .all_plans import AllPlansView
 from .base import BaseView
 from utilities.db import run_query_get_rows
 
@@ -154,4 +154,4 @@ class LoginView(BaseView):
         self.master.set_global_state(current_state)
 
         # Handle sucessful login logic
-        self.master.switch_view(DashboardView)
+        self.master.switch_to_default_view_after_login()

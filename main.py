@@ -4,7 +4,15 @@ import tkinter as tk
 import sqlite3
 
 # Project imports
-from views import DashboardView, LoginView, AllPlansView, AllVolunteersView, MessagesView
+from views import (
+    PlanDetailView,
+    LoginView,
+    AllPlansView,
+    AllVolunteersView,
+    MessagesView,
+    MyCampView,
+    ProfileView,
+)
 from constants import config
 from utilities.db import setup_db
 
@@ -18,17 +26,31 @@ class MainApplication(tk.Tk):
         self.GLOBAL_STATE = {}
 
         # Start at LoginView
+
+        # DEBUG HELPERS
+        self.DEBUG = True
+        if self.DEBUG:
+            self.set_global_state(
+                {
+                    "user_id": 1,
+                    "username": "admin",
+                    "is_admin": 1,
+                }
+            )
+
         self.current_view = None
-        self.switch_view(LoginView)
+        self.switch_view(PlanDetailView)
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
         view_map = {
             "login": LoginView,
-            "dashboard": DashboardView,
+            "plan_detail": PlanDetailView,
             "all_plans": AllPlansView,
             "all_volunteers": AllVolunteersView,
-            'messages' : MessagesView,
+            "messages": MessagesView,
+            "profile": ProfileView,
+            "my_camp": MyCampView,
         }
         self.switch_view(view_map[new_view])
 
@@ -45,6 +67,13 @@ class MainApplication(tk.Tk):
 
         # DB Setup
         setup_db(reset_database=True)
+    
+    def switch_to_default_view_after_login(self) -> None:
+        """Based on whether is_admin, switch to default view after login"""
+        if self.get_global_state().get("is_admin"):
+            self.switch_to_view("all_plans")
+        else:
+            self.switch_to_view("my_camp")
 
     def switch_view(self, new_view) -> None:
         # Clear current view

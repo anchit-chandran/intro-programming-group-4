@@ -8,7 +8,7 @@ from utilities.db import run_query_get_rows
 from .base import BaseView
 
 
-class DashboardView(BaseView):
+class ProfileView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -30,9 +30,19 @@ class DashboardView(BaseView):
         )
 
         # Header
-        self.header = tk.Label(
+        self.header_container = tk.Frame(
             master=self.container,
-            text=f"DASHBOARD\nWelcome, {self.master.get_global_state().get('username')}! 👋",
+            width=500,
+            height=100,
+        )
+        self.header_container.pack()
+
+        self.header = tk.Label(
+            master=self.header_container,
+            text=f"PROFILE VIEW {self.master.get_global_state().get('username')}! 👋",
             font=(60),
         )
-        self.header.pack()
+        self.header.grid(
+            row=0,
+            column=0,
+        )
