@@ -31,40 +31,26 @@ class BaseView(tk.Frame):
     def _handle_messages_click(self) -> None:
         self.master.switch_to_view("messages")
 
-    def _handle_home_click(self) -> None:
-        self.master.switch_to_view("dashboard")
-    
     def _handle_my_camp_click(self) -> None:
         self.master.switch_to_view("my_camp")
-    
+
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")
 
     def render_nav(self) -> None:
         # Create Navbar
-        
+
         self.nav_container = tk.Frame(
             master=self,
             width=800,
             height=20,
-            bg='black',
+            bg="black",
         )
         self.nav_container.pack(
             pady=10,
         )
 
         if self.master.get_global_state().get("is_admin"):
-            self.volunteer_list_button = tk.Button(
-                master=self.nav_container,
-                text="Home",
-                command=self._handle_home_click,
-            )
-            self.volunteer_list_button.grid(
-                row=0,
-                column=0,
-                sticky="w",
-            )
-
             self.all_plans_button = tk.Button(
                 master=self.nav_container,
                 text="All Plans",
