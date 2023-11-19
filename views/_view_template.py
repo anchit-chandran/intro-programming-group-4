@@ -3,7 +3,8 @@
 import tkinter as tk
 
 # Project imports
-from .base import BaseView
+from views.base import BaseView
+from constants import config
 
 
 class MessagesView(BaseView):
@@ -18,7 +19,7 @@ class MessagesView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=500,
+            width=config.SCREEN_WIDTH,
             height=300,
         )
         self.container.pack(
