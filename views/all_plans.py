@@ -91,7 +91,8 @@ class AllPlansView(BaseView):
             data_to_add.append(total_volunteers)
 
             # Find total refugees
-            data_to_add.append("REFU")
+            total_refugee_familes = self._calculate_total_refugee_families_per_plan(plan["id"])
+            data_to_add.append(total_refugee_familes)
 
             self.data_to_render.append(data_to_add)
 
@@ -200,3 +201,20 @@ class AllPlansView(BaseView):
         )[0].get("n_users")
 
         return n_volunteers
+    
+    def _calculate_total_refugee_families_per_plan(self, plan_id: int) -> int:
+        """Calculates the total number of volunteers for plan"""
+        camp_ids = tuple(
+            [
+                camp["id"]
+                for camp in run_query_get_rows(
+                    f"SELECT DISTINCT(id) FROM Camp WHERE plan_id = {plan_id}"
+                )
+            ]
+        )
+        
+        n_refugees = run_query_get_rows(
+            f"SELECT COUNT(*) AS n_volunteers FROM RefugeeFamily WHERE camp_id IN {camp_ids}"
+        )[0].get("n_volunteers")
+        
+        return n_refugees
