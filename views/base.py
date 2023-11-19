@@ -36,6 +36,9 @@ class BaseView(tk.Frame):
 
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")
+        
+    def _delete_window(self, window: tk.Toplevel) -> None:
+        window.destroy()
 
     def render_error_popup_window(self, message: str) -> None:
         self.error_popup_window = tk.Toplevel(self.master)
@@ -44,8 +47,9 @@ class BaseView(tk.Frame):
             master=self.error_popup_window,
             text=message,
         ).pack(
-            padx=10,
             pady=2,
+            expand=True,
+            fill="both",
         )
         tk.Button(
             master=self.error_popup_window,

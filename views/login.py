@@ -94,9 +94,6 @@ class LoginView(BaseView):
 
         return True
 
-    def _delete_window(self, window: tk.Toplevel) -> None:
-        window.destroy()
-
 
     def _on_login(self) -> None:
         """Callback fn for login button"""

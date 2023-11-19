@@ -360,6 +360,7 @@ class AddPlanView(BaseView):
         )
         self.description_entry.pack()
 
+    
     def _render_central_email(self, form_container, on_row: int) -> None:
         # PLAN central_email
         self.central_email_container = tk.Frame(
@@ -409,14 +410,27 @@ class AddPlanView(BaseView):
         """Try to turn start date into Date object and ensure it is not in future"""
         try:
             year, month, day = start_date.split("-")
-            start_date = datetime.date(year=year, month=month, day=day)
-            if start_date > datetime.date.today():
+            start_date = datetime.date(year=int(year), month=int(month), day=int(day))
+            if start_date < datetime.date.today():
                 return None
             return start_date
         except Exception as e:
             logging.debug(f"Invalid start date: {e}")
             return None
 
+    def _render_field_label_from_key(self, field_key: str) -> str:
+        key_name_map = {
+            
+            "plan_name" : 'Plan Name',
+            "start_date" : 'Start Date',
+            "location" : 'Location',
+            "description" : 'Description',
+            "central_email" : 'Central Email',
+        
+        }
+        
+        return key_name_map[field_key]
+    
     def _handle_submit(self) -> None:
         plan_id = self.plan_id_entry.get()
         plan_name = self.plan_name_entry.get()
@@ -461,6 +475,15 @@ class AddPlanView(BaseView):
             errors["start_date"].append("Invalid date.")
 
         if not self.form_is_valid:
+            error_msg = ''
+            for field, field_errors in errors.items():
+                if field_errors:
+                    error_msg += self._render_field_label_from_key(field).upper() + '\n'
+                    for field_error in field_errors:
+                        error_msg += f'\t{field_error}\n'
+                    error_msg += '\n\n'
+            self.render_error_popup_window(message=error_msg)
+            
             logging.debug(
                 f"INVALID FORM: {errors=}\n\{plan_id=}, {plan_name=}, {start_date=}, {location=}, {description=}, {central_email=}"
             )
