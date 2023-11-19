@@ -78,12 +78,18 @@ class AllPlansView(BaseView):
             if end_date is None:
                 data_to_add.append("Ongoing")
             else:
-                data_to_add.append(plan["end_datetime"])
+                data_to_add.append(get_date(plan["end_datetime"]))
 
             # Find total camps
-            data_to_add.append("CAMPS")
+            total_camps = self._calculate_total_camps_per_plan(plan["id"]).get(
+                "COUNT(*)"
+            )
+            data_to_add.append(total_camps)
+
             # Find total volunteers
-            data_to_add.append("VOL")
+            total_volunteers = self._calculate_total_volunteers_per_plan(plan["id"])
+            data_to_add.append(total_volunteers)
+
             # Find total refugees
             data_to_add.append("REFU")
 
@@ -139,22 +145,20 @@ class AllPlansView(BaseView):
                 column=ix,
             )
             add_border(self.cell_frame)
-            
+
             # Get color
-            if label == 'Ongoing':
-                fg = 'green'
+            if label == "Ongoing":
+                fg = "green"
             else:
                 fg = None
-                
+
             self.cell_content = tk.Label(
                 master=self.cell_frame,
                 text=label,
                 width=column_width,
                 background="black" if header else None,
-                fg = fg,
+                fg=fg,
             )
-            
-            
 
             self.cell_content.pack(
                 fill="both",
@@ -172,3 +176,27 @@ class AllPlansView(BaseView):
     def _handle_mouse_hover_exit(self, event):
         logging.debug("Mouse left cell")
         event.widget.config(background=self.master.cget("bg"))
+
+    def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
+        """Calculates the total number of camps for plan"""
+
+        return run_query_get_rows(
+            f"SELECT COUNT(*) FROM Camp WHERE plan_id = {plan_id}"
+        )[0]
+
+    def _calculate_total_volunteers_per_plan(self, plan_id: int) -> int:
+        """Calculates the total number of volunteers for plan"""
+        camp_ids = tuple(
+            [
+                camp["id"]
+                for camp in run_query_get_rows(
+                    f"SELECT DISTINCT(id) FROM Camp WHERE plan_id = {plan_id}"
+                )
+            ]
+        )
+
+        n_volunteers = run_query_get_rows(
+            f"SELECT COUNT(*) AS n_users FROM User WHERE camp_id IN {camp_ids}"
+        )[0].get("n_users")
+
+        return n_volunteers
