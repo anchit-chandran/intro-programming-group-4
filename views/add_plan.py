@@ -20,7 +20,7 @@ class AddPlanView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=500,
+            width=config.SCREEN_WIDTH,
             height=300,
         )
         self.container.pack(
@@ -35,4 +35,4 @@ class AddPlanView(BaseView):
             text=f"ADD PLAN",
             font=(60),
         )
-        self.header.pack()
+        self.header.pack(side='left')
