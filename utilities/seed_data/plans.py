@@ -5,11 +5,13 @@ from ..sqlite3_date_formatter import convert_to_sqlite3_date
 
 plan_data = []
 
+locations = ['Palestine','Ukraine','Africa']
+
 for i in range(3):
     new_plan = {
         "title": f"Plan {i}",
         "description": f"This is plan {i}",
-        "location": f"Location {i}",
+        "location": f"{locations[i]}",
         "start_datetime": convert_to_sqlite3_date(datetime.datetime.now()),
         "end_datetime": None
         if i != 2
