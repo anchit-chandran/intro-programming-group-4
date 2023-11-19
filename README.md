@@ -26,6 +26,16 @@ You can **insert values** using `insert_query_with_values`. See its use inside d
 
 Global state variables can be accessed through `MainApplication.get_global_state()` and `MainApplication.set_global_state()`.
 
+On login, these are set:
+
+```python
+{
+                "user_id": int,
+                "username": str,
+                "is_admin": int, # 0 or 1
+            }
+```
+
 ## Datetime Data Type sqlite3
 
 sqlite3 doesn't have a `datetime` type. All of those fields are `text`.

@@ -44,7 +44,6 @@ class BaseView(tk.Frame):
             master=self,
             width=800,
             height=20,
-            bg="black",
         )
         self.nav_container.pack(
             pady=10,
@@ -106,6 +105,8 @@ class BaseView(tk.Frame):
             column=4,
             sticky="e",
         )
+        
+        
         self.logout_button = tk.Button(
             master=self.nav_container,
             text="Logout",
@@ -114,5 +115,17 @@ class BaseView(tk.Frame):
         self.logout_button.grid(
             row=0,
             column=5,
+            sticky="e",
+        )
+        
+        self.role_text = "Admin" if self.master.get_global_state().get("is_admin") else "Volunteer"
+        self.user_text = tk.Label(
+            master=self.nav_container,
+            text=f"Username: {self.master.get_global_state().get('username')} ({self.role_text})",
+            fg="green",
+        )
+        self.user_text.grid(
+            row=0,
+            column=6,
             sticky="e",
         )
