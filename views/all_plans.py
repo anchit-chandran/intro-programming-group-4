@@ -76,11 +76,11 @@ class AllPlansView(BaseView):
             data_to_add.append(get_date(plan["start_date"]))
 
             # End date
-            end_date = plan["end_datetime"]
+            end_date = plan["end_date"]
             if end_date is None:
                 data_to_add.append("Ongoing")
             else:
-                data_to_add.append(get_date(plan["end_datetime"]))
+                data_to_add.append(get_date(plan["end_date"]))
 
             # Find total camps
             total_camps = self._calculate_total_camps_per_plan(plan["id"]).get(

@@ -5,7 +5,7 @@ import datetime
 
 # Project imports
 from constants import config
-from utilities.db import run_query_get_rows
+from utilities.db import run_query_get_rows, insert_query_with_values
 from .base import BaseView
 
 
@@ -490,10 +490,37 @@ class AddPlanView(BaseView):
             return
 
         # Date needs to be formatted
-        
-        logging.info(
-            f"Adding plan: {plan_id=}, {plan_name=}, {start_date=}, {location=}, {description=}, {central_email=}"
+        insert_query_with_values(
+            query="""INSERT INTO Plan 
+                  (
+                    title,
+                    description,
+                    location,
+                    start_date,
+                    end_date,
+                    central_email
+                      ) VALUES (
+                      :title, 
+                      :description, 
+                      :location, 
+                      :start_date, 
+                      :end_date, 
+                      :central_email
+                  );
+                  """,
+            values={
+                "title": plan_name,
+                "description": description,
+                "location": location,
+                "start_date": start_date,
+                "end_date": None,
+                "central_email": central_email,
+            },
         )
+        logging.info(
+            f"Inserted plan: {plan_id=}, {plan_name=}, {start_date=}, {location=}, {description=}, {central_email=}"
+        )
+        self.master.switch_to_view("all_plans")
 
     def get_entry_date(self) -> str:
         """Returns date in YYYY-MM-DD format. Also performs validation"""
