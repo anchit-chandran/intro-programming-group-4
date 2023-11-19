@@ -46,6 +46,7 @@ class AllPlansView(BaseView):
         self.add_plan_button = tk.Button(
             master=self.header_container,
             text="+ Add Plan",
+            command=self._handle_add_plan_click,
         )
         self.add_plan_button.pack(
             side="right",
@@ -65,6 +66,7 @@ class AllPlansView(BaseView):
             "Camps (n)",
             "Volunteers (n)",
             "Refugee Familes (n)",
+            "Edit",
         ]
         self.data_to_render = [self.header_cols]
         for plan in self.all_plans:
@@ -76,16 +78,25 @@ class AllPlansView(BaseView):
             # End date
             end_date = plan["end_datetime"]
             if end_date is None:
-                data_to_add.append("NO ENDATE")
+                data_to_add.append("Ongoing")
             else:
-                data_to_add.append(plan["end_datetime"])
+                data_to_add.append(get_date(plan["end_datetime"]))
 
             # Find total camps
-            data_to_add.append("CAMPS")
+            total_camps = self._calculate_total_camps_per_plan(plan["id"]).get(
+                "COUNT(*)"
+            )
+            data_to_add.append(total_camps)
+
             # Find total volunteers
-            data_to_add.append("VOL")
+            total_volunteers = self._calculate_total_volunteers_per_plan(plan["id"])
+            data_to_add.append(total_volunteers)
+
             # Find total refugees
-            data_to_add.append("REFU")
+            total_refugee_familes = self._calculate_total_refugee_families_per_plan(
+                plan["id"]
+            )
+            data_to_add.append(total_refugee_familes)
 
             self.data_to_render.append(data_to_add)
 
@@ -126,7 +137,7 @@ class AllPlansView(BaseView):
         self.row_container.pack()
 
         # Add more space for col width
-        column_width += 6
+        column_width += 10
 
         for ix, label in enumerate(items):
             self.cell_frame = tk.Frame(
@@ -140,25 +151,92 @@ class AllPlansView(BaseView):
             )
             add_border(self.cell_frame)
 
-            self.cell_label = tk.Label(
+            # Get color
+            if label == "Ongoing":
+                fg = "green"
+            else:
+                fg = None
+
+            self.cell_content = tk.Label(
                 master=self.cell_frame,
                 text=label,
                 width=column_width,
                 background="black" if header else None,
+                fg=fg,
             )
-            self.cell_label.pack(
+
+            self.cell_content.pack(
                 fill="both",
                 expand=True,
             )
 
             if not header:
-                self.cell_label.bind("<Enter>", self._handle_mouse_hover_enter)
-                self.cell_label.bind("<Leave>", self._handle_mouse_hover_exit)
+                self.cell_content.bind("<Enter>", self._handle_mouse_hover_enter)
+                self.cell_content.bind("<Leave>", self._handle_mouse_hover_exit)
+
+        # Add edit buttons
+        if not header:
+            tk.Button(
+                master=self.row_container,
+                text="Edit",
+                command=lambda: self._handle_edit_click(items[0]),
+                width=column_width - 3,
+            ).grid(row=0, column=len(items))
 
     def _handle_mouse_hover_enter(self, event):
-        logging.debug("Mouse entered cell")
         event.widget.config(background=config.LIGHTGREY)
 
     def _handle_mouse_hover_exit(self, event):
-        logging.debug("Mouse left cell")
         event.widget.config(background=self.master.cget("bg"))
+
+    def _handle_add_plan_click(self):
+        self.master.switch_to_view("add_plan")
+
+    def _handle_edit_click(self, plan_name: str):
+        # Add plan name to global state for edit view
+        current_global_state = self.master.get_global_state()
+        current_global_state["plan_name_to_edit"] = plan_name
+        self.master.set_global_state(current_global_state)
+
+        self.master.switch_to_view("edit_plan")
+
+    def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
+        """Calculates the total number of camps for plan"""
+
+        return run_query_get_rows(
+            f"SELECT COUNT(*) FROM Camp WHERE plan_id = {plan_id}"
+        )[0]
+
+    def _calculate_total_volunteers_per_plan(self, plan_id: int) -> int:
+        """Calculates the total number of volunteers for plan"""
+        camp_ids = tuple(
+            [
+                camp["id"]
+                for camp in run_query_get_rows(
+                    f"SELECT DISTINCT(id) FROM Camp WHERE plan_id = {plan_id}"
+                )
+            ]
+        )
+
+        n_volunteers = run_query_get_rows(
+            f"SELECT COUNT(*) AS n_users FROM User WHERE camp_id IN {camp_ids}"
+        )[0].get("n_users")
+
+        return n_volunteers
+
+    def _calculate_total_refugee_families_per_plan(self, plan_id: int) -> int:
+        """Calculates the total number of volunteers for plan"""
+        camp_ids = tuple(
+            [
+                camp["id"]
+                for camp in run_query_get_rows(
+                    f"SELECT DISTINCT(id) FROM Camp WHERE plan_id = {plan_id}"
+                )
+            ]
+        )
+
+        n_refugees = run_query_get_rows(
+            f"SELECT COUNT(*) AS n_volunteers FROM RefugeeFamily WHERE camp_id IN {camp_ids}"
+        )[0].get("n_volunteers")
+
+        return n_refugees

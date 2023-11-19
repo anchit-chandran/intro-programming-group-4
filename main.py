@@ -4,15 +4,7 @@ import tkinter as tk
 import sqlite3
 
 # Project imports
-from views import (
-    PlanDetailView,
-    LoginView,
-    AllPlansView,
-    AllVolunteersView,
-    MessagesView,
-    MyCampView,
-    ProfileView,
-)
+from views import *
 from constants import config
 from utilities.db import setup_db
 
@@ -47,6 +39,8 @@ class MainApplication(tk.Tk):
             "login": LoginView,
             "plan_detail": PlanDetailView,
             "all_plans": AllPlansView,
+            "add_plan": AddPlanView,
+            "edit_plan": EditPlanView,
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
