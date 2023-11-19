@@ -3,7 +3,8 @@
 import tkinter as tk
 
 # Project imports
-from .base import BaseView
+from views.base import BaseView
+from constants import config
 
 
 class MessagesView(BaseView):
@@ -18,7 +19,7 @@ class MessagesView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=500,
+            width=config.SCREEN_WIDTH,
             height=300,
         )
         self.container.pack(
@@ -28,10 +29,15 @@ class MessagesView(BaseView):
         )
 
         # Header
+        self.header_container = tk.Frame(self.container)
+        self.header_container.pack(pady=15, fill="x", expand=True)
+
         self.header = tk.Label(
-            master=self.container,
-            text=f"TEMPLATE VIEW",
+            master=self.header_container,
+            text=f"TEMPLATE",
             font=(60),
         )
-        self.header.pack()
+        self.header.pack(
+            side="left",
+        )
 

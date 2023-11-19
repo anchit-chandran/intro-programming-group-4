@@ -36,7 +36,33 @@ class BaseView(tk.Frame):
 
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")
+        
+    def _delete_window(self, window: tk.Toplevel) -> None:
+        window.destroy()
 
+    def render_error_popup_window(self, message: str) -> None:
+        self.error_popup_window = tk.Toplevel(self.master)
+        self.error_popup_window.title("❌ Error")
+        tk.Label(
+            master=self.error_popup_window,
+            text=message,
+        ).pack(
+            pady=2,
+            expand=True,
+            fill="both",
+        )
+        tk.Button(
+            master=self.error_popup_window,
+            text="Ok",
+            command=lambda: self._delete_window(self.error_popup_window),
+        ).pack(
+            padx=5,
+            pady=2,
+        )
+
+        # Disable main window
+        self.error_popup_window.grab_set()
+    
     def render_nav(self) -> None:
         # Create Navbar
 

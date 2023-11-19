@@ -40,4 +40,4 @@ On login, these are set:
 
 sqlite3 doesn't have a `datetime` type. All of those fields are `text`.
 
-Therefore, ensure you save any `datetime` values using `convert_to_sqlite3_date` helper function.
+Therefore, ensure you save any `date` values using `datetime.date`.

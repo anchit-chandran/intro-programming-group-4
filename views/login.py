@@ -94,30 +94,6 @@ class LoginView(BaseView):
 
         return True
 
-    def _delete_window(self, window: tk.Toplevel) -> None:
-        window.destroy()
-
-    def _render_error_popup_window(self, message: str) -> None:
-        self.error_popup_window = tk.Toplevel(self.master)
-        self.error_popup_window.title("❌ Error")
-        tk.Label(
-            master=self.error_popup_window,
-            text=message,
-        ).pack(
-            padx=10,
-            pady=2,
-        )
-        tk.Button(
-            master=self.error_popup_window,
-            text="Ok",
-            command=lambda: self._delete_window(self.error_popup_window),
-        ).pack(
-            padx=5,
-            pady=2,
-        )
-
-        # Disable main window
-        self.error_popup_window.grab_set()
 
     def _on_login(self) -> None:
         """Callback fn for login button"""
@@ -125,7 +101,7 @@ class LoginView(BaseView):
         password = self.password.get()
 
         if not self._input_valid(username, password):
-            self._render_error_popup_window(message="Fields cannot be blank.")
+            self.render_error_popup_window(message="Fields cannot be blank.")
             return None
 
         # Passes all form validation. Check username + pw correct
@@ -137,7 +113,7 @@ class LoginView(BaseView):
 
         # U/n or pw incorrect
         if not un_pw_correct:
-            self._render_error_popup_window(
+            self.render_error_popup_window(
                 message="Username or password incorrect. Please check and try again."
             )
             return None
