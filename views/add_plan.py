@@ -489,6 +489,8 @@ class AddPlanView(BaseView):
             )
             return
 
+        # Date needs to be formatted
+        
         logging.info(
             f"Adding plan: {plan_id=}, {plan_name=}, {start_date=}, {location=}, {description=}, {central_email=}"
         )

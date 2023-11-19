@@ -176,8 +176,8 @@ def create_and_seed_plan_table() -> None:
             `title` TEXT,
             `description` TEXT,
             `location` TEXT,
-            `start_datetime` TEXT,
-            `end_datetime` TEXT DEFAULT NULL,
+            `start_date` TEXT,
+            `end_date` TEXT DEFAULT NULL,
             `central_email` TEXT,
             `affected_estimate` INT
             );"""
@@ -194,15 +194,15 @@ def create_and_seed_plan_table() -> None:
                     title,
                     description,
                     location,
-                    start_datetime,
-                    end_datetime,
+                    start_date,
+                    end_date,
                     central_email
                       ) VALUES (
                       :title, 
                       :description, 
                       :location, 
-                      :start_datetime, 
-                      :end_datetime, 
+                      :start_date, 
+                      :end_date, 
                       :central_email
                   );
                   """,
@@ -210,8 +210,8 @@ def create_and_seed_plan_table() -> None:
                 "title": plan["title"],
                 "description": plan["description"],
                 "location": plan["location"],
-                "start_datetime": plan["start_datetime"],
-                "end_datetime": plan["end_datetime"],
+                "start_date": plan["start_date"],
+                "end_date": plan["end_date"],
                 "central_email": plan["central_email"],
             },
         )

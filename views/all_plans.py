@@ -73,7 +73,7 @@ class AllPlansView(BaseView):
             data_to_add = []
             data_to_add.append(plan["title"])
             data_to_add.append(plan["location"])
-            data_to_add.append(get_date(plan["start_datetime"]))
+            data_to_add.append(get_date(plan["start_date"]))
 
             # End date
             end_date = plan["end_datetime"]
