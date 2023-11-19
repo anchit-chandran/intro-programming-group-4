@@ -198,7 +198,7 @@ class AllPlansView(BaseView):
         current_global_state["plan_name_to_edit"] = plan_name
         self.master.set_global_state(current_global_state)
 
-        self.master.switch_to_view("edit_plan")
+        self.master.switch_to_view("add_edit_plan")
 
     def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
         """Calculates the total number of camps for plan"""

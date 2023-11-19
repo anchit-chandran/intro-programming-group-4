@@ -31,7 +31,7 @@ class MainApplication(tk.Tk):
             )
 
         self.current_view = None
-        self.switch_to_view("add_plan")
+        self.switch_to_view("add_edit_plan")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -39,8 +39,7 @@ class MainApplication(tk.Tk):
             "login": LoginView,
             "plan_detail": PlanDetailView,
             "all_plans": AllPlansView,
-            "add_plan": AddPlanView,
-            "edit_plan": EditPlanView,
+            "add_edit_plan": AddEditPlanView,
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
