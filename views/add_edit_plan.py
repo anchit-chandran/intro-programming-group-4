@@ -87,12 +87,49 @@ class AddEditPlanView(BaseView):
             on_row=5,
         )
 
-        self.submit_button = tk.Button(
-            master=self.form_container,
-            text="Submit",
-            command=self._handle_submit,
+        self._render_action_buttons(
+            self.form_container,
+            on_row=6,
         )
-        self.submit_button.grid(row=10, column=0)
+
+    def _render_action_buttons(self, form_container, on_row: int) -> None:
+        self.action_buttons_container = tk.Frame(
+            master=form_container,
+        )
+        self.action_buttons_container.grid(
+            row=on_row,
+            column=0,
+        )
+
+        self.submit_button = tk.Button(
+            master=self.action_buttons_container,
+            text="Add Plan",
+            command=self._handle_submit,
+            fg="green",
+        )
+        self.submit_button.pack(
+            side="right",
+        )
+
+        self.cancel_button = tk.Button(
+            master=self.action_buttons_container,
+            text="Back",
+            command=lambda: self.master.switch_to_view("all_plans"),
+        )
+        self.cancel_button.pack(
+            side="left",
+        )
+
+        if self.is_edit:
+            self.delete_button = tk.Button(
+                master=self.action_buttons_container,
+                text="Delete",
+                fg="red",
+                command=self._render_delete_confirm_popup_window,
+            )
+            self.delete_button.pack(
+                side="left",
+            )
 
     def _render_plan_id(self, form_container, on_row: int) -> None:
         # PLAN ID
@@ -465,7 +502,7 @@ class AddEditPlanView(BaseView):
         try:
             year, month, day = start_date.split("-")
             start_date = datetime.date(year=int(year), month=int(month), day=int(day))
-            
+
             # If editing, start date can be in the past
             if start_date < datetime.date.today() and (not self.is_edit):
                 return None
@@ -556,7 +593,7 @@ class AddEditPlanView(BaseView):
                                         id = :id
                                      """,
                 values={
-                    "id" : plan_id,
+                    "id": plan_id,
                     "title": plan_name,
                     "description": description,
                     "location": location,
@@ -608,3 +645,42 @@ class AddEditPlanView(BaseView):
         day = self.start_date_day_entry.get()
 
         return f"{year}-{month}-{day}"
+
+    def _render_delete_confirm_popup_window(self) -> None:
+        self.error_popup_window = tk.Toplevel(self.master)
+        self.error_popup_window.title("🚨 Delete Plan")
+        tk.Label(
+            master=self.error_popup_window,
+            text="Are you sure you want to delete this plan?",
+        ).pack(
+            pady=2,
+            padx=10,
+            expand=True,
+            fill="both",
+        )
+        
+        actions_container = tk.Frame(
+            master=self.error_popup_window,
+        )
+        actions_container.pack()
+        tk.Button(
+            master=actions_container,
+            text="Cancel",
+            command=lambda: self._delete_window(self.error_popup_window),
+        ).pack(
+            pady=2,
+            side="left",
+            fill='x',
+        )
+        tk.Button(
+            master=actions_container,
+            text="Delete",
+            fg="red",
+        ).pack(
+            pady=2,
+            side="right",
+            fill='x',
+        )
+
+        # Disable main window
+        self.error_popup_window.grab_set()

@@ -190,7 +190,13 @@ class AllPlansView(BaseView):
         event.widget.config(background=self.master.cget("bg"))
 
     def _handle_add_plan_click(self):
-        self.master.switch_to_view("add_plan")
+        
+        # Clean EDIT PLAN global vars
+        current_state = self.master.get_global_state()
+        current_state.pop("plan_name_to_edit", None)
+        self.master.set_global_state(current_state)
+        
+        self.master.switch_to_view("add_edit_plan")
 
     def _handle_edit_click(self, plan_name: str):
         # Add plan name to global state for edit view
