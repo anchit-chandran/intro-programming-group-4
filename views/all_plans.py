@@ -31,20 +31,25 @@ class AllPlansView(BaseView):
 
         # Header
         self.header_container = tk.Frame(self.container)
-        self.header_container.pack()
+        self.header_container.pack(pady=15, fill="x", expand=True)
+
         self.header = tk.Label(
             master=self.header_container,
-            text=f"ALL PLANS VIEW",
+            text=f"ALL PLANS",
             font=(60),
         )
-        self.header.pack(side="left", fill="x")
+        self.header.pack(
+            side="left",
+        )
 
-        # Add plan
+        # Add plan button
         self.add_plan_button = tk.Button(
             master=self.header_container,
             text="+ Add Plan",
         )
-        self.add_plan_button.pack(side="right", fill="x")
+        self.add_plan_button.pack(
+            side="right",
+        )
 
         self.render_all_plans()
 
@@ -96,7 +101,7 @@ class AllPlansView(BaseView):
                 container=self.table_container,
                 items=row,
                 column_width=self.max_col_width,
-                header=ix == 0, # True if first row, else False
+                header=ix == 0,  # True if first row, else False
             )
 
     def get_plans(self) -> list[dict]:
@@ -126,6 +131,7 @@ class AllPlansView(BaseView):
             self.cell_frame.grid(
                 row=0,
                 column=ix,
+                
             )
             add_border(self.cell_frame)
 
@@ -139,3 +145,15 @@ class AllPlansView(BaseView):
                 fill="both",
                 expand=True,
             )
+            
+            if not header:
+                self.cell_label.bind("<Enter>", self._handle_mouse_hover_enter)
+                self.cell_label.bind("<Leave>", self._handle_mouse_hover_exit)
+
+    def _handle_mouse_hover_enter(self, event):
+        logging.debug("Mouse entered cell")
+        event.widget.config(background=config.LIGHTGREY)
+
+    def _handle_mouse_hover_exit(self, event):
+        logging.debug("Mouse left cell")
+        event.widget.config(background=self.master.cget('bg'))
