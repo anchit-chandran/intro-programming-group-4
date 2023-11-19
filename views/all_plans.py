@@ -76,7 +76,7 @@ class AllPlansView(BaseView):
             # End date
             end_date = plan["end_datetime"]
             if end_date is None:
-                data_to_add.append("NO ENDATE")
+                data_to_add.append("Ongoing")
             else:
                 data_to_add.append(plan["end_datetime"])
 
@@ -126,7 +126,7 @@ class AllPlansView(BaseView):
         self.row_container.pack()
 
         # Add more space for col width
-        column_width += 6
+        column_width += 10
 
         for ix, label in enumerate(items):
             self.cell_frame = tk.Frame(
@@ -139,21 +139,31 @@ class AllPlansView(BaseView):
                 column=ix,
             )
             add_border(self.cell_frame)
-
-            self.cell_label = tk.Label(
+            
+            # Get color
+            if label == 'Ongoing':
+                fg = 'green'
+            else:
+                fg = None
+                
+            self.cell_content = tk.Label(
                 master=self.cell_frame,
                 text=label,
                 width=column_width,
                 background="black" if header else None,
+                fg = fg,
             )
-            self.cell_label.pack(
+            
+            
+
+            self.cell_content.pack(
                 fill="both",
                 expand=True,
             )
 
             if not header:
-                self.cell_label.bind("<Enter>", self._handle_mouse_hover_enter)
-                self.cell_label.bind("<Leave>", self._handle_mouse_hover_exit)
+                self.cell_content.bind("<Enter>", self._handle_mouse_hover_enter)
+                self.cell_content.bind("<Leave>", self._handle_mouse_hover_exit)
 
     def _handle_mouse_hover_enter(self, event):
         logging.debug("Mouse entered cell")
