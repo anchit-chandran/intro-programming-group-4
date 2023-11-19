@@ -72,7 +72,13 @@ class AllPlansView(BaseView):
             data_to_add.append(plan["title"])
             data_to_add.append(plan["location"])
             data_to_add.append(get_date(plan["start_datetime"]))
-            data_to_add.append(plan["end_datetime"])
+
+            # End date
+            end_date = plan["end_datetime"]
+            if end_date is None:
+                data_to_add.append("NO ENDATE")
+            else:
+                data_to_add.append(plan["end_datetime"])
 
             # Find total camps
             data_to_add.append("CAMPS")
@@ -131,7 +137,6 @@ class AllPlansView(BaseView):
             self.cell_frame.grid(
                 row=0,
                 column=ix,
-                
             )
             add_border(self.cell_frame)
 
@@ -145,7 +150,7 @@ class AllPlansView(BaseView):
                 fill="both",
                 expand=True,
             )
-            
+
             if not header:
                 self.cell_label.bind("<Enter>", self._handle_mouse_hover_enter)
                 self.cell_label.bind("<Leave>", self._handle_mouse_hover_exit)
@@ -156,4 +161,4 @@ class AllPlansView(BaseView):
 
     def _handle_mouse_hover_exit(self, event):
         logging.debug("Mouse left cell")
-        event.widget.config(background=self.master.cget('bg'))
+        event.widget.config(background=self.master.cget("bg"))

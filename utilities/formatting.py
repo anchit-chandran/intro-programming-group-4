@@ -9,7 +9,5 @@ def calculate_max_col_width(data:list[list])->int:
     for row in data:
         for col in row:
             res = max(res, len(str(col)))
-            print(f'{col} -> {len(str(col))}')
-        
-    print('max width', res)
+            
     return res // 2
