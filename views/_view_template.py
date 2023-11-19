@@ -34,7 +34,7 @@ class MessagesView(BaseView):
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"ALL PLANS",
+            text=f"TEMPLATE",
             font=(60),
         )
         self.header.pack(
