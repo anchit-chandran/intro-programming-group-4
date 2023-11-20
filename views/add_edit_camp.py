@@ -12,6 +12,11 @@ class AddEditCampView(BaseView):
         super().__init__(master)
         self.master = master
         self.render_widgets()
+        # message button function
+
+    def handle_send_message(self):
+        # self.master.switch_to_view("add_message")
+        return
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -25,16 +30,23 @@ class AddEditCampView(BaseView):
         self.container.pack(
             fill="both",
             padx=30,
-            pady=100,
+            pady=20,
         )
 
         # Header
-        self.header_container = tk.Frame(self.container)
-        self.header_container.pack(pady=15, fill="x", expand=True)
+        self.header_container = tk.Frame(
+            master=self.container,
+            width=500,
+            height=100,
+        )
+        self.header_container.grid(
+            row=0,
+            column=0,
+        )
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"ADD EDIT FORM",
+            text=f"WELLCOME {self.master.get_global_state().get('username')}! 👋",
             font=(60),
         )
         self.header.pack(
