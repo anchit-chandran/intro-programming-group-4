@@ -385,7 +385,7 @@ class AddEditPlanView(BaseView):
         self.end_date_year_entry.pack(
             side="left",
         )
-        self.end_date_year_entry.insert(0, "YYYY")
+        self.end_date_year_entry.insert(0, "1912")
         self.end_date_month_entry = tk.Entry(
             master=self.end_date_entry_container,
             width=50 // 3,
@@ -393,7 +393,7 @@ class AddEditPlanView(BaseView):
         self.end_date_month_entry.pack(
             side="left",
         )
-        self.end_date_month_entry.insert(0, "MM")
+        self.end_date_month_entry.insert(0, "06")
         self.end_date_day_entry = tk.Entry(
             master=self.end_date_entry_container,
             width=50 // 3,
@@ -401,7 +401,7 @@ class AddEditPlanView(BaseView):
         self.end_date_day_entry.pack(
             side="left",
         )
-        self.end_date_day_entry.insert(0, "DD")
+        self.end_date_day_entry.insert(0, "23")
 
     def _render_description(self, form_container, on_row: int) -> None:
         # PLAN description
@@ -505,11 +505,11 @@ class AddEditPlanView(BaseView):
 
             # If editing, start date can be in the past
             if start_date < datetime.date.today() and (not self.is_edit):
-                return None
-            return start_date
+                return None, "Start date cannot be in the past."
+            return start_date, ''
         except Exception as e:
             logging.debug(f"Invalid start date: {e}")
-            return None
+            return None, "Invalid start date."
 
     def _render_field_label_from_key(self, field_key: str) -> str:
         key_name_map = {
@@ -560,10 +560,10 @@ class AddEditPlanView(BaseView):
 
         # DATA VALIDATION
         # Ensure start date valid
-        start_date = self.validate_start_date(start_date)
+        start_date, date_error_msg = self.validate_start_date(start_date)
         if start_date is None:
             self.form_is_valid = False
-            errors["start_date"].append("Invalid date.")
+            errors["start_date"].append(date_error_msg)
 
         if not self.form_is_valid:
             error_msg = ""
