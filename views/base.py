@@ -1,7 +1,6 @@
 # Python imports
 import logging
 import tkinter as tk
-import tkinter.ttk as ttk
 
 from constants import config
 from constants.console_color_codes import PrintColor

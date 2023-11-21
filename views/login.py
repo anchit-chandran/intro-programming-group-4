@@ -1,7 +1,6 @@
 # Python imports
 import logging
 import tkinter as tk
-import tkinter.ttk as ttk
 
 # Project imports
 from constants import config
@@ -54,7 +53,7 @@ class LoginView(BaseView):
         self.username_label.pack(anchor="w")
 
         self.username = tk.StringVar()
-        self.username_entry_box = ttk.Entry(
+        self.username_entry_box = tk.Entry(
             master=self.username_frame, width=50, textvariable=self.username
         )
         self.username_entry_box.pack()
@@ -74,15 +73,17 @@ class LoginView(BaseView):
         self.password_label.pack(anchor="w")
 
         self.password = tk.StringVar()
-        self.password_entry_box = ttk.Entry(
+        self.password_entry_box = tk.Entry(
             master=self.password_frame, show="*", width=50, textvariable=self.password
         )
         self.password_entry_box.pack()
 
         # Login Button
-        self.login_button = ttk.Button(
+        self.login_button = tk.Button(
             master=self.password_frame,
             text="Login",
+            height=1,
+            width=10,
             command=self._on_login,
         )
         self.login_button.pack(pady=10, anchor="w")

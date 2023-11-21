@@ -1,7 +1,6 @@
 # Python imports
 import logging
 import tkinter as tk
-import tkinter.ttk as ttk
 
 # Project imports
 from constants import config
