@@ -1,6 +1,7 @@
 """TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
 import tkinter as tk
+import tkinter.ttk as ttk
 
 # Project imports
 from views.base import BaseView

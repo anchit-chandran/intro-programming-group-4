@@ -1,6 +1,9 @@
 # Python imports
 import logging
 import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.ttk as ttk
+
 import datetime
 
 # Project imports
@@ -170,7 +173,7 @@ class AddEditPlanView(BaseView):
         else:
             # Get latest plan id
             self.plan_id_text.set(self._get_latest_plan_id() + 1)
-        self.plan_id_entry = tk.Entry(
+        self.plan_id_entry = ttk.Entry(
             master=self.plan_id_entry_container,
             width=50,
             state="disabled",
@@ -215,7 +218,7 @@ class AddEditPlanView(BaseView):
         if self.is_edit:
             self.plan_title_text.set(self.edit_plan_details["title"])
 
-        self.plan_name_entry = tk.Entry(
+        self.plan_name_entry = ttk.Entry(
             master=self.plan_name_entry_container,
             width=50,
             textvariable=self.plan_title_text if self.is_edit else None,
@@ -260,7 +263,7 @@ class AddEditPlanView(BaseView):
                 "start_date"
             ].split("-")
             self.plan_start_date_year_text.set(self.edit_year)
-        self.start_date_year_entry = tk.Entry(
+        self.start_date_year_entry = ttk.Entry(
             master=self.start_date_entry_container,
             width=50 // 3,
             textvariable=self.plan_start_date_year_text if self.is_edit else None,
@@ -275,7 +278,7 @@ class AddEditPlanView(BaseView):
         self.plan_start_date_month_text = tk.StringVar()
         if self.is_edit:
             self.plan_start_date_month_text.set(self.edit_month)
-        self.start_date_month_entry = tk.Entry(
+        self.start_date_month_entry = ttk.Entry(
             master=self.start_date_entry_container,
             width=50 // 3,
             textvariable=self.plan_start_date_month_text if self.is_edit else None,
@@ -290,7 +293,7 @@ class AddEditPlanView(BaseView):
         self.plan_start_date_day_text = tk.StringVar()
         if self.is_edit:
             self.plan_start_date_day_text.set(self.edit_day)
-        self.start_date_day_entry = tk.Entry(
+        self.start_date_day_entry = ttk.Entry(
             master=self.start_date_entry_container,
             width=50 // 3,
             textvariable=self.plan_start_date_day_text if self.is_edit else None,
@@ -339,7 +342,7 @@ class AddEditPlanView(BaseView):
         if self.is_edit:
             self.plan_location_text.set(self.edit_plan_details["location"])
 
-        self.plan_location_entry = tk.Entry(
+        self.plan_location_entry = ttk.Entry(
             master=self.plan_location_entry_container,
             width=50,
             textvariable=self.plan_location_text if self.is_edit else None,
@@ -378,7 +381,7 @@ class AddEditPlanView(BaseView):
             fill="x",
         )
 
-        self.end_date_year_entry = tk.Entry(
+        self.end_date_year_entry = ttk.Entry(
             master=self.end_date_entry_container,
             width=50 // 3,
         )
@@ -386,7 +389,7 @@ class AddEditPlanView(BaseView):
             side="left",
         )
         self.end_date_year_entry.insert(0, "YYYY")
-        self.end_date_month_entry = tk.Entry(
+        self.end_date_month_entry = ttk.Entry(
             master=self.end_date_entry_container,
             width=50 // 3,
         )
@@ -394,7 +397,7 @@ class AddEditPlanView(BaseView):
             side="left",
         )
         self.end_date_month_entry.insert(0, "MM")
-        self.end_date_day_entry = tk.Entry(
+        self.end_date_day_entry = ttk.Entry(
             master=self.end_date_entry_container,
             width=50 // 3,
         )
@@ -440,7 +443,7 @@ class AddEditPlanView(BaseView):
         if self.is_edit:
             self.description_text.set(self.edit_plan_details["description"])
 
-        self.description_entry = tk.Entry(
+        self.description_entry = ttk.Entry(
             master=self.description_entry_container,
             width=50,
             textvariable=self.description_text if self.is_edit else None,
@@ -484,7 +487,7 @@ class AddEditPlanView(BaseView):
         if self.is_edit:
             self.central_email_text.set(self.edit_plan_details["central_email"])
 
-        self.central_email_entry = tk.Entry(
+        self.central_email_entry = ttk.Entry(
             master=self.central_email_entry_container,
             width=50,
             textvariable=self.central_email_text if self.is_edit else None,

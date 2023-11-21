@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+import tkinter.ttk as ttk
 import sqlite3
 
 # Project imports
