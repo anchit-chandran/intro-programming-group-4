@@ -1,5 +1,9 @@
 # intro-programming-group-4
 
+## Helpful VSCode Extensions
+
+- SQLite Viewer
+
 ## Setup
 
 In the root directory, run:
