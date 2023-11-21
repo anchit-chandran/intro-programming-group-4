@@ -43,7 +43,7 @@ class AllPlansView(BaseView):
         )
 
         # Add plan button
-        self.add_plan_button = ttk.Button(
+        self.add_plan_button = tk.Button(
             master=self.header_container,
             text="+ Add Plan",
             command=self._handle_add_plan_click,
@@ -176,7 +176,7 @@ class AllPlansView(BaseView):
 
         # Add edit buttons
         if not header:
-            ttk.Button(
+            tk.Button(
                 master=self.row_container,
                 text="Edit",
                 command=lambda: self._handle_edit_click(items[0]),
