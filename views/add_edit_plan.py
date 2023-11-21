@@ -101,16 +101,17 @@ class AddEditPlanView(BaseView):
             column=0,
         )
 
-        self.submit_button = ttk.Button(
+        self.submit_button = tk.Button(
             master=self.action_buttons_container,
             text="Add Plan" if not self.is_edit else "Update Plan",
             command=self._handle_submit,
+            fg="green",
         )
         self.submit_button.pack(
             side="right",
         )
 
-        self.cancel_button = ttk.Button(
+        self.cancel_button = tk.Button(
             master=self.action_buttons_container,
             text="Back",
             command=lambda: self.master.switch_to_view("all_plans"),
@@ -120,9 +121,10 @@ class AddEditPlanView(BaseView):
         )
 
         if self.is_edit:
-            self.delete_button = ttk.Button(
+            self.delete_button = tk.Button(
                 master=self.action_buttons_container,
                 text="Delete",
+                fg="red",
                 command=self._render_delete_confirm_popup_window,
             )
             self.delete_button.pack(
@@ -656,27 +658,28 @@ class AddEditPlanView(BaseView):
             expand=True,
             fill="both",
         )
-
+        
         actions_container = tk.Frame(
             master=self.error_popup_window,
         )
         actions_container.pack()
-        ttk.Button(
+        tk.Button(
             master=actions_container,
             text="Cancel",
             command=lambda: self._delete_window(self.error_popup_window),
         ).pack(
             pady=2,
             side="left",
-            fill="x",
+            fill='x',
         )
-        ttk.Button(
+        tk.Button(
             master=actions_container,
             text="Delete",
+            fg="red",
         ).pack(
             pady=2,
             side="right",
-            fill="x",
+            fill='x',
         )
 
         # Disable main window
