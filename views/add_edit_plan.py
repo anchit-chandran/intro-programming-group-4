@@ -270,7 +270,7 @@ class AddEditPlanView(BaseView):
             side="left",
         )
         if not self.is_edit:
-            self.start_date_year_entry.insert(0, "YYYY")
+            self.start_date_year_entry.insert(0, "1912")
 
         self.plan_start_date_month_text = tk.StringVar()
         if self.is_edit:
@@ -285,7 +285,7 @@ class AddEditPlanView(BaseView):
             side="left",
         )
         if not self.is_edit:
-            self.start_date_month_entry.insert(0, "MM")
+            self.start_date_month_entry.insert(0, "06")
 
         self.plan_start_date_day_text = tk.StringVar()
         if self.is_edit:
@@ -300,7 +300,7 @@ class AddEditPlanView(BaseView):
             side="left",
         )
         if not self.is_edit:
-            self.start_date_day_entry.insert(0, "DD")
+            self.start_date_day_entry.insert(0, "23")
 
     def _render_plan_location(self, form_container, on_row: int) -> None:
         # PLAN location
