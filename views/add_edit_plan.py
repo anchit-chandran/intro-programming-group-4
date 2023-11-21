@@ -103,7 +103,7 @@ class AddEditPlanView(BaseView):
 
         self.submit_button = tk.Button(
             master=self.action_buttons_container,
-            text="Add Plan",
+            text="Add Plan" if not self.is_edit else "Update Plan",
             command=self._handle_submit,
             fg="green",
         )
