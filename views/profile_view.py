@@ -117,6 +117,13 @@ class ProfileView(BaseView):
              height = 50,
          )        
         
+        # Section: Button to edit
+        self.button_container = tk.Frame(
+             master=self.container,
+             width = 50,
+             height = 50,
+         )         
+        
                 
         # Set up - labels and entries
         self.userID_label = tk.Label(
@@ -296,13 +303,20 @@ class ProfileView(BaseView):
             state="disabled",
             text=tk.StringVar(value=emergency_contact_number),
             )
-
-
-                        
+        
+        self.edit_button = tk.Button(
+            master=self.button_container,
+            width=30,
+            text="Edit",
+            fg="white",
+            bg="blue",
+        )
+      
         # Add to grid    
         self.user_details_label_container.pack(pady=(10, 20))
         self.personal_info_label_container.pack(pady=(10, 20))  
         self.emergency_label_container.pack(pady=(10, 20))
+        self.button_container.pack(pady=(0, 20)) 
         
         self.userID_label.grid(row=0, column=0,)
         self.userID_entry.grid(row=0, column=1,)
@@ -342,103 +356,7 @@ class ProfileView(BaseView):
         
         self.emergency_contact_number_label.grid(row=1, column=0,)
         self.emergency_contact_number_entry.grid(row=1, column=1,)
-
-
-        # 
-        # self.user_details = tk.Label(
-        #     master=self.user_details_container,
-        #     text="User Details",
-        #     font=(30),
-        # )
-        # self.user_details.grid(
-        #     row=1,
-        #     column=0,
-        # )
-        # 
-# self.user_id_label = tk.Label(
-#     master=self.user_details_container,
-#     text="User ID",
-#     font=(5),
-# )
-# self.user_id_label.grid(
-#     row=2,
-#     column=0,
-# )
-# 
-# self.username_label = tk.Label(
-#     master=self.user_details_container,
-#     text="Username",
-#     font=(5),
-# )
-# self.username_label.grid(
-#     row=2,
-#     column=2,
-# )
-# 
-# self.camp_id_label = tk.Label(
-#     master=self.user_details_container,
-#     text="Camp ID",
-#     font=(5),
-# )
-# self.camp_id_label.grid(
-#     row=2,
-#     column=4,
-# )
-# 
-
-        # Personal information section
-#        self.user_personal_info_container = tk.Frame(
-#            master=self.container,
-#            width=200,
-#            height=50,
-#        )
-#        self.user_personal_info_container.pack(side="left", padx=(0,10))
-#
-#        self.user_personal_info = tk.Label(
-#            master=self.user_personal_info_container,
-#            text="Personal information",
-#            font=(30),
-#        )
-#        self.user_personal_info.grid(
-#            row=2,
-#            column=0,
-#            pady=10
-#        )
         
-        # Emergency Contact section
-#        self.user_emerg_contact_container = tk.Frame(
-#            master=self.container,
-#            width=200,
-#            height=50,
-#        )
-#        self.user_emerg_contact_container.pack(side ="right", padx=(0,10))
-
-#        self.user_emerg_contact = tk.Label(
-#            master=self.user_emerg_contact_container,
-#            text="Emergency contact",
-#            font=(30),
-#        )
-#        self.user_emerg_contact.grid(
-#            row=2,
-#            column=0,
-#            pady = 10,
-#        )
-#        
-        # Other
-#        self.user_other_container = tk.Frame(
-#            master=self.container,
-#            width=200,
-#            height=50,
-#        )
-#        self.user_other_container.pack(side ="left", padx=(0,10))
-
-#        self.user_other = tk.Label(
-#            master=self.user_emerg_contact_container,
-#            text="Other information",
-#            font=(30),
-#        )
-#        self.user_other.grid(
-#            row=3,
-#            column=0,
-#            pady = 10,
-#        )
+        self.edit_button.grid(row=0, column=0,)
+        
+        
