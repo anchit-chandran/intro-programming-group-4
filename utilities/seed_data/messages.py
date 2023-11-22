@@ -6,19 +6,19 @@ from constants.message_priorities import Priority
 
 messages_data = []
 # Add 5 messages for admin
-for i in range(5):
+for i in range(30):
     sent_at = convert_to_sqlite3_datetime(
             datetime.now() - timedelta(minutes=(i * 60))
         )
 
     new_msg = {
 
-        "message": f"Hey there, I'm message {i}",
+        "message": f"{'h'*20} {i}",
         "sent_at": sent_at,
         "urgency": random.choice(list(Priority)).value,
         "is_resolved": random.choice([True, False]),
-        "sender_id": 1,
-        "receiver_id": random.choice([2, 3, 4]),
+        "sender_id": random.choice([2, 3, 4]),
+        "receiver_id": 1,
     }
     messages_data.append(new_msg)
 
