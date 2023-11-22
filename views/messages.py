@@ -134,6 +134,7 @@ class MessagesView(BaseView):
                 container=self.unresolved_table_container,
                 items=row,
                 header=ix == 0,  # True if first row, else False
+                resolved_messages=False,
             )
 
     def render_resolved_messages(self):
@@ -147,7 +148,7 @@ class MessagesView(BaseView):
             "Sender",
             "Priority",
             "Message",
-            "Resolve?",
+            "Undo?",
         ]
         self.data_to_render = [self.header_cols]
 
@@ -198,6 +199,7 @@ class MessagesView(BaseView):
                 container=self.table_container,
                 items=row,
                 header=ix == 0,  # True if first row, else False
+                resolved_messages=True,
             )
 
     
@@ -214,6 +216,7 @@ class MessagesView(BaseView):
         items: list[str],
         column_width=15,
         header=False,
+        resolved_messages=True,
     ) -> None:
         self.row_container = tk.Frame(
             master=container,
@@ -249,7 +252,7 @@ class MessagesView(BaseView):
         if not header:
             tk.Button(
                 master=self.row_container,
-                text="Resolve",
+                text="Undo" if resolved_messages else "Resolve",
                 width=15,
             ).grid(row=0, column=len(items))
 
