@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 from constants import config
@@ -48,10 +49,8 @@ class MessagesView(BaseView):
         )
 
         self.render_unresolved_messages()
-
-        logging.debug(
-            f"{self.get_messages()=} {self.master.get_global_state()['user_id']}"
-        )
+        
+        self.canvas.bind("<Configure>", self._on_canvas_configure)
 
     def get_messages(self):
         """Returns messages for this user from db"""
@@ -83,16 +82,34 @@ class MessagesView(BaseView):
 
         self.unresolved_messages_container = tk.Frame(
             master=self.container,
+            width=500,
         )
         self.unresolved_messages_container.pack()
 
+        # SCROLL BAR - THANK YOU https://www.pythontutorial.net/tkinter/tkinter-scrollbar/
+        # Create a canvas widget
+        self.canvas = tk.Canvas(self.unresolved_messages_container, width=1200)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        # Create a scrollbar for the canvas
+        scrollbar = ttk.Scrollbar(self.unresolved_messages_container, orient=tk.VERTICAL, command=self.canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Configure the canvas to use the scrollbar
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Create a frame inside the canvas
+        self.table_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.table_frame, anchor=tk.NW)
+                
         self.table_container = tk.LabelFrame(
-            master=self.unresolved_messages_container,
+            master=self.table_frame,
             text="Unresolved Messages",
             padx=10,
             pady=10,
         )
-        self.table_container.pack(padx=10, pady=10)
+        self.table_container.pack(padx=10, pady=10, fill='both', expand=True)
+        
 
         for ix, row in enumerate(self.data_to_render):
             self._render_row(
@@ -101,6 +118,10 @@ class MessagesView(BaseView):
                 header=ix == 0,  # True if first row, else False
             )
 
+    # Bind the canvas to update the scroll region
+    def _on_canvas_configure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+    
     def _render_row(
         self,
         container: tk.Frame,
