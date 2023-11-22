@@ -16,8 +16,16 @@ class MainApplication(tk.Tk):
         # Initial setup
         self._initial_setup()
         self.GLOBAL_STATE = {}
-
-        # Start at LoginView
+        self.view_map = {
+            "login": LoginView,
+            "plan_detail": PlanDetailView,
+            "all_plans": AllPlansView,
+            "add_edit_plan": AddEditPlanView,
+            "all_volunteers": AllVolunteersView,
+            "messages": MessagesView,
+            "profile": ProfileView,
+            "my_camp": MyCampView,
+        }
 
         # DEBUG HELPERS
         self.DEBUG = True
@@ -31,21 +39,13 @@ class MainApplication(tk.Tk):
             )
 
         self.current_view = None
+        # Start at LoginView
         self.switch_to_view("add_edit_plan")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
-        view_map = {
-            "login": LoginView,
-            "plan_detail": PlanDetailView,
-            "all_plans": AllPlansView,
-            "add_edit_plan": AddEditPlanView,
-            "all_volunteers": AllVolunteersView,
-            "messages": MessagesView,
-            "profile": ProfileView,
-            "my_camp": MyCampView,
-        }
-        self.switch_view(view_map[new_view])
+
+        self.switch_view(self.view_map[new_view])
 
     def logout_set_view_to_login(self) -> None:
         # Reset state
@@ -60,7 +60,7 @@ class MainApplication(tk.Tk):
 
         # DB Setup
         setup_db(reset_database=True)
-    
+
     def switch_to_default_view_after_login(self) -> None:
         """Based on whether is_admin, switch to default view after login"""
         if self.get_global_state().get("is_admin"):
