@@ -85,7 +85,7 @@ class ProfileView(BaseView):
             emergency_contact_number = "No information provided" 
         campID = user_profile.get("camp_id")
         if campID is None:
-            campID = "No information provided" 
+            campID = "-" 
         DOB = user_profile.get("dob")
         if DOB is None:
             DOB = "No information provided" 
