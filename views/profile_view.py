@@ -20,8 +20,8 @@ class ProfileView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=500,
-            height=300,
+            width=800,
+            height=500,
         )
         self.container.pack(
             fill="both",
@@ -61,7 +61,7 @@ class ProfileView(BaseView):
         lastname = user_profile.get("last_name")
         if lastname is None:
             lastname = "No information provided"
-        sex = user_profile.get("last_name")
+        sex = user_profile.get("sex")
         if sex is None:
             sex = "No information provided"
         elif sex == "F":
@@ -92,17 +92,37 @@ class ProfileView(BaseView):
         else:
             DOB, DOB_time = DOB.split(" ")
                       
+        # Section : User details (userID, campID, username, status)
         self.user_details_label_container = tk.LabelFrame(
              master=self.container,
              text = "User Details",
-             width = 200,
+             width = 400,
              height = 50,
          )
-        self.user_details_label_container.pack(side="left", padx=(0, 10))
+   
+        
+        # Section: Personal info (firstname, lastname, DOB, sex, phone...)
+        self.personal_info_label_container = tk.LabelFrame(
+             master=self.container,
+             text = "Personal information",
+             width = 400,
+             height = 100,
+         )
 
+        # Section: Emergency contact
+        self.emergency_label_container = tk.LabelFrame(
+             master=self.container,
+             text = "Emergency contact",
+             width = 400,
+             height = 50,
+         )        
+        
+                
+        # Set up - labels and entries
         self.userID_label = tk.Label(
             master=self.user_details_label_container,
             text="User ID",
+            width=10,
             )
         
         self.userID_entry = tk.Entry(
@@ -114,7 +134,9 @@ class ProfileView(BaseView):
         
         self.username_label = tk.Label(
             master=self.user_details_label_container,
-            text="Username",)
+            text="Username",
+            width=10,
+            )
         
         self.username_entry = tk.Entry(
             master=self.user_details_label_container,
@@ -125,7 +147,9 @@ class ProfileView(BaseView):
         
         self.campID_label = tk.Label(
             master=self.user_details_label_container,
-            text="Camp ID",)
+            text="Camp ID",
+            width=10,
+            )
         
         self.campID_entry = tk.Entry(
             master=self.user_details_label_container,
@@ -136,7 +160,9 @@ class ProfileView(BaseView):
         
         self.status_label = tk.Label(
             master=self.user_details_label_container,
-            text="Status",)
+            text="Status",
+            width=10,
+            )
         
         self.status_entry = tk.Entry(
             master=self.user_details_label_container,
@@ -144,7 +170,140 @@ class ProfileView(BaseView):
             state="disabled",
             text=tk.StringVar(value=status_profile),
             )
-                
+        
+        self.firstname_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="First name",
+            width=20,
+            anchor="w",
+            )
+        
+        self.firstname_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=firstname),
+            )
+        
+        self.lastname_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="Last name",
+            width=20,
+            anchor="w",
+            )
+        
+        self.lastname_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=lastname),
+            )
+
+        self.dob_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="Date of birth",
+            width=20,
+            anchor="w",
+            )
+        
+        self.dob_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=DOB),
+            )
+
+        self.sex_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="Gender",
+            width=20,
+            anchor="w",
+            )
+        
+        self.sex_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=sex),
+            )
+
+        self.phone_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="Phone number",
+            width=20,
+            anchor="w",
+            )
+        
+        self.phone_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=phone),
+            )
+        
+        self.other_languages_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="Languages spoken",
+            width=20,
+            anchor="w",
+            )
+        
+        self.other_languages_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=languages),
+            )
+
+        self.other_skills_label = tk.Label(
+            master=self.personal_info_label_container,
+            text="Skills",
+            width=20,
+            anchor="w",
+            )
+        
+        self.other_skills_entry = tk.Entry(
+            master=self.personal_info_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=skills),
+            )
+        
+        self.emergency_contact_name_label = tk.Label(
+            master=self.emergency_label_container,
+            text="Contact name",
+            width=20,
+            anchor="w",
+            )
+        
+        self.emergency_contact_name_entry = tk.Entry(
+            master=self.emergency_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=emergency_contact_name),
+            )
+
+        self.emergency_contact_number_label = tk.Label(
+            master=self.emergency_label_container,
+            text="Contact phone number",
+            width=20,
+            anchor="w",
+            )
+        
+        self.emergency_contact_number_entry = tk.Entry(
+            master=self.emergency_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=emergency_contact_number),
+            )
+
+
+                        
+        # Add to grid    
+        self.user_details_label_container.pack(pady=(10, 20))
+        self.personal_info_label_container.pack(pady=(10, 20))  
+        self.emergency_label_container.pack(pady=(10, 20))
+        
         self.userID_label.grid(row=0, column=0,)
         self.userID_entry.grid(row=0, column=1,)
 
@@ -156,6 +315,35 @@ class ProfileView(BaseView):
         
         self.status_label.grid(row=0, column=6,)
         self.status_entry.grid(row=0, column=7,)
+        
+        self.firstname_label.grid(row=0, column=0,)
+        self.firstname_entry.grid(row=0, column=1,)
+        
+        self.lastname_label.grid(row=1, column=0,)
+        self.lastname_entry.grid(row=1, column=1,)
+
+        self.dob_label.grid(row=2, column=0,)
+        self.dob_entry.grid(row=2, column=1,)
+
+        self.sex_label.grid(row=3, column=0,)
+        self.sex_entry.grid(row=3, column=1,)
+
+        self.phone_label.grid(row=4, column=0,)
+        self.phone_entry.grid(row=4, column=1,)
+        
+        self.other_languages_label.grid(row=5, column=0,)
+        self.other_languages_entry.grid(row=5, column=1,)
+        
+        self.other_skills_label.grid(row=6, column=0,)
+        self.other_skills_entry.grid(row=6, column=1,)
+        
+        self.emergency_contact_name_label.grid(row=0, column=0,)
+        self.emergency_contact_name_entry.grid(row=0, column=1,)
+        
+        self.emergency_contact_number_label.grid(row=1, column=0,)
+        self.emergency_contact_number_entry.grid(row=1, column=1,)
+
+
         # 
         # self.user_details = tk.Label(
         #     master=self.user_details_container,
