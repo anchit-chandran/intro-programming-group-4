@@ -36,6 +36,9 @@ class BaseView(tk.Frame):
 
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")
+    
+    def _handle_messages(self) -> None:
+        self.master.switch_to_view("messages")
         
     def _delete_window(self, window: tk.Toplevel) -> None:
         window.destroy()
@@ -132,6 +135,16 @@ class BaseView(tk.Frame):
             sticky="e",
         )
         
+        self.messages_button = tk.Button(
+            master=self.nav_container,
+            text="Messages",
+            command=self._handle_messages,
+        )
+        self.messages_button.grid(
+            row=0,
+            column=5,
+            sticky="w",
+        )
         
         self.logout_button = tk.Button(
             master=self.nav_container,
@@ -140,7 +153,7 @@ class BaseView(tk.Frame):
         )
         self.logout_button.grid(
             row=0,
-            column=5,
+            column=6,
             sticky="e",
         )
         
@@ -152,6 +165,6 @@ class BaseView(tk.Frame):
         )
         self.user_text.grid(
             row=0,
-            column=6,
+            column=7,
             sticky="e",
         )
