@@ -20,7 +20,7 @@ class NewMessageView(BaseView):
         self.container = tk.Frame(
             master=self,
             width=config.SCREEN_WIDTH,
-            height=300,
+            height=500,
         )
         self.container.pack(
             fill="both",
@@ -29,7 +29,7 @@ class NewMessageView(BaseView):
         )
 
         # Header
-        self.header_container = tk.Frame(self.container)
+        self.header_container = tk.LabelFrame(self.container, text="New Message", width=500, height=100)
         self.header_container.pack(pady=15, fill="x", expand=True)
 
         self.header = tk.Label(
@@ -40,4 +40,3 @@ class NewMessageView(BaseView):
         self.header.pack(
             side="left",
         )
-

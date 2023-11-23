@@ -47,7 +47,7 @@ class MessagesView(BaseView):
             column=5,
             pady=10,
         )
-        
+
         self.new_msg_btn = tk.Button(
             master=self.header_container,
             text="New Message",
@@ -82,6 +82,53 @@ class MessagesView(BaseView):
                 """
         )
 
+    def _get_camp_plan_name_from_sender_id(
+        self,
+        sender_id: int,
+    ) -> str:
+        """Returns names from sender id"""
+        sender_name = run_query_get_rows(
+            f"SELECT username FROM User WHERE id = {sender_id}"
+        )[0]["username"]
+
+        camp_id_query = f"SELECT camp_id FROM User WHERE id = {sender_id}"
+        print(f"camp_id_query: {camp_id_query}")
+        camp_id = run_query_get_rows(camp_id_query)[0]["camp_id"]
+
+        camp = run_query_get_rows(
+            f"SELECT name, plan_id FROM Camp WHERE id = {camp_id}"
+        )[0]
+        camp_name, plan_id = camp["name"], camp["plan_id"]
+
+        plan_name = run_query_get_rows(f"SELECT title FROM Plan WHERE id = {plan_id}")[
+            0
+        ]["title"]
+
+        return camp_name, plan_name, sender_name
+
+    def _get_data_to_render(self, data) -> list[list[str]]:
+        """Returns data to render in table"""
+        data_to_render = []
+        for message in data:
+            print(f"Message: {message}")
+            data_to_add = []
+            data_to_add.append(message["id"])
+            data_to_add.append(message["sent_at"])
+
+            # Get Plan & CAMP & Sender name
+            camp_name, plan_name, sender_name = self._get_camp_plan_name_from_sender_id(
+                sender_id=message["sender_id"]
+            )
+            data_to_add.append(plan_name)
+            data_to_add.append(camp_name)
+            data_to_add.append(sender_name)
+
+            data_to_add.append(message["urgency"])
+            data_to_add.append(message["message"])
+
+            data_to_render.append(data_to_add)
+        return data_to_render
+
     def render_unresolved_messages(self):
         self.unresolved_messages = self.get_messages(is_resolved=False)
 
@@ -98,17 +145,7 @@ class MessagesView(BaseView):
         ]
         self.data_to_render = [self.header_cols]
 
-        for message in self.unresolved_messages:
-            data_to_add = []
-            data_to_add.append(message["id"])
-            data_to_add.append(message["sent_at"])
-            data_to_add.append("PLAN")
-            data_to_add.append("CAMP")
-            data_to_add.append(message["sender_id"])
-            data_to_add.append(message["urgency"])
-            data_to_add.append(message["message"])
-
-            self.data_to_render.append(data_to_add)
+        self.data_to_render.extend(self._get_data_to_render(self.unresolved_messages))
 
         self.unresolved_messages_container = tk.Frame(
             master=self.container,
@@ -121,7 +158,7 @@ class MessagesView(BaseView):
         self.canvas_unresolved = tk.Canvas(
             self.unresolved_messages_container,
             width=1300,
-            height=500, # set height to max of 500 or less if fewer msgs
+            height=500,  # set height to max of 500 or less if fewer msgs
         )
         self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
 
@@ -130,15 +167,20 @@ class MessagesView(BaseView):
             self.unresolved_messages_container,
             orient=tk.VERTICAL,
             command=self.canvas_unresolved.yview,
-            
         )
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, )
+        scrollbar.pack(
+            side=tk.RIGHT,
+            fill=tk.Y,
+        )
 
         # Configure the canvas to use the scrollbar
         self.canvas_unresolved.configure(yscrollcommand=scrollbar.set)
 
         # Create a frame inside the canvas
-        table_frame = tk.Frame(self.canvas_unresolved, height=500,)
+        table_frame = tk.Frame(
+            self.canvas_unresolved,
+            height=500,
+        )
         self.canvas_unresolved.create_window((0, 0), window=table_frame, anchor=tk.NW)
 
         self.unresolved_table_container = tk.LabelFrame(
@@ -156,7 +198,7 @@ class MessagesView(BaseView):
                 header=ix == 0,  # True if first row, else False
                 resolved_messages=False,
             )
-        
+
         # No messages, just header
         if len(self.data_to_render) == 1:
             no_messages_label = tk.Label(
@@ -182,17 +224,7 @@ class MessagesView(BaseView):
         ]
         self.data_to_render = [self.header_cols]
 
-        for message in self.resolved_messages:
-            data_to_add = []
-            data_to_add.append(message["id"])
-            data_to_add.append(message["sent_at"])
-            data_to_add.append("PLAN")
-            data_to_add.append("CAMP")
-            data_to_add.append(message["sender_id"])
-            data_to_add.append(message["urgency"])
-            data_to_add.append(message["message"])
-
-            self.data_to_render.append(data_to_add)
+        self.data_to_render.extend(self._get_data_to_render(self.unresolved_messages))
 
         self.resolved_messages_container = tk.Frame(
             master=self.container,
@@ -243,7 +275,7 @@ class MessagesView(BaseView):
                 header=ix == 0,  # True if first row, else False
                 resolved_messages=True,
             )
-        
+
         # No messages, just header
         if len(self.data_to_render) == 1:
             no_messages_label = tk.Label(
@@ -307,7 +339,6 @@ class MessagesView(BaseView):
                 command=lambda: self._handle_resolve_undo_click(message_id=items[0]),
             ).grid(row=0, column=len(items))
 
-
     def _handle_resolve_undo_click(self, message_id: int) -> None:
         """Handles resolve / undo button click"""
 
@@ -326,6 +357,6 @@ class MessagesView(BaseView):
         # Reload view
         self.master.switch_to_view("messages")
 
-    def _handle_new_msg_click(self)->None:
+    def _handle_new_msg_click(self) -> None:
         """Handles new message button click"""
         self.master.switch_to_view("new_msg")
