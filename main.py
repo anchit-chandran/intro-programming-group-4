@@ -45,13 +45,13 @@ class MainApplication(tk.Tk):
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
 
-        self.switch_view(self.view_map[new_view])
+        self._render_new_view(self.view_map[new_view])
 
     def logout_set_view_to_login(self) -> None:
         # Reset state
         self.set_global_state({})
 
-        self.switch_view(LoginView)
+        self._render_new_view(LoginView)
 
     def _initial_setup(self) -> None:
         # Initial attributes
@@ -68,7 +68,7 @@ class MainApplication(tk.Tk):
         else:
             self.switch_to_view("my_camp")
 
-    def switch_view(self, new_view) -> None:
+    def _render_new_view(self, new_view) -> None:
         # Clear current view
         if self.current_view is not None:
             logging.debug(f"Destroying {self.current_view}")
