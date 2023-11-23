@@ -107,28 +107,31 @@ class MessagesView(BaseView):
             master=self.container,
             width=500,
         )
-        self.unresolved_messages_container.pack()
+        self.unresolved_messages_container.pack(fill="both", expand=True)
 
         # SCROLL BAR - THANK YOU https://www.pythontutorial.net/tkinter/tkinter-scrollbar/
         # Create a canvas widget
         self.canvas_unresolved = tk.Canvas(
-            self.unresolved_messages_container, width=1300, height=500,
+            self.unresolved_messages_container,
+            width=1300,
+            height=500, # set height to max of 500 or less if fewer msgs
         )
-        self.canvas_unresolved.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
 
         # Create a scrollbar for the canvas
         scrollbar = ttk.Scrollbar(
             self.unresolved_messages_container,
             orient=tk.VERTICAL,
             command=self.canvas_unresolved.yview,
+            
         )
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y, )
 
         # Configure the canvas to use the scrollbar
         self.canvas_unresolved.configure(yscrollcommand=scrollbar.set)
 
         # Create a frame inside the canvas
-        table_frame = tk.Frame(self.canvas_unresolved)
+        table_frame = tk.Frame(self.canvas_unresolved, height=500,)
         self.canvas_unresolved.create_window((0, 0), window=table_frame, anchor=tk.NW)
 
         self.unresolved_table_container = tk.LabelFrame(
@@ -146,6 +149,15 @@ class MessagesView(BaseView):
                 header=ix == 0,  # True if first row, else False
                 resolved_messages=False,
             )
+        
+        # No messages, just header
+        if len(self.data_to_render) == 1:
+            no_messages_label = tk.Label(
+                master=self.unresolved_table_container,
+                text="No unresolved messages ✅",
+                font=(60),
+            )
+            no_messages_label.pack()
 
     def render_resolved_messages(self):
         self.resolved_messages = self.get_messages(is_resolved=True)
@@ -187,7 +199,6 @@ class MessagesView(BaseView):
         self.canvas_resolved = tk.Canvas(
             self.resolved_messages_container,
             width=1300,
-            
         )
         self.canvas_resolved.pack(
             side=tk.LEFT,
@@ -225,6 +236,15 @@ class MessagesView(BaseView):
                 header=ix == 0,  # True if first row, else False
                 resolved_messages=True,
             )
+        
+        # No messages, just header
+        if len(self.data_to_render) == 1:
+            no_messages_label = tk.Label(
+                master=self.table_container,
+                text="No resolved messages",
+                font=(60),
+            )
+            no_messages_label.pack()
 
     # Bind the canvas to update the scroll region
     def _on_canvas_configure_unresolved_table_container(self, event):
@@ -263,7 +283,7 @@ class MessagesView(BaseView):
             self.cell_content = tk.Label(
                 master=self.cell_frame,
                 text=label,
-                width=column_width if ix != 5 else 65,
+                width=column_width if ix != 6 else 65,
                 justify="left",
             )
 
@@ -277,21 +297,24 @@ class MessagesView(BaseView):
                 master=self.row_container,
                 text="Undo" if resolved_messages else "Resolve",
                 width=15,
-                command=lambda: self._handle_resolve_click(message_id=items[0]),
+                command=lambda: self._handle_resolve_undo_click(message_id=items[0]),
             ).grid(row=0, column=len(items))
 
-    def _handle_resolve_click(self, message_id: int) -> None:
-        """Handles resolve button click"""
+
+    def _handle_resolve_undo_click(self, message_id: int) -> None:
+        """Handles resolve / undo button click"""
 
         # Update db
-        logging.debug(f"Resolving message {message_id}")
+        logging.debug(f"Resolving / undoing message {message_id}")
         run_query_get_rows(
             f"""UPDATE Messages
-                SET is_resolved = 1
+                SET is_resolved = CASE
+                    WHEN is_resolved = 1 THEN 0
+                    ELSE 1
+                END
                 WHERE id = {message_id}
             """
         )
-        
+
         # Reload view
         self.master.switch_to_view("messages")
-        

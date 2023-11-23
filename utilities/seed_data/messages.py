@@ -6,7 +6,7 @@ from constants.message_priorities import Priority
 
 messages_data = []
 # Add 5 messages for admin
-for i in range(30):
+for i in range(10):
     sent_at = convert_to_sqlite3_datetime(
             datetime.now() - timedelta(minutes=(i * 60))
         )
