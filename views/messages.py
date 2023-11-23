@@ -47,6 +47,13 @@ class MessagesView(BaseView):
             column=5,
             pady=10,
         )
+        
+        self.new_msg_btn = tk.Button(
+            master=self.header_container,
+            text="New Message",
+            command=self._handle_new_msg_click,
+        )
+        self.new_msg_btn.grid(row=0, column=10, padx=10, pady=10, sticky="e")
 
         self.render_unresolved_messages()
         self.render_resolved_messages()
@@ -318,3 +325,7 @@ class MessagesView(BaseView):
 
         # Reload view
         self.master.switch_to_view("messages")
+
+    def _handle_new_msg_click(self)->None:
+        """Handles new message button click"""
+        self.master.switch_to_view("new_msg")

@@ -25,6 +25,7 @@ class MainApplication(tk.Tk):
             "messages": MessagesView,
             "profile": ProfileView,
             "my_camp": MyCampView,
+            "new_msg": NewMessageView,
         }
 
         # DEBUG HELPERS
