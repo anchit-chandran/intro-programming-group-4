@@ -92,7 +92,7 @@ class MessagesView(BaseView):
         )[0]["username"]
 
         camp_id_query = f"SELECT camp_id FROM User WHERE id = {sender_id}"
-        print(f"camp_id_query: {camp_id_query}")
+      
         camp_id = run_query_get_rows(camp_id_query)[0]["camp_id"]
 
         camp = run_query_get_rows(
@@ -110,7 +110,7 @@ class MessagesView(BaseView):
         """Returns data to render in table"""
         data_to_render = []
         for message in data:
-            print(f"Message: {message}")
+            
             data_to_add = []
             data_to_add.append(message["id"])
             data_to_add.append(message["sent_at"])
@@ -131,7 +131,7 @@ class MessagesView(BaseView):
 
     def render_unresolved_messages(self):
         self.unresolved_messages = self.get_messages(is_resolved=False)
-
+        print(f'Unresolved messages: {self.unresolved_messages}')
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
             "Msg ID",
@@ -210,6 +210,7 @@ class MessagesView(BaseView):
 
     def render_resolved_messages(self):
         self.resolved_messages = self.get_messages(is_resolved=True)
+        print(f'Resolved messages: {self.resolved_messages}')
 
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
@@ -224,7 +225,7 @@ class MessagesView(BaseView):
         ]
         self.data_to_render = [self.header_cols]
 
-        self.data_to_render.extend(self._get_data_to_render(self.unresolved_messages))
+        self.data_to_render.extend(self._get_data_to_render(self.resolved_messages))
 
         self.resolved_messages_container = tk.Frame(
             master=self.container,
@@ -346,8 +347,9 @@ class MessagesView(BaseView):
         logging.debug(f"Resolving / undoing message {message_id}")
         run_query_get_rows(
             f"""UPDATE Messages
-                SET is_resolved = CASE
-                    WHEN is_resolved = 1 THEN 0
+                SET is_resolved = 
+                    CASE
+                        WHEN is_resolved = 1 THEN 0
                     ELSE 1
                 END
                 WHERE id = {message_id}
