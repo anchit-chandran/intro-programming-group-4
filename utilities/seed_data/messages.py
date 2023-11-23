@@ -13,7 +13,7 @@ for i in range(30):
 
     new_msg = {
 
-        "message": f"{'h'*50} {i}",
+        "message": f"This is message {i}",
         "sent_at": sent_at,
         "urgency": random.choice(list(Priority)).value,
         "is_resolved": random.choice([True, False]),
