@@ -80,6 +80,7 @@ class MessagesView(BaseView):
 
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
+            "Msg ID",
             "Received At",
             "Plan",
             "Camp",
@@ -92,6 +93,7 @@ class MessagesView(BaseView):
 
         for message in self.unresolved_messages:
             data_to_add = []
+            data_to_add.append(message["id"])
             data_to_add.append(message["sent_at"])
             data_to_add.append("PLAN")
             data_to_add.append("CAMP")
@@ -110,7 +112,7 @@ class MessagesView(BaseView):
         # SCROLL BAR - THANK YOU https://www.pythontutorial.net/tkinter/tkinter-scrollbar/
         # Create a canvas widget
         self.canvas_unresolved = tk.Canvas(
-            self.unresolved_messages_container, width=1200, height=500,
+            self.unresolved_messages_container, width=1300, height=500,
         )
         self.canvas_unresolved.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -150,6 +152,7 @@ class MessagesView(BaseView):
 
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
+            "Msg ID",
             "Received At",
             "Plan",
             "Camp",
@@ -162,6 +165,7 @@ class MessagesView(BaseView):
 
         for message in self.resolved_messages:
             data_to_add = []
+            data_to_add.append(message["id"])
             data_to_add.append(message["sent_at"])
             data_to_add.append("PLAN")
             data_to_add.append("CAMP")
@@ -182,7 +186,7 @@ class MessagesView(BaseView):
         # Create a canvas widget
         self.canvas_resolved = tk.Canvas(
             self.resolved_messages_container,
-            width=1200,
+            width=1300,
             
         )
         self.canvas_resolved.pack(
@@ -267,10 +271,27 @@ class MessagesView(BaseView):
                 anchor="e",
             )
 
-        # Add edit buttons
+        # Add action buttons
         if not header:
             tk.Button(
                 master=self.row_container,
                 text="Undo" if resolved_messages else "Resolve",
                 width=15,
+                command=lambda: self._handle_resolve_click(message_id=items[0]),
             ).grid(row=0, column=len(items))
+
+    def _handle_resolve_click(self, message_id: int) -> None:
+        """Handles resolve button click"""
+
+        # Update db
+        logging.debug(f"Resolving message {message_id}")
+        run_query_get_rows(
+            f"""UPDATE Messages
+                SET is_resolved = 1
+                WHERE id = {message_id}
+            """
+        )
+        
+        # Reload view
+        self.master.switch_to_view("messages")
+        
