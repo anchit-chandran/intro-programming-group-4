@@ -102,16 +102,6 @@ class BaseView(tk.Frame):
                 sticky="w",
             )
 
-            self.messages_button = tk.Button(
-                master=self.nav_container,
-                text="Messages",
-                command=self._handle_messages_click,
-            )
-            self.messages_button.grid(
-                row=0,
-                column=3,
-                sticky="w",
-            )
         else:
             # volunteer buttons
             self.my_camp_button = tk.Button(
