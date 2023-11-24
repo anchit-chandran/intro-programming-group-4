@@ -223,7 +223,7 @@ class NewMessageView(BaseView):
         )
 
         # Disable main window
-        self.error_popup_window.grab_set()
+        self.success_popup_window.grab_set()
 
     def handle_to_select_change_send_to(self, value):
         return

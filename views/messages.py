@@ -215,7 +215,7 @@ class MessagesView(BaseView):
 
     def render_resolved_messages(self):
         self.resolved_messages = self.get_messages(is_resolved=True)
-        print(f'Resolved messages: {self.resolved_messages}')
+   
 
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
