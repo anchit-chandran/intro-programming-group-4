@@ -20,7 +20,7 @@ class MyCampView(BaseView):
     # message button function
     # TO DO: add actual links
     def handle_send_message(self):
-        # self.master.switch_to_view("add_message")
+        self.master.switch_to_view("add_message")
         return
 
     # Edit refugee button
@@ -40,7 +40,11 @@ class MyCampView(BaseView):
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
 
-        self.master.switch_to_view("add_edit_refugee")
+        self.master.switch_to_view("refugee_profile")
+
+    # redirect to departed refugee list view
+    def handle_view_departed_click(self):
+        self.master.switch_to_view("departed_refugee_list")
 
     # add refugees function
     # TO DO: add actual links
@@ -85,15 +89,11 @@ class MyCampView(BaseView):
     def get_age(self, dob_str):
         current_date = datetime.now()
         dob = datetime.strptime(dob_str, "%Y-%m-%d %H:%M:%S")
-        # string_dob = str(dob)
-        # birth_year = int(string_dob.split(" ")[0].split("-")[0])
         age = (
             current_date.year
             - dob.year
             - ((current_date.month, current_date.day) < (dob.month, dob.day))
         )
-        print(age)
-        # age = current_date - birth_year
         return age
 
     # query all refugees in the camp
@@ -166,9 +166,6 @@ class MyCampView(BaseView):
         )
 
         # ------------------------ Top container------------------------------
-
-        # TO DO: edit handle_send_message to redirect correctly - look up
-        # TO DO: make the container scrollable with Canva
 
         self.top_container = tk.Frame(
             master=self.container,
@@ -298,7 +295,6 @@ class MyCampView(BaseView):
         ]
         self.data_to_render = [self.header_cols]
 
-        # TO DO: FILTER OUT THE CURRENT USER
         for volunteer in self.all_volunteers:
             data_to_add = []
             data_to_add.append(volunteer["id"])
@@ -306,11 +302,9 @@ class MyCampView(BaseView):
             data_to_add.append(volunteer["last_name"])
             data_to_add.append(volunteer["phone_number"])
 
-            # TO DO: change to age instead of DOB
             volunteer_age = self.get_age(volunteer["dob"])
             data_to_add.append(volunteer_age)
 
-            # TO DO: create a list and iterate through it to display in a column?
             data_to_add.append(volunteer["languages_spoken"])
 
             self.data_to_render.append(data_to_add)
@@ -383,6 +377,15 @@ class MyCampView(BaseView):
         )
         self.refugees_header.grid(row=0, column=0, pady=5, sticky="w")
 
+        # View refugees who left the camp button
+        self.add_refugee_button = tk.Button(
+            master=self.all_refugees_container,
+            text="View Departed Refugees",
+            command=self.handle_view_departed_click,
+            bg="blue",
+        )
+        self.add_refugee_button.grid(row=0, column=1, pady=5, padx=10, sticky="e")
+
         # Add refugee button
         self.add_refugee_button = tk.Button(
             master=self.all_refugees_container,
@@ -390,14 +393,14 @@ class MyCampView(BaseView):
             command=self._handle_add_refugee_click,
             bg="green",
         )
-        self.add_refugee_button.grid(row=0, column=1, pady=5, sticky="e")
+        self.add_refugee_button.grid(row=0, column=2, pady=5, sticky="e")
 
         # MAKE THE TABLE SCROLLABLE
         # canvas container
         self.refugee_table_canvas = tk.Canvas(
             master=self.all_refugees_container, width=1150, height=200
         )
-        self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew")
+        self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
 
         # table
         self.table_container = tk.Frame(
@@ -416,7 +419,7 @@ class MyCampView(BaseView):
             orient="vertical",
             command=self.refugee_table_canvas.yview,
         )
-        self.refugee_scrollbar.grid(row=1, column=1, sticky="ns")
+        self.refugee_scrollbar.grid(row=1, column=2, sticky="ns")
 
         self.refugee_table_canvas.configure(yscrollcommand=self.refugee_scrollbar.set)
 
