@@ -13,6 +13,7 @@ class ProfileView(BaseView):
         super().__init__(master)
         self.master = master
         self.render_widgets()
+        self.master.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""

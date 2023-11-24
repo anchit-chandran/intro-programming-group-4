@@ -161,7 +161,6 @@ class AllPlansView(BaseView):
                 master=self.cell_frame,
                 text=label,
                 width=column_width,
-                background="black" if header else None,
                 fg=fg,
             )
 
