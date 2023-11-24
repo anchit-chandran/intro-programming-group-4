@@ -4,6 +4,20 @@ import random
 
 from constants.message_priorities import Priority
 
+MESSAGES = [
+    "Urgent: need more blankets ASAP.",
+    "Food supplies running low.",
+    "Medical team arrived safely.",
+    "Need extra hands at tent 4.",
+    "Water filtration system fixed.",
+    "Schedule for tomorrow's workshop?",
+    "New family arrived, need help.",
+    "Power outage in sector 2.",
+    "More volunteers arriving Thursday.",
+    "Requesting update on supply delivery."
+]
+
+
 messages_data = []
 # Add 5 messages for admin
 for i in range(10):
@@ -13,7 +27,7 @@ for i in range(10):
 
     new_msg = {
 
-        "message": f"This is message {i}",
+        "message": random.choice(MESSAGES),
         "sent_at": sent_at,
         "urgency": random.choice(list(Priority)).value,
         "is_resolved": random.choice([True, False]),
