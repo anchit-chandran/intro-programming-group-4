@@ -25,33 +25,38 @@ class MainApplication(tk.Tk):
             "messages": MessagesView,
             "profile": ProfileView,
             "my_camp": MyCampView,
+            "new_msg": NewMessageView,
         }
+        # Create the reverse map
+        self.reverse_view_map = {}
+        for view_name, view in self.view_map.items():
+            self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
         self.DEBUG = True
         if self.DEBUG:
             self.set_global_state(
                 {
-                    "user_id": 1,
-                    "username": "admin",
-                    "is_admin": 1,
+                    "user_id": 2,
+                    "username": "volunteer1",
+                    "is_admin": 0,
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("add_edit_plan")
+        self.switch_to_view("new_msg")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
 
-        self.switch_view(self.view_map[new_view])
+        self._render_new_view(self.view_map[new_view])
 
     def logout_set_view_to_login(self) -> None:
         # Reset state
         self.set_global_state({})
 
-        self.switch_view(LoginView)
+        self._render_new_view(LoginView)
 
     def _initial_setup(self) -> None:
         # Initial attributes
@@ -68,7 +73,7 @@ class MainApplication(tk.Tk):
         else:
             self.switch_to_view("my_camp")
 
-    def switch_view(self, new_view) -> None:
+    def _render_new_view(self, new_view) -> None:
         # Clear current view
         if self.current_view is not None:
             logging.debug(f"Destroying {self.current_view}")
@@ -83,6 +88,11 @@ class MainApplication(tk.Tk):
 
     def set_global_state(self, new_state: dict) -> None:
         self.GLOBAL_STATE = new_state
+
+    def refresh_view(self) -> None:
+        """Reloads the current view"""
+        logging.info(f"Refreshing view: {self.current_view}")
+        self.switch_to_view(self.reverse_view_map[self.current_view.__class__])
 
 
 def main():

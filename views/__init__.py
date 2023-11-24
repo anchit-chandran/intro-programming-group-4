@@ -6,3 +6,4 @@ from .all_volunteers_list import AllVolunteersView
 from .messages import MessagesView
 from .my_camp_view import MyCampView
 from .profile_view import ProfileView
+from .new_msg import NewMessageView

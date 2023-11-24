@@ -14,6 +14,7 @@ class LoginView(BaseView):
         super().__init__(master, render_nav=False)
         self.master = master
         self.render_widgets()
+        self.master.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""

@@ -9,32 +9,30 @@ from utilities.seed_data import (
     plan_data,
     user_data,
     refugee_family_data,
+    messages_data,
 )
 
 
 def reset_db() -> None:
     logging.debug("Resetting database")
-    
+
     logging.debug("Dropping User table")
     run_query("DROP TABLE IF EXISTS User;")
-    
+
     logging.debug("Dropping Message table")
     run_query("DROP TABLE IF EXISTS Messages;")
-    
+
     logging.debug("Dropping CampResources table")
     run_query("DROP TABLE IF EXISTS CampResources;")
-    
+
     logging.debug("Dropping RefugeeFamily table")
     run_query("DROP TABLE IF EXISTS RefugeeFamily;")
-    
+
     logging.debug("Dropping Camp table")
     run_query("DROP TABLE IF EXISTS Camp;")
-    
+
     logging.debug("Dropping Plan table")
     run_query("DROP TABLE IF EXISTS Plan;")
-    
-    
-
 
 
 def get_connection() -> sqlite3.Connection:
@@ -370,30 +368,61 @@ def create_and_seed_refugee_family_table() -> None:
         )
 
 
-def create_and_message_table() -> None:
-    logging.debug("Creating Message table")
+def create_and_seed_messages_table() -> None:
+    logging.debug("Creating Messages table")
     run_query(
         """CREATE TABLE `Messages` (
-            `id` INTEGER PRIMARY KEY,
-            `message` TEXT,
-            `sent_at` TEXT,
-            `urgency` TEXT,
-            `is_resolved` INT,
-            `camp_id` INT,
-            `plan_id` INT,
-            `sender_id` INT,
-            FOREIGN KEY (`camp_id`) REFERENCES Camp (id) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE,
-            FOREIGN KEY (`plan_id`) REFERENCES Plan (id) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE,
-            FOREIGN KEY (`sender_id`) REFERENCES User (id) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE
-            );"""
+        `id` INTEGER PRIMARY KEY,
+        `message` TEXT,
+        `sent_at` TEXT,
+        `urgency` TEXT,
+        `is_resolved` BOOLEAN, 
+        `sender_id` INT,
+        `receiver_id` INT,
+        FOREIGN KEY (sender_id) REFERENCES User (id) 
+            ON DELETE CASCADE
+            ON UPDATE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES User (id) 
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        );"""
     )
     logging.debug("Done!")
+
+    logging.debug("Seeding Messages table")
+    for message in messages_data:
+        logging.debug(
+            f'Creating Message {message["message"]} from {message["sender_id"]} to {message["receiver_id"]}'
+        )
+
+        insert_query_with_values(
+            query="""INSERT INTO Messages 
+                  (
+                    "message",
+                    "sent_at",
+                    "urgency",
+                    "is_resolved",
+                    "sender_id",
+                    "receiver_id"
+                      ) VALUES (
+ 
+                        :message,
+                        :sent_at,
+                        :urgency,
+                        :is_resolved,
+                        :sender_id,
+                        :receiver_id
+                  );
+                  """,
+            values={
+                "message": message["message"],
+                "sent_at": message["sent_at"],
+                "urgency": message["urgency"],
+                "is_resolved": message["is_resolved"],
+                "sender_id": message["sender_id"],
+                "receiver_id": message["receiver_id"],
+            },
+        )
 
 
 def setup_db(reset_database=True) -> None:
@@ -407,5 +436,4 @@ def setup_db(reset_database=True) -> None:
     create_and_seed_camp_resources_table()
     create_and_seed_refugee_family_table()
     create_and_seed_user_table()
-    create_and_message_table()
-    
+    create_and_seed_messages_table()
