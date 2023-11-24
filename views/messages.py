@@ -37,7 +37,7 @@ class MessagesView(BaseView):
         )
         self.header_container.pack()
 
-        self.header = tk.Label(
+        self.header = ttk.Label(
             master=self.header_container,
             text=f"Messages 📧",
             font=(60),
@@ -113,7 +113,9 @@ class MessagesView(BaseView):
             
             data_to_add = []
             data_to_add.append(message["id"])
-            data_to_add.append(message["sent_at"])
+            
+            # Just get date and time HH:MM 
+            data_to_add.append(message["sent_at"][:-3])
 
             # Get Plan & CAMP & Sender name
             camp_name, plan_name, sender_name = self._get_camp_plan_name_from_sender_id(
@@ -131,7 +133,7 @@ class MessagesView(BaseView):
 
     def render_unresolved_messages(self):
         self.unresolved_messages = self.get_messages(is_resolved=False)
-        print(f'Unresolved messages: {self.unresolved_messages}')
+        
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
             "Msg ID",
@@ -158,7 +160,7 @@ class MessagesView(BaseView):
         self.canvas_unresolved = tk.Canvas(
             self.unresolved_messages_container,
             width=900,
-            height=500,  # set height to max of 500 or less if fewer msgs
+            height=max(300,(len(self.data_to_render))*50),  # clamp height
         )
         self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
 
@@ -179,7 +181,6 @@ class MessagesView(BaseView):
         # Create a frame inside the canvas
         table_frame = tk.Frame(
             self.canvas_unresolved,
-            height=500,
         )
         self.canvas_unresolved.create_window((0, 0), window=table_frame, anchor=tk.NW)
 
@@ -229,10 +230,10 @@ class MessagesView(BaseView):
 
         self.resolved_messages_container = tk.Frame(
             master=self.container,
-            width=1500,
+            width=500,
             pady=50,
         )
-        self.resolved_messages_container.pack()
+        self.resolved_messages_container.pack(fill="both", expand=True)
 
         # SCROLL BAR - THANK YOU https://www.pythontutorial.net/tkinter/tkinter-scrollbar/
         # Create a canvas widget
