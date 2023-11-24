@@ -157,7 +157,7 @@ class MessagesView(BaseView):
         # Create a canvas widget
         self.canvas_unresolved = tk.Canvas(
             self.unresolved_messages_container,
-            width=1300,
+            width=900,
             height=500,  # set height to max of 500 or less if fewer msgs
         )
         self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
@@ -229,7 +229,7 @@ class MessagesView(BaseView):
 
         self.resolved_messages_container = tk.Frame(
             master=self.container,
-            width=500,
+            width=1500,
             pady=50,
         )
         self.resolved_messages_container.pack()
@@ -238,7 +238,7 @@ class MessagesView(BaseView):
         # Create a canvas widget
         self.canvas_resolved = tk.Canvas(
             self.resolved_messages_container,
-            width=1300,
+            width=1400,
         )
         self.canvas_resolved.pack(
             side=tk.LEFT,
@@ -252,7 +252,7 @@ class MessagesView(BaseView):
             orient=tk.VERTICAL,
             command=self.canvas_resolved.yview,
         )
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollbar.pack(side=tk.RIGHT, fill='y')
 
         # Configure the canvas to use the scrollbar
         self.canvas_resolved.configure(yscrollcommand=scrollbar.set)
@@ -266,8 +266,9 @@ class MessagesView(BaseView):
             text="Resolved Messages",
             padx=10,
             pady=10,
+            width=1500,
         )
-        self.table_container.pack(padx=10, pady=10, fill="both", expand=True)
+        self.table_container.pack(expand=True)
 
         for ix, row in enumerate(self.data_to_render):
             self._render_row(
@@ -299,7 +300,7 @@ class MessagesView(BaseView):
         self,
         container: tk.Frame,
         items: list[str],
-        column_width=15,
+        column_width=12,
         header=False,
         resolved_messages=True,
     ) -> None:
@@ -317,18 +318,21 @@ class MessagesView(BaseView):
             self.cell_frame.grid(
                 row=0,
                 column=ix,
+                
             )
-            add_border(self.cell_frame)
+            if not header: add_border(self.cell_frame)
 
             self.cell_content = tk.Label(
                 master=self.cell_frame,
                 text=label,
-                width=column_width if ix != 6 else 65,
+                width=column_width if ix != 6 else 55,
                 justify="left",
             )
 
             self.cell_content.pack(
                 anchor="e",
+                fill="both",
+                expand=True,
             )
 
         # Add action buttons
@@ -336,7 +340,7 @@ class MessagesView(BaseView):
             tk.Button(
                 master=self.row_container,
                 text="Undo" if resolved_messages else "Resolve",
-                width=15,
+                width=5,
                 command=lambda: self._handle_resolve_undo_click(message_id=items[0]),
             ).grid(row=0, column=len(items))
 
