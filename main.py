@@ -33,9 +33,9 @@ class MainApplication(tk.Tk):
         if self.DEBUG:
             self.set_global_state(
                 {
-                    "user_id": 1,
-                    "username": "admin",
-                    "is_admin": 1,
+                    "user_id": 2,
+                    "username": "volunteer1",
+                    "is_admin": 0,
                 }
             )
 

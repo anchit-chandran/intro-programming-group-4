@@ -94,11 +94,15 @@ class MessagesView(BaseView):
         camp_id_query = f"SELECT camp_id FROM User WHERE id = {sender_id}"
       
         camp_id = run_query_get_rows(camp_id_query)[0]["camp_id"]
+        
+        # admins don't have plans / camps
+        if not camp_id:
+            return '-', '-', sender_name
 
         camp = run_query_get_rows(
             f"SELECT name, plan_id FROM Camp WHERE id = {camp_id}"
         )[0]
-        camp_name, plan_id = camp["name"], camp["plan_id"]
+        camp_name, plan_id = camp.get("name"), camp.get("plan_id")
 
         plan_name = run_query_get_rows(f"SELECT title FROM Plan WHERE id = {plan_id}")[
             0
