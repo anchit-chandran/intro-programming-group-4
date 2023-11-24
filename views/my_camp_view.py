@@ -2,6 +2,7 @@
 import logging
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 
 # Project imports
 # from constants import config
@@ -51,6 +52,14 @@ class MyCampView(BaseView):
 
         self.master.switch_to_view("add_edit_refugee")
 
+    # check if admin for access control
+    def is_volunteer(self):
+        volunteer_id = int({self.master.get_global_state().get("is_admin")}.pop())
+        if volunteer_id == 1:
+            return False
+        else:
+            return True
+
     # get and set camp id
     def get_camp_id(self):
         volunteer_id = int({self.master.get_global_state().get("user_id")}.pop())
@@ -72,13 +81,20 @@ class MyCampView(BaseView):
             f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0'"
         )
 
-        #   ?????   QUESTION -> DO WE DISPLAY THE CURRENT USER AS WELL? IF NOT THIS IS THE QUERY
-        # get volunteer_id:
-        # volunteer_id = int({self.master.get_global_state().get("user_id")}.pop())
-        # # query:
-        # return run_query_get_rows(
-        #     f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0' AND id <> '{volunteer_id}'"
-        # )
+    # calculate volunteers age
+    def get_age(self, dob_str):
+        current_date = datetime.now()
+        dob = datetime.strptime(dob_str, "%Y-%m-%d %H:%M:%S")
+        # string_dob = str(dob)
+        # birth_year = int(string_dob.split(" ")[0].split("-")[0])
+        age = (
+            current_date.year
+            - dob.year
+            - ((current_date.month, current_date.day) < (dob.month, dob.day))
+        )
+        print(age)
+        # age = current_date - birth_year
+        return age
 
     # query all refugees in the camp
     def get_refugees(self) -> list[dict]:
@@ -249,15 +265,19 @@ class MyCampView(BaseView):
             )
             row_number += 1
 
-        # button
-        self.send_message_button = tk.Button(
-            master=self.top_container,
-            text="MESSAGE ADMIN",
-            command=self.handle_send_message,
-            bg="red",
-            fg="white",
-        )
-        self.send_message_button.grid(row=0, column=2, padx=30, pady=20, sticky="ne")
+        # if volunteer - show message button, if not - hide
+        if self.is_volunteer():
+            # button
+            self.send_message_button = tk.Button(
+                master=self.top_container,
+                text="MESSAGE ADMIN",
+                command=self.handle_send_message,
+                bg="red",
+                fg="white",
+            )
+            self.send_message_button.grid(
+                row=0, column=2, padx=30, pady=20, sticky="ne"
+            )
 
         # render tables
         self.render_camp_volunteers()
@@ -287,12 +307,11 @@ class MyCampView(BaseView):
             data_to_add.append(volunteer["phone_number"])
 
             # TO DO: change to age instead of DOB
-            data_to_add.append(volunteer["dob"])
+            volunteer_age = self.get_age(volunteer["dob"])
+            data_to_add.append(volunteer_age)
 
             # TO DO: create a list and iterate through it to display in a column?
             data_to_add.append(volunteer["languages_spoken"])
-
-            # TO DO: filter out the logged in volunteer?
 
             self.data_to_render.append(data_to_add)
 
