@@ -154,6 +154,17 @@ class BaseView(tk.Frame):
             sticky="w",
         )
 
+        self.refresh_button = tk.Button(
+            master=self.nav_container,
+            text="Refresh 🔁",
+            command=self.master.refresh_view,
+        )
+        self.refresh_button.grid(
+            row=0,
+            column=6,
+            sticky="e",
+        )
+
         self.logout_button = tk.Button(
             master=self.nav_container,
             text="Logout",
@@ -161,7 +172,7 @@ class BaseView(tk.Frame):
         )
         self.logout_button.grid(
             row=0,
-            column=6,
+            column=7,
             sticky="e",
         )
 
@@ -175,6 +186,6 @@ class BaseView(tk.Frame):
         )
         self.user_text.grid(
             row=0,
-            column=7,
+            column=8,
             sticky="e",
         )

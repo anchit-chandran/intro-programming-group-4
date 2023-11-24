@@ -27,6 +27,10 @@ class MainApplication(tk.Tk):
             "my_camp": MyCampView,
             "new_msg": NewMessageView,
         }
+        # Create the reverse map
+        self.reverse_view_map = {}
+        for view_name, view in self.view_map.items():
+            self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
         self.DEBUG = True
@@ -84,6 +88,11 @@ class MainApplication(tk.Tk):
 
     def set_global_state(self, new_state: dict) -> None:
         self.GLOBAL_STATE = new_state
+
+    def refresh_view(self) -> None:
+        """Reloads the current view"""
+        logging.info(f"Refreshing view: {self.current_view}")
+        self.switch_to_view(self.reverse_view_map[self.current_view.__class__])
 
 
 def main():
