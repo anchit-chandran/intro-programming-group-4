@@ -37,15 +37,15 @@ class MainApplication(tk.Tk):
         if self.DEBUG:
             self.set_global_state(
                 {
-                    "user_id": 2,
-                    "username": "volunteer1",
-                    "is_admin": 0,
+                    "user_id": 1,
+                    "username": "admin",
+                    "is_admin": 1,
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("new_msg")
+        self.switch_to_view("all_plans")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"

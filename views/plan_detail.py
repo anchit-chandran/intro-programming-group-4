@@ -12,6 +12,7 @@ class PlanDetailView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        self.plan_name = self.master.get_global_state().get("plan_name")
         self.render_widgets()
 
     def render_widgets(self) -> None:
@@ -39,7 +40,7 @@ class PlanDetailView(BaseView):
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"PLAN DETAIL VIEW {self.master.get_global_state().get('username')}! 👋",
+            text=f"PLAN DETAIL VIEW {self.plan_name}! 👋",
             font=(60),
         )
         self.header.grid(
