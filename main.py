@@ -10,7 +10,7 @@ from utilities.db import setup_db, run_query_get_rows
 
 
 class MainApplication(tk.Tk):
-    def __init__(self):
+    def __init__(self, testing: bool = False):
         super().__init__()
 
         # Initial setup
@@ -18,11 +18,11 @@ class MainApplication(tk.Tk):
         self.GLOBAL_STATE = {}
         self.view_map = {
             "login": LoginView,
-            "plan_detail": PlanDetailView,
+            "plan_detail": PlanDetailView, # Needs plan_name in global state
             "all_plans": AllPlansView,
             "add_edit_plan": AddEditPlanView,
             "add_edit_camp": AddEditCampView,
-            "camp_detail": CampDetailView,
+            "camp_detail": CampDetailView, # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
@@ -34,7 +34,7 @@ class MainApplication(tk.Tk):
             self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
-        self.DEBUG = True
+        self.DEBUG = True or testing
         if self.DEBUG:
             self.set_global_state(
                 {
