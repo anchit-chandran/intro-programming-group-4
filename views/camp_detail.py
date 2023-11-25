@@ -32,7 +32,8 @@ class CampDetailView(BaseView):
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
-        self.master.switch_to_view("add_edit_refugee")
+        # self.master.switch_to_view("add_edit_refugee")
+        return
 
     # TO DO: add actual links
     def handle_view_click(self, refugee_id: int):
@@ -40,11 +41,14 @@ class CampDetailView(BaseView):
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
-        self.master.switch_to_view("refugee_profile")
+        # self.master.switch_to_view("refugee_profile")
+        return
 
+    # to do: add actual link
     def handle_view_departed_click(self):
         """navigates to departed refugee list view"""
-        self.master.switch_to_view("departed_refugee_list")
+        # self.master.switch_to_view("departed_refugee_list")
+        return
 
     # TO DO: add actual links
     def _handle_add_refugee_click(self):
@@ -52,7 +56,8 @@ class CampDetailView(BaseView):
         current_state = self.master.get_global_state()
         current_state.pop("refugee_id_to_edit", None)
         self.master.set_global_state(current_state)
-        self.master.switch_to_view("add_edit_refugee")
+        # self.master.switch_to_view("add_edit_refugee")
+        return
 
     def is_volunteer(self):
         """checks if the user is admin for access control"""
