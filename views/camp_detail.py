@@ -160,21 +160,13 @@ class CampDetailView(BaseView):
         self.top_container.grid(row=1, column=0, padx=50, pady=20, sticky="nsew")
 
         # info container
-        self.info_container = ttk.Frame(
+        self.info_container = ttk.LabelFrame(
             master=self.top_container,
+            text="INFORMATION",
             width=300,
             height=600,
         )
         self.info_container.grid(row=0, column=0, padx=30, pady=20, sticky="nsew")
-
-        # header span 2 columns
-        self.info_header = ttk.Label(
-            master=self.info_container,
-            text="INFORMATION",
-        )
-        self.info_header.grid(
-            row=3, column=0, columnspan=2, pady=20, padx=10, sticky="nw"
-        )
 
         # left label
         self.location_label = ttk.Label(
@@ -190,39 +182,27 @@ class CampDetailView(BaseView):
         self.max_capacity_label.grid(row=5, column=0, sticky="w", pady=10, padx=10)
 
         # right info
-        self.location_info = ttk.Label(
+        self.location_info = tk.Entry(
             master=self.info_container,
-            text=camp_info["location"],
+            state="disabled",
+            textvariable=tk.StringVar(value=camp_info["location"]),
         )
         self.location_info.grid(row=4, column=1, sticky="w", pady=10, padx=10)
 
-        self.max_capacity_info = ttk.Label(
+        self.max_capacity_info = tk.Entry(
             master=self.info_container,
-            text=camp_info["maxCapacity"],
+            state="disabled",
+            textvariable=tk.StringVar(value=camp_info["maxCapacity"]),
         )
         self.max_capacity_info.grid(row=5, column=1, sticky="w", pady=10, padx=10)
 
         # resources container
-        self.resources_container = ttk.Frame(
+        self.resources_container = ttk.LabelFrame(
             master=self.top_container,
+            text="RESOURCES",
             width=300,
         )
         self.resources_container.grid(row=0, column=1, padx=30, pady=10, sticky="n")
-
-        self.total_resources_frame = tk.LabelFrame(
-            master=self.info_container,
-            text="Resources",
-            padx=10,
-            pady=10,
-        )
-        # header span 2 columns
-        self.resources_header = ttk.Label(
-            master=self.resources_container,
-            text="RESOURCES",
-        )
-        self.resources_header.grid(
-            row=3, column=1, columnspan=2, pady=20, padx=10, sticky="w"
-        )
 
         self.resources_num_container = ttk.Frame(
             master=self.resources_container,
@@ -245,9 +225,10 @@ class CampDetailView(BaseView):
             )
 
             # right info
-            self.resources_info = ttk.Label(
+            self.resources_info = tk.Entry(
                 master=self.resources_num_container,
-                text=resource["amount"],
+                state="disabled",
+                textvariable=tk.IntVar(value=resource["amount"]),
             )
             self.resources_info.grid(
                 row=row_number, column=2, sticky="w", pady=2, padx=10
