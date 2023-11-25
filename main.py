@@ -27,6 +27,7 @@ class MainApplication(tk.Tk):
             "messages": MessagesView,
             "profile": ProfileView,
             "new_msg": NewMessageView,
+            "edit_resources": EditResourcesView # Needs camp_id_for_resources in global state,
         }
         # Create the reverse map
         self.reverse_view_map = {}
@@ -47,7 +48,7 @@ class MainApplication(tk.Tk):
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("add_edit_plan")
+        self.switch_to_view("plan_detail")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
