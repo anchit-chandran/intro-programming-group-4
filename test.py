@@ -5,7 +5,7 @@ from main import MainApplication
 class TestApplication(unittest.TestCase):
     
     def setUp(self) -> None:
-        self.app = MainApplication(testing=False) 
+        self.app = MainApplication(testing=True) 
 
     
     def test_all_views_load(self):
@@ -24,6 +24,9 @@ class TestApplication(unittest.TestCase):
                     self.app.GLOBAL_STATE['camp_id_to_view'] = 1
                 elif view == "edit_resources":
                     self.app.GLOBAL_STATE['camp_id_for_resources'] = 1
+                elif view == "add_edit_camp":
+                    self.app.GLOBAL_STATE['plan_id_for_camp'] = 1
+                    self.app.GLOBAL_STATE['camp_id'] = 1
                 
                 self.app.switch_to_view(view)
             except:
