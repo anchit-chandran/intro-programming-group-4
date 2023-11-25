@@ -20,7 +20,7 @@ class AddEditCampView(BaseView):
     # message button function
     # TO DO: add actual links
     def handle_send_message(self):
-        self.master.switch_to_view("add_message")
+        self.master.switch_to_view("new_msg")
         return
 
     # Edit refugee button
