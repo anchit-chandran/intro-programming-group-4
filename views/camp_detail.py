@@ -367,7 +367,7 @@ class CampDetailView(BaseView):
         # MAKE THE TABLE SCROLLABLE
         # canvas container
         self.refugee_table_canvas = tk.Canvas(
-            master=self.all_refugees_container, width=980, height=200
+            master=self.all_refugees_container, width=980, height=300
         )
         self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
 
