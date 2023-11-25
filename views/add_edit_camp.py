@@ -110,7 +110,7 @@ class AddEditCampView(BaseView):
             width=700,
             height=600,
         )
-        self.top_container.grid(row=1, column=0, padx=30, pady=20, sticky="nsew")
+        self.top_container.grid(row=1, column=0, padx=50, pady=20, sticky="nsew")
 
         # info container
         self.info_container = tk.Frame(
@@ -224,7 +224,7 @@ class AddEditCampView(BaseView):
         self.all_volunteers_container = tk.Frame(
             master=self.container,
         )
-        self.all_volunteers_container.grid(row=3, column=0)
+        self.all_volunteers_container.grid(row=3, column=0, sticky="w")
         # table title
         self.volunteers_header = tk.Label(
             master=self.all_volunteers_container,
@@ -279,7 +279,7 @@ class AddEditCampView(BaseView):
         self.all_refugees_container = tk.Frame(
             master=self.container,
         )
-        self.all_refugees_container.grid(row=4, column=0, pady=10)
+        self.all_refugees_container.grid(row=4, column=0, pady=10, sticky="w")
 
         # table title
         self.refugees_header = tk.Label(
