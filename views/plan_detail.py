@@ -13,7 +13,11 @@ class PlanDetailView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        
         self.plan_name = self.master.get_global_state().get("plan_name")
+        if not self.plan_name:
+            logging.error("No plan name in global state. Returning to all plans")
+            self.master.switch_to_view("all_plans")
 
         # Get all plan details
         self.get_plan_details()
@@ -443,8 +447,6 @@ class PlanDetailView(BaseView):
         self.camp_ids = self.get_camp_ids()
         self.camp_resource_ids = self.get_all_camp_resource_ids()
         
-        # Finally clean the global state
-        self.master.get_global_state().pop("plan_name")
 
     def get_all_camp_resource_ids(self) -> tuple:
         """Gets all camp resources for this plan"""

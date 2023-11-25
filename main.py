@@ -47,7 +47,7 @@ class MainApplication(tk.Tk):
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("plan_detail")
+        self.switch_to_view("all_plans")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -105,7 +105,7 @@ class MainApplication(tk.Tk):
 
     def refresh_view(self) -> None:
         """Reloads the current view"""
-        logging.info(f"Refreshing view: {self.current_view}")
+        logging.info(f"Refreshing view: {self.current_view}. Current_state: {self.get_global_state()}")
         self.switch_to_view(self.reverse_view_map[self.current_view.__class__])
 
 
