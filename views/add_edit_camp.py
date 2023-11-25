@@ -1,6 +1,7 @@
 """TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 # from constants import config
@@ -98,7 +99,7 @@ class AddEditCampView(BaseView):
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
-        #    set camp_id into state to retireve for queries in later functions
+        # set camp_id into state to retireve for queries in later functions
         self.get_camp_id()
 
         # get camp info to display from the db
@@ -141,7 +142,6 @@ class AddEditCampView(BaseView):
 
         # ------------------------ Top container------------------------------
 
-        # TO DO: get resources list from db and map over them to display data
         # TO DO: edit handle_send_message to redirect correctly - look up
         # TO DO: make the container scrollable with Canva
 
@@ -213,7 +213,7 @@ class AddEditCampView(BaseView):
         )
         self.resources_num_container.grid(row=4, column=1, pady=5, padx=10, sticky="w")
 
-        #    map through the resources to create a lable with values
+        # map through the resources to create a lable with values
         row_number = 4
         for resource in camp_resources:
             # left label
@@ -364,11 +364,33 @@ class AddEditCampView(BaseView):
         )
         self.add_refugee_button.grid(row=0, column=1, pady=5, sticky="e")
 
+        # MAKE THE TABLE SCROLLABLE
+        # canvas container
+        self.refugee_table_canvas = tk.Canvas(
+            master=self.all_refugees_container, width=1150, height=200
+        )
+        self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew")
+
         # table
         self.table_container = tk.Frame(
-            master=self.all_refugees_container,
+            master=self.refugee_table_canvas,
         )
         self.table_container.grid(row=1, column=0)
+
+        # create scrollable window
+        self.refugee_table_canvas.create_window(
+            (0, 0), window=self.table_container, anchor="nw"
+        )
+
+        # create scrollbar
+        self.refugee_scrollbar = ttk.Scrollbar(
+            master=self.all_refugees_container,
+            orient="vertical",
+            command=self.refugee_table_canvas.yview,
+        )
+        self.refugee_scrollbar.grid(row=1, column=1, sticky="ns")
+
+        self.refugee_table_canvas.configure(yscrollcommand=self.refugee_scrollbar.set)
 
         # Find the max col width
         self.max_col_width = calculate_max_col_width(self.data_to_render)
@@ -381,6 +403,12 @@ class AddEditCampView(BaseView):
                 header=ix == 0,  # True if first row, else False
                 is_refugee_table=True,
             )
+
+        # updating scroll area
+        self.refugee_table_canvas.update_idletasks()  # to checck everything is rendered
+        self.refugee_table_canvas.configure(
+            scrollregion=self.refugee_table_canvas.bbox("all")
+        )  # setting the area scrolled with all the items inside
 
     def _render_row(
         self,
@@ -404,10 +432,7 @@ class AddEditCampView(BaseView):
                 width=200,
                 height=25,
             )
-            self.cell_frame.grid(
-                row=0,
-                column=ix,
-            )
+            self.cell_frame.grid(row=0, column=ix, pady=5)
             add_border(self.cell_frame)
 
             self.cell_content = tk.Label(
