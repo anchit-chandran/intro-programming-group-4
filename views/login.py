@@ -7,6 +7,7 @@ from constants import config
 from .all_plans import AllPlansView
 from .base import BaseView
 from utilities.db import run_query_get_rows
+from constants.config import TITLE
 
 
 class LoginView(BaseView):
@@ -20,30 +21,31 @@ class LoginView(BaseView):
         """Renders widgets for view"""
         
         # Create container
-        self.container = tk.Frame(
+        self.container = tk.LabelFrame(
             master=self,
+            text=f"Welcome to {TITLE} 👋",
             width=500,
             height=300,
         )
         self.container.pack(
             fill="both",
-            padx=30,
             pady=100,
         )
 
         # Header
-        self.header = tk.Label(
+        self.logo = tk.PhotoImage(file="assets/logo.png")
+        self.logo_label = tk.Label(
             master=self.container,
-            text="LOGIN",
-            font=(60),
+            image=self.logo,
         )
-        self.header.pack()
+        self.logo_label.pack()
+        
 
         # Username
         self.username_frame = tk.Frame(
             master=self.container,
         )
-        self.username_frame.pack()
+        self.username_frame.pack(padx=10, pady=10)
 
         self.username_label = tk.Label(
             master=self.username_frame,
