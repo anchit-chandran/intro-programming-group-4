@@ -166,16 +166,21 @@ class BaseView(tk.Frame):
             sticky="e",
         )
 
+        self.username_frame = tk.LabelFrame(
+            master=self.nav_container,
+            text="Account",
+        )
+        self.username_frame.grid(
+            row=0,
+            column=8,
+            sticky="w",
+        )
         self.role_text = (
             "Admin" if self.master.get_global_state().get("is_admin") else "Volunteer"
         )
         self.user_text = tk.Label(
-            master=self.nav_container,
-            text=f"Username: {self.master.get_global_state().get('username')} ({self.role_text})",
+            master=self.username_frame,
+            text=f"{self.master.get_global_state().get('username')} ({self.role_text})",
             fg="green",
         )
-        self.user_text.grid(
-            row=0,
-            column=8,
-            sticky="e",
-        )
+        self.user_text.pack(padx=5, pady=5)
