@@ -33,7 +33,18 @@ class BaseView(tk.Frame):
         self.master.switch_to_view("messages")
 
     def _handle_my_camp_click(self) -> None:
-        self.master.switch_to_view("my_camp")
+        user_id = self.master.get_global_state().get("user_id")
+        camp_id = run_query_get_rows(f"""
+                                     SELECT camp_id
+                                     FROM User
+                                     WHERE id={user_id}
+                                     """)[0]['camp_id']
+        
+        current_state = self.master.get_global_state() 
+        current_state['camp_id_to_view'] = camp_id
+        self.master.set_global_state(current_state)
+        
+        self.master.switch_to_view("camp_detail")
 
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")

@@ -6,7 +6,7 @@ import sqlite3
 # Project imports
 from views import *
 from constants import config
-from utilities.db import setup_db
+from utilities.db import setup_db, run_query_get_rows
 
 
 class MainApplication(tk.Tk):
@@ -21,10 +21,11 @@ class MainApplication(tk.Tk):
             "plan_detail": PlanDetailView,
             "all_plans": AllPlansView,
             "add_edit_plan": AddEditPlanView,
+            "add_edit_camp": AddEditCampView,
+            "camp_detail": CampDetailView,
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
-            "my_camp": MyCampView,
             "new_msg": NewMessageView,
         }
         # Create the reverse map
@@ -40,12 +41,13 @@ class MainApplication(tk.Tk):
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
+                    "plan_name": "Plan 0",
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("login")
+        self.switch_to_view("plan_detail")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -71,7 +73,19 @@ class MainApplication(tk.Tk):
         if self.get_global_state().get("is_admin"):
             self.switch_to_view("all_plans")
         else:
-            self.switch_to_view("my_camp")
+            user_id = self.get_global_state().get("user_id")
+            camp_id = run_query_get_rows(
+                f"""
+                                        SELECT camp_id
+                                        FROM User
+                                        WHERE id={user_id}
+                                        """
+            )[0]['camp_id']
+
+            current_state = self.get_global_state()
+            current_state["camp_id_to_view"] = camp_id
+            self.set_global_state(current_state)
+            self.switch_to_view("camp_detail")
 
     def _render_new_view(self, new_view) -> None:
         # Clear current view
