@@ -15,15 +15,51 @@ class AddEditCampView(BaseView):
         super().__init__(master)
         self.master = master
         self.render_widgets()
-        # message button function
 
+    # message button function
+    # TO DO: add actual functionality
     def handle_send_message(self):
         # self.master.switch_to_view("add_message")
         return
 
+    # Edit refugee button
+    def handle_edit_click(self, refugee_id: int):
+        # Add refugee id to global state for edit view
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_edit"] = refugee_id
+        self.master.set_global_state(current_global_state)
+
+        self.master.switch_to_view("add_edit_refugee")
+
+    # View refugee profile function
+    def handle_view_click(self, refugee_id: int):
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_edit"] = refugee_id
+        self.master.set_global_state(current_global_state)
+
+        self.master.switch_to_view("add_edit_refugee")
+
+    # add refugees function
+    def _handle_add_refugee_click(self, refugee_id: int):
+        # Clean EDIT PLAN global vars
+        current_state = self.master.get_global_state()
+        current_state.pop("refugee_id_to_edit", None)
+        self.master.set_global_state(current_state)
+
+        self.master.switch_to_view("add_edit_refugee")
+
+    # query all volunteers in the camp
     def get_volunteers(self) -> list[dict]:
         return run_query_get_rows(
             "SELECT * FROM User WHERE camp_id = 1 AND is_admin = 0"
+        )
+
+    # query all refugees in the camp
+    def get_refugees(self) -> list[dict]:
+        return run_query_get_rows(
+            # ????? QUESTION - DO WE DISPLAY THOSE WHO ARE NOT IN CAMP AS WELL???
+            # TO DO: change camp id to retrieved one
+            "SELECT * FROM RefugeeFamily WHERE camp_id = 1 AND is_in_camp=1"
         )
 
     def render_widgets(self) -> None:
@@ -67,6 +103,7 @@ class AddEditCampView(BaseView):
         # TO DO: retrieve camp info from db and put instead of placeholder
         # TO DO: get resources list from db and map over them to display data
         # TO DO: edit handle_send_message to redirect correctly - look up
+        # TO DO: make the container scrollable with Canva
 
         self.top_container = tk.Frame(
             master=self.container,
@@ -148,9 +185,11 @@ class AddEditCampView(BaseView):
         )
         self.send_message_button.grid(row=0, column=2, padx=30, pady=20, sticky="ne")
 
-        # ------------------------ Volunteers list ------------------------------
+        # render tables
         self.render_camp_volunteers()
+        self.render_camp_refugees()
 
+    # ------------------------ Volunteers list ------------------------------
     def render_camp_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
 
@@ -187,12 +226,12 @@ class AddEditCampView(BaseView):
         )
         self.all_volunteers_container.grid(row=3, column=0)
         # table title
-        self.volunteers_header_header = tk.Label(
+        self.volunteers_header = tk.Label(
             master=self.all_volunteers_container,
             text="VOLUNTEERS",
             font=42,
         )
-        self.volunteers_header_header.grid(row=0, column=0, pady=5, sticky="w")
+        self.volunteers_header.grid(row=0, column=0, pady=5, sticky="w")
 
         # table
         self.table_container = tk.Frame(
@@ -211,17 +250,84 @@ class AddEditCampView(BaseView):
                 header=ix == 0,  # True if first row, else False
             )
 
+    # ------------------------ Refugees list ------------------------------
+    def render_camp_refugees(self) -> None:
+        self.all_refugees = self.get_refugees()
+
+        # headers list
+        self.header_cols = [
+            "Id",
+            "Representative Name",
+            "Medical Conditions",
+            "Adults",
+            "Children",
+            "Missing members",
+        ]
+        self.data_to_render = [self.header_cols]
+
+        for refugee in self.all_refugees:
+            data_to_add = []
+            data_to_add.append(refugee["id"])
+            data_to_add.append(refugee["main_rep_name"])
+            data_to_add.append(refugee["medical_conditions"])
+            data_to_add.append(refugee["n_adults"])
+            data_to_add.append(refugee["n_children"])
+            data_to_add.append(refugee["n_missing_members"])
+
+            self.data_to_render.append(data_to_add)
+
+        self.all_refugees_container = tk.Frame(
+            master=self.container,
+        )
+        self.all_refugees_container.grid(row=4, column=0, pady=10)
+
+        # table title
+        self.refugees_header = tk.Label(
+            master=self.all_refugees_container,
+            text="REFUGEE FAMILIES",
+            font=42,
+        )
+        self.refugees_header.grid(row=0, column=0, pady=5, sticky="w")
+
+        # Add refugee button
+        self.add_refugee_button = tk.Button(
+            master=self.all_refugees_container,
+            text="+ Add Regugee Family",
+            command=self._handle_add_refugee_click,
+            bg="green",
+        )
+        self.add_refugee_button.grid(row=0, column=1, pady=5, sticky="e")
+
+        # table
+        self.table_container = tk.Frame(
+            master=self.all_refugees_container,
+        )
+        self.table_container.grid(row=1, column=0)
+
+        # Find the max col width
+        self.max_col_width = calculate_max_col_width(self.data_to_render)
+
+        for ix, row in enumerate(self.data_to_render):
+            self._render_row(
+                container=self.table_container,
+                items=row,
+                column_width=self.max_col_width,
+                header=ix == 0,  # True if first row, else False
+                is_refugee_table=True,
+            )
+
     def _render_row(
         self,
         container: tk.Frame,
         items: list[str],
         column_width=15,
         header=False,
+        is_refugee_table=False,
     ) -> None:
         self.row_container = tk.Frame(
             master=container,
         )
-        self.row_container.pack()
+        self.row_container.grid(row=container.grid_size()[1], sticky="w")
 
         # Add more space for col width
         column_width += 10
@@ -250,3 +356,25 @@ class AddEditCampView(BaseView):
                 fill="both",
                 expand=True,
             )
+
+        # Add edit buttons
+        if not header and is_refugee_table:
+            # edit btn
+            self.edit_refugees_btn = tk.Button(
+                master=self.row_container,
+                text="EDIT",
+                command=lambda: self.handle_edit_click(items[0]),
+                width=column_width - 3,
+                bg="grey",
+            )
+            self.edit_refugees_btn.grid(row=0, column=len(items) + 1, padx=5)
+
+            # view btn
+            self.edit_refugees_btn = tk.Button(
+                master=self.row_container,
+                text="VIEW",
+                command=lambda: self.handle_view_click(items[0]),
+                width=column_width - 3,
+                bg="lightblue",
+            )
+            self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)
