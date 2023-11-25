@@ -8,3 +8,4 @@ from .profile_view import ProfileView
 from .new_msg import NewMessageView
 from .add_edit_camp import AddEditCampView
 from .camp_detail import CampDetailView
+from .edit_resources import EditResourcesView
