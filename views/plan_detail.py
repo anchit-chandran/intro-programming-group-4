@@ -84,6 +84,22 @@ class PlanDetailView(BaseView):
         self.render_total_resources(
             container=self.total_resources_frame,
         )
+        
+        self.add_camp_frame = tk.Frame(
+            master=self.container,
+        )
+        self.add_camp_frame.grid(
+            row=2,
+            column=0,
+            columnspan=2,
+            sticky='e',
+        )
+        self.add_camp_button = tk.Button(
+            master=self.add_camp_frame,
+            text="Add Camp",
+            command=lambda: self._handle_add_camp_click(),
+        )
+        self.add_camp_button.pack(side='right')
 
         self.all_camps_container = tk.Frame(
             master=self.container,
@@ -91,13 +107,21 @@ class PlanDetailView(BaseView):
             height=300,
         )
         self.all_camps_container.grid(
-            row=2,
+            row=3,
             column=0,
             columnspan=2,
             pady=40,
         )
         self.render_all_camps(container=self.all_camps_container)
 
+    def _handle_add_camp_click(self) -> None:
+        
+        current_state = self.master.get_global_state()
+        current_state["plan_id_for_camp"] = self.plan_id
+        self.master.set_global_state(current_state)
+        
+        self.master.switch_to_view("add_edit_camp")
+    
     def render_all_camps(self, container) -> None:
         self.all_camps = self.get_all_camps()
 
