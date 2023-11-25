@@ -111,4 +111,12 @@ current_state['new_variable'] = 'new_value'
 self.master.set_global_state(current_state)
 ```
 
+# Tests
 
+Run tests using:
+
+```python
+python test.py
+```
+
+This is also automatically run on PR.
