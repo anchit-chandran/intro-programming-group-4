@@ -3,8 +3,7 @@
 import tkinter as tk
 
 # Project imports
-from views.base import BaseView
-from constants import config
+# from constants import config
 from utilities.db import run_query_get_rows
 from utilities.formatting import add_border, calculate_max_col_width
 from .base import BaseView
@@ -50,8 +49,19 @@ class AddEditCampView(BaseView):
 
     # query all volunteers in the camp
     def get_volunteers(self) -> list[dict]:
+        # TO DO: get volunteer ID to get camp id from db
+        volunteer_id = int({self.master.get_global_state().get("user_id")}.pop())
+        camp_query = run_query_get_rows(
+            f"SELECT camp_id FROM User WHERE id = '{volunteer_id}'"
+        )
+        camp_id = camp_query[0]["camp_id"]
+        print(volunteer_id, camp_id)
+        current_global_state = self.master.get_global_state()
+        current_global_state["camp_id"] = camp_id
+        self.master.set_global_state(current_global_state)
+
         return run_query_get_rows(
-            "SELECT * FROM User WHERE camp_id = 1 AND is_admin = 0"
+            f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0'"
         )
 
     # query all refugees in the camp
@@ -100,6 +110,7 @@ class AddEditCampView(BaseView):
         # ------------------------ Top container------------------------------
 
         # TO DO: get volunteer ID to get camp id from db
+        volunteer_id = {self.master.get_global_state().get("user_id")}
         # TO DO: retrieve camp info from db and put instead of placeholder
         # TO DO: get resources list from db and map over them to display data
         # TO DO: edit handle_send_message to redirect correctly - look up
