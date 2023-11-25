@@ -72,12 +72,20 @@ class AddEditCampView(BaseView):
             f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0'"
         )
 
+        #   ?????   QUESTION -> DO WE DISPLAY THE CURRENT USER AS WELL? IF NOT THIS IS THE QUERY
+        # get volunteer_id:
+        # volunteer_id = int({self.master.get_global_state().get("user_id")}.pop())
+        # # query:
+        # return run_query_get_rows(
+        #     f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0' AND id <> '{volunteer_id}'"
+        # )
+
     # query all refugees in the camp
     def get_refugees(self) -> list[dict]:
         camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
         return run_query_get_rows(
             # ????? QUESTION - DO WE DISPLAY THOSE WHO ARE NOT IN CAMP AS WELL???
-            f"SELECT * FROM RefugeeFamily WHERE camp_id = 1 AND is_in_camp={camp_id}"
+            f"SELECT * FROM RefugeeFamily WHERE camp_id = {camp_id} AND is_in_camp=1"
         )
 
     # query general info for the camp - top bit
