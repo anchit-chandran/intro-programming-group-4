@@ -16,12 +16,13 @@ class AddEditCampView(BaseView):
         self.render_widgets()
 
     # message button function
-    # TO DO: add actual functionality
+    # TO DO: add actual links
     def handle_send_message(self):
         # self.master.switch_to_view("add_message")
         return
 
     # Edit refugee button
+    # TO DO: add actual links
     def handle_edit_click(self, refugee_id: int):
         # Add refugee id to global state for edit view
         current_global_state = self.master.get_global_state()
@@ -31,6 +32,7 @@ class AddEditCampView(BaseView):
         self.master.switch_to_view("add_edit_refugee")
 
     # View refugee profile function
+    # TO DO: add actual links
     def handle_view_click(self, refugee_id: int):
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
@@ -39,6 +41,7 @@ class AddEditCampView(BaseView):
         self.master.switch_to_view("add_edit_refugee")
 
     # add refugees function
+    # TO DO: add actual links
     def _handle_add_refugee_click(self, refugee_id: int):
         # Clean EDIT PLAN global vars
         current_state = self.master.get_global_state()
@@ -84,12 +87,25 @@ class AddEditCampView(BaseView):
         )
         return result[0]
 
+    # query resources for the camp
+    def get_camp_resources(self) -> list[dict]:
+        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+        resources_result = run_query_get_rows(
+            f"SELECT name, amount FROM CampResources WHERE camp_id='{camp_id}'"
+        )
+        return resources_result
+
     def render_widgets(self) -> None:
         """Renders widgets for view"""
+
+        #    set camp_id into state to retireve for queries in later functions
         self.get_camp_id()
 
         # get camp info to display from the db
         camp_info = self.get_camp_info()
+
+        # get resources details from db
+        camp_resources = self.get_camp_resources()
 
         # Create container
         self.container = tk.Frame(
@@ -125,7 +141,6 @@ class AddEditCampView(BaseView):
 
         # ------------------------ Top container------------------------------
 
-        # TO DO: retrieve camp info from db and put instead of placeholder
         # TO DO: get resources list from db and map over them to display data
         # TO DO: edit handle_send_message to redirect correctly - look up
         # TO DO: make the container scrollable with Canva
@@ -181,9 +196,9 @@ class AddEditCampView(BaseView):
 
         # resources container
         self.resources_container = tk.Frame(
-            master=self.top_container, width=300, height=600, bg="lightgrey"
+            master=self.top_container, width=300, bg="lightgrey"
         )
-        self.resources_container.grid(row=0, column=1, padx=30, pady=20, sticky="nsew")
+        self.resources_container.grid(row=0, column=1, padx=30, pady=10, sticky="nsew")
 
         # header span 2 columns
         self.resources_header = tk.Label(
@@ -193,18 +208,37 @@ class AddEditCampView(BaseView):
             row=3, column=1, columnspan=2, pady=20, padx=10, sticky="w"
         )
 
-        # left label
-        # get from db and map over
-        self.resources_label = tk.Label(
-            master=self.resources_container, text="Resource 1:", font=24, bg="lightgrey"
+        self.resources_num_container = tk.Frame(
+            master=self.resources_container, width=300, height=700, bg="lightgrey"
         )
-        self.resources_label.grid(row=4, column=1, sticky="w", pady=10, padx=10)
+        self.resources_num_container.grid(row=4, column=1, pady=5, padx=10, sticky="w")
 
-        # right info
-        self.resources_info = tk.Label(
-            master=self.resources_container, text="Placeholder", font=16, bg="lightgrey"
-        )
-        self.resources_info.grid(row=4, column=2, sticky="w", pady=10, padx=10)
+        #    map through the resources to create a lable with values
+        row_number = 4
+        for resource in camp_resources:
+            # left label
+            # get from db and map over
+            self.resources_label = tk.Label(
+                master=self.resources_num_container,
+                text=resource["name"],
+                font=14,
+                bg="lightgrey",
+            )
+            self.resources_label.grid(
+                row=row_number, column=1, sticky="w", pady=2, padx=10
+            )
+
+            # right info
+            self.resources_info = tk.Label(
+                master=self.resources_num_container,
+                text=resource["amount"],
+                font=14,
+                bg="lightgrey",
+            )
+            self.resources_info.grid(
+                row=row_number, column=2, sticky="w", pady=2, padx=10
+            )
+            row_number += 1
 
         # button
         self.send_message_button = tk.Button(
@@ -235,6 +269,7 @@ class AddEditCampView(BaseView):
         ]
         self.data_to_render = [self.header_cols]
 
+        # TO DO: FILTER OUT THE CURRENT USER
         for volunteer in self.all_volunteers:
             data_to_add = []
             data_to_add.append(volunteer["id"])
