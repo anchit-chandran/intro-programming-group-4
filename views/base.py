@@ -38,7 +38,7 @@ class BaseView(tk.Frame):
                                      SELECT camp_id
                                      FROM User
                                      WHERE id={user_id}
-                                     """)
+                                     """)[0]['camp_id']
         
         current_state = self.master.get_global_state() 
         current_state['camp_id_to_view'] = camp_id
