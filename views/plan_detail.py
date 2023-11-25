@@ -14,10 +14,10 @@ class PlanDetailView(BaseView):
         super().__init__(master)
         self.master = master
 
-        self.plan_name = self.master.get_global_state().pop("plan_name")
+        self.plan_name = self.master.get_global_state().get("plan_name")
         if not self.plan_name:
             logging.error("No plan name in global state. Returning to all plans")
-            self.master.switch_to_view("all_plans")
+            raise ValueError("No plan name in global state")
 
         # Get all plan details
         self.get_plan_details()
