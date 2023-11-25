@@ -13,6 +13,9 @@ class AddEditPlanView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        
+        # SET INSTANCE VARIABLES
+        self.MAX_CHAR_LEN = 20
 
         self.edit_plan_name = self.master.GLOBAL_STATE.get("plan_name_to_edit")
         self.is_edit = bool(self.edit_plan_name)
@@ -198,7 +201,7 @@ class AddEditPlanView(BaseView):
         )
         self.plan_name_label = tk.Label(
             master=self.plan_name_label_container,
-            text="Name",
+            text="Name (max 40 chars)",
         )
         self.plan_name_label.pack(
             side="left",
@@ -215,13 +218,21 @@ class AddEditPlanView(BaseView):
         self.plan_title_text = tk.StringVar()
         if self.is_edit:
             self.plan_title_text.set(self.edit_plan_details["title"])
-
+        # Set char length limit
+        self.plan_title_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.plan_title_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.plan_name_entry = tk.Entry(
             master=self.plan_name_entry_container,
             width=50,
-            textvariable=self.plan_title_text if self.is_edit else None,
+            textvariable=self.plan_title_text,
         )
         self.plan_name_entry.pack()
+
+        
 
     def _render_start_date(self, form_container, on_row: int) -> None:
         # DATE
@@ -261,10 +272,17 @@ class AddEditPlanView(BaseView):
                 "start_date"
             ].split("-")
             self.plan_start_date_year_text.set(self.edit_year)
+        # Set char length limit
+        self.plan_start_date_year_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.plan_start_date_year_text, char_limit=4
+            ),
+        )
         self.start_date_year_entry = tk.Entry(
             master=self.start_date_entry_container,
             width=50 // 3,
-            textvariable=self.plan_start_date_year_text if self.is_edit else None,
+            textvariable=self.plan_start_date_year_text,
             state="disabled" if self.is_edit else None,
         )
         self.start_date_year_entry.pack(
@@ -276,10 +294,17 @@ class AddEditPlanView(BaseView):
         self.plan_start_date_month_text = tk.StringVar()
         if self.is_edit:
             self.plan_start_date_month_text.set(self.edit_month)
+        # Set char length limit
+        self.plan_start_date_month_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.plan_start_date_month_text, char_limit=2
+            ),
+        )
         self.start_date_month_entry = tk.Entry(
             master=self.start_date_entry_container,
             width=50 // 3,
-            textvariable=self.plan_start_date_month_text if self.is_edit else None,
+            textvariable=self.plan_start_date_month_text,
             state="disabled" if self.is_edit else None,
         )
         self.start_date_month_entry.pack(
@@ -291,10 +316,17 @@ class AddEditPlanView(BaseView):
         self.plan_start_date_day_text = tk.StringVar()
         if self.is_edit:
             self.plan_start_date_day_text.set(self.edit_day)
+        # Set char length limit
+        self.plan_start_date_day_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.plan_start_date_day_text, char_limit=2
+            ),
+        )
         self.start_date_day_entry = tk.Entry(
             master=self.start_date_entry_container,
             width=50 // 3,
-            textvariable=self.plan_start_date_day_text if self.is_edit else None,
+            textvariable=self.plan_start_date_day_text,
             state="disabled" if self.is_edit else None,
         )
         self.start_date_day_entry.pack(
@@ -322,7 +354,7 @@ class AddEditPlanView(BaseView):
         )
         self.plan_location_label = tk.Label(
             master=self.plan_location_label_container,
-            text="Location",
+            text="Location (max 40 chars)",
         )
         self.plan_location_label.pack(
             side="left",
@@ -339,11 +371,19 @@ class AddEditPlanView(BaseView):
         self.plan_location_text = tk.StringVar()
         if self.is_edit:
             self.plan_location_text.set(self.edit_plan_details["location"])
+        
+        # Set char length limit
+        self.plan_location_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.plan_location_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
 
         self.plan_location_entry = tk.Entry(
             master=self.plan_location_entry_container,
             width=50,
-            textvariable=self.plan_location_text if self.is_edit else None,
+            textvariable=self.plan_location_text,
         )
         self.plan_location_entry.pack()
 
@@ -423,7 +463,7 @@ class AddEditPlanView(BaseView):
         )
         self.description_label = tk.Label(
             master=self.description_label_container,
-            text="Description",
+            text="Description (max 40 chars)",
         )
         self.description_label.pack(
             side="left",
@@ -440,11 +480,19 @@ class AddEditPlanView(BaseView):
         self.description_text = tk.StringVar()
         if self.is_edit:
             self.description_text.set(self.edit_plan_details["description"])
+        
+        # Set char length limit
+        self.description_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.description_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
 
         self.description_entry = tk.Entry(
             master=self.description_entry_container,
             width=50,
-            textvariable=self.description_text if self.is_edit else None,
+            textvariable=self.description_text,
         )
         self.description_entry.pack()
 
@@ -488,7 +536,7 @@ class AddEditPlanView(BaseView):
         self.central_email_entry = tk.Entry(
             master=self.central_email_entry_container,
             width=50,
-            textvariable=self.central_email_text if self.is_edit else None,
+            textvariable=self.central_email_text,
         )
         self.central_email_entry.pack()
 
@@ -507,7 +555,7 @@ class AddEditPlanView(BaseView):
             # If editing, start date can be in the past
             if start_date < datetime.date.today() and (not self.is_edit):
                 return None, "Start date cannot be in the past."
-            return start_date, ''
+            return start_date, ""
         except Exception as e:
             logging.debug(f"Invalid start date: {e}")
             return None, "Invalid start date."
@@ -659,7 +707,7 @@ class AddEditPlanView(BaseView):
             expand=True,
             fill="both",
         )
-        
+
         actions_container = tk.Frame(
             master=self.error_popup_window,
         )
@@ -671,7 +719,7 @@ class AddEditPlanView(BaseView):
         ).pack(
             pady=2,
             side="left",
-            fill='x',
+            fill="x",
         )
         tk.Button(
             master=actions_container,
@@ -680,7 +728,7 @@ class AddEditPlanView(BaseView):
         ).pack(
             pady=2,
             side="right",
-            fill='x',
+            fill="x",
         )
 
         # Disable main window

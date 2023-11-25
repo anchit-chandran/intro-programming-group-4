@@ -195,3 +195,16 @@ class BaseView(tk.Frame):
             fg="green",
         )
         self.user_text.pack(padx=5, pady=5)
+
+    def set_character_limit(self, entry_text:tk.StringVar, char_limit: int) -> None:
+        """Set character limit for entry_text (exclusive)
+        
+        E.g.
+            # Set char limit of 50
+            self.message = tk.StringVar()
+            self.message.trace(
+                "w", lambda *args: self.set_character_limit(entry_text = self.message, char_limit=50)
+            )
+        """
+        if len(entry_text.get()) > 0:
+            entry_text.set(entry_text.get()[:char_limit])
