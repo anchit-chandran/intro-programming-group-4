@@ -47,33 +47,49 @@ class AddEditCampView(BaseView):
 
         self.master.switch_to_view("add_edit_refugee")
 
-    # query all volunteers in the camp
-    def get_volunteers(self) -> list[dict]:
-        # TO DO: get volunteer ID to get camp id from db
+    # get and set camp id
+    def get_camp_id(self):
         volunteer_id = int({self.master.get_global_state().get("user_id")}.pop())
         camp_query = run_query_get_rows(
             f"SELECT camp_id FROM User WHERE id = '{volunteer_id}'"
         )
         camp_id = camp_query[0]["camp_id"]
-        print(volunteer_id, camp_id)
         current_global_state = self.master.get_global_state()
         current_global_state["camp_id"] = camp_id
         self.master.set_global_state(current_global_state)
 
+    # query all volunteers in the camp
+    def get_volunteers(self) -> list[dict]:
+        # get volunteer ID to get camp id from db
+        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+
+        # get all volunteers in the camp
         return run_query_get_rows(
             f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0'"
         )
 
     # query all refugees in the camp
     def get_refugees(self) -> list[dict]:
+        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
         return run_query_get_rows(
             # ????? QUESTION - DO WE DISPLAY THOSE WHO ARE NOT IN CAMP AS WELL???
-            # TO DO: change camp id to retrieved one
-            "SELECT * FROM RefugeeFamily WHERE camp_id = 1 AND is_in_camp=1"
+            f"SELECT * FROM RefugeeFamily WHERE camp_id = 1 AND is_in_camp={camp_id}"
         )
+
+    # query general info for the camp - top bit
+    def get_camp_info(self) -> list[dict]:
+        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+        result = run_query_get_rows(
+            f"SELECT name, location, maxCapacity FROM Camp WHERE id='{camp_id}'"
+        )
+        return result[0]
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
+        self.get_camp_id()
+
+        # get camp info to display from the db
+        camp_info = self.get_camp_info()
 
         # Create container
         self.container = tk.Frame(
@@ -109,8 +125,6 @@ class AddEditCampView(BaseView):
 
         # ------------------------ Top container------------------------------
 
-        # TO DO: get volunteer ID to get camp id from db
-        volunteer_id = {self.master.get_global_state().get("user_id")}
         # TO DO: retrieve camp info from db and put instead of placeholder
         # TO DO: get resources list from db and map over them to display data
         # TO DO: edit handle_send_message to redirect correctly - look up
@@ -150,12 +164,18 @@ class AddEditCampView(BaseView):
 
         # right info
         self.location_info = tk.Label(
-            master=self.info_container, text="Placeholder", font=24, bg="lightgrey"
+            master=self.info_container,
+            text=camp_info["location"],
+            font=24,
+            bg="lightgrey",
         )
         self.location_info.grid(row=4, column=1, sticky="w", pady=10, padx=10)
 
         self.max_capacity_info = tk.Label(
-            master=self.info_container, text="Placeholder", font=24, bg="lightgrey"
+            master=self.info_container,
+            text=camp_info["maxCapacity"],
+            font=24,
+            bg="lightgrey",
         )
         self.max_capacity_info.grid(row=5, column=1, sticky="w", pady=10, padx=10)
 
