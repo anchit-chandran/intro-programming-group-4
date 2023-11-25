@@ -14,7 +14,7 @@ class PlanDetailView(BaseView):
         super().__init__(master)
         self.master = master
 
-        self.plan_name = self.master.get_global_state().get("plan_name")
+        self.plan_name = self.master.get_global_state().pop("plan_name")
         if not self.plan_name:
             logging.error("No plan name in global state. Returning to all plans")
             self.master.switch_to_view("all_plans")
@@ -116,6 +116,8 @@ class PlanDetailView(BaseView):
 
     def _handle_add_camp_click(self) -> None:
         
+
+        
         current_state = self.master.get_global_state()
         current_state["plan_id_for_camp"] = self.plan_id
         self.master.set_global_state(current_state)
@@ -180,7 +182,6 @@ class PlanDetailView(BaseView):
 
                 if not header:
                     new_label = [f"{resource[0]}: {resource[1]}" for resource in label]
-                    print(", ".join(new_label))
                     label = "\n".join(new_label)
 
             # Make action col thinner
