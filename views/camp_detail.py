@@ -21,70 +21,61 @@ class CampDetailView(BaseView):
         self.master = master
         self.render_widgets()
 
-    # message button function
-    # TO DO: add actual links
     def handle_send_message(self):
+        """navigates to new message form view"""
         self.master.switch_to_view("new_msg")
         return
 
-    # Edit refugee button
     # TO DO: add actual links
     def handle_edit_click(self, refugee_id: int):
-        # Add refugee id to global state for edit view
+        """Navigates to edit refugee from view"""
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
-
         self.master.switch_to_view("add_edit_refugee")
 
-    # View refugee profile function
     # TO DO: add actual links
     def handle_view_click(self, refugee_id: int):
+        """navigates to refugee profile view"""
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
-
         self.master.switch_to_view("refugee_profile")
 
-    # redirect to departed refugee list view
     def handle_view_departed_click(self):
+        """navigates to departed refugee list view"""
         self.master.switch_to_view("departed_refugee_list")
 
-    # add refugees function
     # TO DO: add actual links
-    def _handle_add_refugee_click(self, refugee_id: int):
-        # Clean EDIT PLAN global vars
+    def _handle_add_refugee_click(self):
+        """navigates to add refugee form view"""
         current_state = self.master.get_global_state()
         current_state.pop("refugee_id_to_edit", None)
         self.master.set_global_state(current_state)
-
         self.master.switch_to_view("add_edit_refugee")
 
-    # check if admin for access control
     def is_volunteer(self):
+        """checks if the user is admin for access control"""
         is_volunteer = int({self.master.get_global_state().get("is_admin")}.pop())
         if is_volunteer == 1:
             return False
         else:
             return True
 
-    # get and set camp id
     def get_camp_id(self):
+        """gets camp id from state"""
         camp_id = {self.master.get_global_state().get("camp_id_to_view")}.pop()
         return camp_id
 
-    # query all volunteers in the camp
     def get_volunteers(self) -> list[dict]:
-        # get volunteer ID to get camp id from db
+        """queries all volunteers in the camp"""
         camp_id = self.get_camp_id()
-
-        # get all volunteers in the camp
         return run_query_get_rows(
             f"SELECT * FROM User WHERE camp_id = '{camp_id}' AND is_admin = '0'"
         )
 
-    # calculate volunteers age
     def get_age(self, dob_str):
+        """calculates volunteers age"""
         current_date = datetime.now()
         dob = datetime.strptime(dob_str, "%Y-%m-%d %H:%M:%S")
         age = (
@@ -94,23 +85,23 @@ class CampDetailView(BaseView):
         )
         return age
 
-    # query all refugees in the camp
     def get_refugees(self) -> list[dict]:
+        """queries all refugees in the camp"""
         camp_id = self.get_camp_id()
         return run_query_get_rows(
             f"SELECT * FROM RefugeeFamily WHERE camp_id = {camp_id} AND is_in_camp=1"
         )
 
-    # query general info for the camp - top bit
     def get_camp_info(self) -> list[dict]:
+        """queries general info for the camp - top bit"""
         camp_id = self.get_camp_id()
         result = run_query_get_rows(
             f"SELECT name, location, maxCapacity FROM Camp WHERE id='{camp_id}'"
         )
         return result[0]
 
-    # query resources for the camp
     def get_camp_resources(self) -> list[dict]:
+        """queries resources for the camp"""
         camp_id = self.get_camp_id()
         resources_result = run_query_get_rows(
             f"SELECT name, amount FROM CampResources WHERE camp_id='{camp_id}'"
@@ -120,9 +111,6 @@ class CampDetailView(BaseView):
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
-        # # set camp_id into state to retireve for queries in later functions
-        # self.get_camp_id()
-
         # get camp info to display from the db
         camp_info = self.get_camp_info()
 
@@ -130,7 +118,7 @@ class CampDetailView(BaseView):
         camp_resources = self.get_camp_resources()
 
         # Create container
-        self.container = tk.Frame(
+        self.container = ttk.Frame(
             master=self,
             width=500,
             height=300,
@@ -142,7 +130,7 @@ class CampDetailView(BaseView):
         )
 
         # Header
-        self.header_container = tk.Frame(
+        self.header_container = ttk.Frame(
             master=self.container,
             width=500,
             height=100,
@@ -152,7 +140,7 @@ class CampDetailView(BaseView):
             column=0,
         )
 
-        self.header = tk.Label(
+        self.header = ttk.Label(
             master=self.header_container,
             text=f"WELLCOME {self.master.get_global_state().get('username')}! 👋",
             font=(60),
@@ -164,7 +152,7 @@ class CampDetailView(BaseView):
 
         # ------------------------ Top container------------------------------
 
-        self.top_container = tk.Frame(
+        self.top_container = ttk.Frame(
             master=self.container,
             width=700,
             height=600,
@@ -172,63 +160,74 @@ class CampDetailView(BaseView):
         self.top_container.grid(row=1, column=0, padx=50, pady=20, sticky="nsew")
 
         # info container
-        self.info_container = tk.Frame(
-            master=self.top_container, width=300, height=600, bg="lightgrey"
+        self.info_container = ttk.Frame(
+            master=self.top_container,
+            width=300,
+            height=600,
         )
         self.info_container.grid(row=0, column=0, padx=30, pady=20, sticky="nsew")
 
         # header span 2 columns
-        self.info_header = tk.Label(
-            master=self.info_container, text="INFORMATION", font=42, bg="lightgrey"
+        self.info_header = ttk.Label(
+            master=self.info_container,
+            text="INFORMATION",
         )
         self.info_header.grid(
-            row=3, column=0, columnspan=2, pady=20, padx=10, sticky="w"
+            row=3, column=0, columnspan=2, pady=20, padx=10, sticky="nw"
         )
 
         # left label
-        self.location_label = tk.Label(
-            master=self.info_container, text="LOCATION:", font=32, bg="lightgrey"
+        self.location_label = ttk.Label(
+            master=self.info_container,
+            text="Location:",
         )
         self.location_label.grid(row=4, column=0, sticky="w", pady=10, padx=10)
 
-        self.max_capacity_label = tk.Label(
-            master=self.info_container, text="MAX CAPACITY:", font=32, bg="lightgrey"
+        self.max_capacity_label = ttk.Label(
+            master=self.info_container,
+            text="Max Capacity:",
         )
         self.max_capacity_label.grid(row=5, column=0, sticky="w", pady=10, padx=10)
 
         # right info
-        self.location_info = tk.Label(
+        self.location_info = ttk.Label(
             master=self.info_container,
             text=camp_info["location"],
-            font=24,
-            bg="lightgrey",
         )
         self.location_info.grid(row=4, column=1, sticky="w", pady=10, padx=10)
 
-        self.max_capacity_info = tk.Label(
+        self.max_capacity_info = ttk.Label(
             master=self.info_container,
             text=camp_info["maxCapacity"],
-            font=24,
-            bg="lightgrey",
         )
         self.max_capacity_info.grid(row=5, column=1, sticky="w", pady=10, padx=10)
 
         # resources container
-        self.resources_container = tk.Frame(
-            master=self.top_container, width=300, bg="lightgrey"
+        self.resources_container = ttk.Frame(
+            master=self.top_container,
+            width=300,
         )
-        self.resources_container.grid(row=0, column=1, padx=30, pady=10, sticky="nsew")
+        self.resources_container.grid(row=0, column=1, padx=30, pady=10, sticky="n")
 
+        self.total_resources_frame = tk.LabelFrame(
+            master=self.info_container,
+            text="Resources",
+            padx=10,
+            pady=10,
+        )
         # header span 2 columns
-        self.resources_header = tk.Label(
-            master=self.resources_container, text="RESOURCES", font=42, bg="lightgrey"
+        self.resources_header = ttk.Label(
+            master=self.resources_container,
+            text="RESOURCES",
         )
         self.resources_header.grid(
             row=3, column=1, columnspan=2, pady=20, padx=10, sticky="w"
         )
 
-        self.resources_num_container = tk.Frame(
-            master=self.resources_container, width=300, height=700, bg="lightgrey"
+        self.resources_num_container = ttk.Frame(
+            master=self.resources_container,
+            width=300,
+            height=700,
         )
         self.resources_num_container.grid(row=4, column=1, pady=5, padx=10, sticky="w")
 
@@ -237,22 +236,18 @@ class CampDetailView(BaseView):
         for resource in camp_resources:
             # left label
             # get from db and map over
-            self.resources_label = tk.Label(
+            self.resources_label = ttk.Label(
                 master=self.resources_num_container,
-                text=resource["name"],
-                font=14,
-                bg="lightgrey",
+                text=f"{resource['name']}: ",
             )
             self.resources_label.grid(
                 row=row_number, column=1, sticky="w", pady=2, padx=10
             )
 
             # right info
-            self.resources_info = tk.Label(
+            self.resources_info = ttk.Label(
                 master=self.resources_num_container,
                 text=resource["amount"],
-                font=14,
-                bg="lightgrey",
             )
             self.resources_info.grid(
                 row=row_number, column=2, sticky="w", pady=2, padx=10
@@ -262,12 +257,10 @@ class CampDetailView(BaseView):
         # if volunteer - show message button, if not - hide
         if self.is_volunteer():
             # button
-            self.send_message_button = tk.Button(
+            self.send_message_button = ttk.Button(
                 master=self.top_container,
                 text="MESSAGE ADMIN",
                 command=self.handle_send_message,
-                bg="red",
-                fg="white",
             )
             self.send_message_button.grid(
                 row=0, column=2, padx=30, pady=20, sticky="ne"
@@ -306,12 +299,12 @@ class CampDetailView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
-        self.all_volunteers_container = tk.Frame(
+        self.all_volunteers_container = ttk.Frame(
             master=self.container,
         )
         self.all_volunteers_container.grid(row=3, column=0, sticky="w")
         # table title
-        self.volunteers_header = tk.Label(
+        self.volunteers_header = ttk.Label(
             master=self.all_volunteers_container,
             text="VOLUNTEERS",
             font=42,
@@ -319,7 +312,7 @@ class CampDetailView(BaseView):
         self.volunteers_header.grid(row=0, column=0, pady=5, sticky="w")
 
         # table
-        self.table_container = tk.Frame(
+        self.table_container = ttk.Frame(
             master=self.all_volunteers_container,
         )
         self.table_container.grid(row=1, column=0)
@@ -361,13 +354,13 @@ class CampDetailView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
-        self.all_refugees_container = tk.Frame(
+        self.all_refugees_container = ttk.Frame(
             master=self.container,
         )
         self.all_refugees_container.grid(row=4, column=0, pady=10, sticky="w")
 
         # table title
-        self.refugees_header = tk.Label(
+        self.refugees_header = ttk.Label(
             master=self.all_refugees_container,
             text="REFUGEE FAMILIES",
             font=42,
@@ -375,32 +368,30 @@ class CampDetailView(BaseView):
         self.refugees_header.grid(row=0, column=0, pady=5, sticky="w")
 
         # View refugees who left the camp button
-        self.add_refugee_button = tk.Button(
+        self.add_refugee_button = ttk.Button(
             master=self.all_refugees_container,
             text="View Departed Refugees",
             command=self.handle_view_departed_click,
-            bg="blue",
         )
         self.add_refugee_button.grid(row=0, column=1, pady=5, padx=10, sticky="e")
 
         # Add refugee button
-        self.add_refugee_button = tk.Button(
+        self.add_refugee_button = ttk.Button(
             master=self.all_refugees_container,
             text="+ Add Regugee Family",
             command=self._handle_add_refugee_click,
-            bg="green",
         )
         self.add_refugee_button.grid(row=0, column=2, pady=5, sticky="e")
 
         # MAKE THE TABLE SCROLLABLE
         # canvas container
         self.refugee_table_canvas = tk.Canvas(
-            master=self.all_refugees_container, width=1150, height=200
+            master=self.all_refugees_container, width=980, height=200
         )
         self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
 
         # table
-        self.table_container = tk.Frame(
+        self.table_container = ttk.Frame(
             master=self.refugee_table_canvas,
         )
         self.table_container.grid(row=1, column=0)
@@ -440,13 +431,13 @@ class CampDetailView(BaseView):
 
     def _render_row(
         self,
-        container: tk.Frame,
+        container: ttk.Frame,
         items: list[str],
         column_width=15,
         header=False,
         is_refugee_table=False,
     ) -> None:
-        self.row_container = tk.Frame(
+        self.row_container = ttk.Frame(
             master=container,
         )
         self.row_container.grid(row=container.grid_size()[1], sticky="w")
@@ -455,7 +446,7 @@ class CampDetailView(BaseView):
         column_width += 10
 
         for ix, label in enumerate(items):
-            self.cell_frame = tk.Frame(
+            self.cell_frame = ttk.Frame(
                 master=self.row_container,
                 width=200,
                 height=25,
@@ -463,12 +454,10 @@ class CampDetailView(BaseView):
             self.cell_frame.grid(row=0, column=ix, pady=5)
             add_border(self.cell_frame)
 
-            self.cell_content = tk.Label(
+            self.cell_content = ttk.Label(
                 master=self.cell_frame,
                 text=label,
                 width=column_width,
-                background="black" if header else None,
-                fg="white" if header else "black",
             )
 
             self.cell_content.pack(
@@ -476,24 +465,22 @@ class CampDetailView(BaseView):
                 expand=True,
             )
 
-        # Add edit buttons
-        if not header and is_refugee_table:
-            # edit btn
-            self.edit_refugees_btn = tk.Button(
-                master=self.row_container,
-                text="EDIT",
-                command=lambda: self.handle_edit_click(items[0]),
-                width=column_width - 3,
-                bg="grey",
-            )
-            self.edit_refugees_btn.grid(row=0, column=len(items) + 1, padx=5)
+            # Add edit buttons
+            if not header and is_refugee_table:
+                # edit btn
+                self.edit_refugees_btn = ttk.Button(
+                    master=self.row_container,
+                    text="EDIT",
+                    command=lambda: self.handle_edit_click(items[0]),
+                    width=column_width - 3,
+                )
+                self.edit_refugees_btn.grid(row=0, column=len(items) + 1, padx=5)
 
-            # view btn
-            self.edit_refugees_btn = tk.Button(
-                master=self.row_container,
-                text="VIEW",
-                command=lambda: self.handle_view_click(items[0]),
-                width=column_width - 3,
-                bg="lightblue",
-            )
-            self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)
+                # view btn
+                self.edit_refugees_btn = ttk.Button(
+                    master=self.row_container,
+                    text="VIEW",
+                    command=lambda: self.handle_view_click(items[0]),
+                    width=column_width - 3,
+                )
+                self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)
