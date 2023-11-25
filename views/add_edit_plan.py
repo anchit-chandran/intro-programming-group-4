@@ -2,10 +2,12 @@
 import logging
 import tkinter as tk
 import datetime
+import re
 
 # Project imports
 from constants import config
 from utilities.db import run_query_get_rows, insert_query_with_values
+from utilities.validators import is_valid_email
 from .base import BaseView
 
 
@@ -570,7 +572,8 @@ class AddEditPlanView(BaseView):
         }
 
         return key_name_map[field_key]
-
+                
+    
     def _handle_submit(self) -> None:
         plan_id = self.plan_id_entry.get()
         plan_name = self.plan_name_entry.get()
@@ -614,13 +617,18 @@ class AddEditPlanView(BaseView):
             self.form_is_valid = False
             errors["start_date"].append(date_error_msg)
 
+        # EMAIL VALIDATION
+        if central_email and not is_valid_email(central_email):
+            self.form_is_valid = False
+            errors["central_email"].append("Invalid email.")
+        
         if not self.form_is_valid:
             error_msg = ""
             for field, field_errors in errors.items():
                 if field_errors:
-                    error_msg += self._render_field_label_from_key(field).upper() + "\n"
+                    error_msg += "**" + self._render_field_label_from_key(field).upper() + "**\n"
                     for field_error in field_errors:
-                        error_msg += f"\t{field_error}\n"
+                        error_msg += f"{field_error}\n"
                     error_msg += "\n\n"
             self.render_error_popup_window(message=error_msg)
 
