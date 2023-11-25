@@ -1,14 +1,13 @@
+"""TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
-import logging
 import tkinter as tk
 
 # Project imports
+from views.base import BaseView
 from constants import config
-from utilities.db import run_query_get_rows
-from .base import BaseView
 
 
-class MyCampView(BaseView):
+class AddEditCampView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -20,7 +19,7 @@ class MyCampView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=500,
+            width=config.SCREEN_WIDTH,
             height=300,
         )
         self.container.pack(
@@ -30,19 +29,15 @@ class MyCampView(BaseView):
         )
 
         # Header
-        self.header_container = tk.Frame(
-            master=self.container,
-            width=500,
-            height=100,
-        )
-        self.header_container.pack()
+        self.header_container = tk.Frame(self.container)
+        self.header_container.pack(pady=15, fill="x", expand=True)
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"MY CAMP VIEW {self.master.get_global_state().get('username')}! 👋",
+            text=f"ADD EDIT FORM",
             font=(60),
         )
-        self.header.grid(
-            row=0,
-            column=0,
+        self.header.pack(
+            side="left",
         )
+

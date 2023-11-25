@@ -21,10 +21,11 @@ class MainApplication(tk.Tk):
             "plan_detail": PlanDetailView,
             "all_plans": AllPlansView,
             "add_edit_plan": AddEditPlanView,
+            "add_edit_camp": AddEditCampView,
+            "camp_detail": CampDetailView,
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
-            "my_camp": MyCampView,
             "new_msg": NewMessageView,
         }
         # Create the reverse map

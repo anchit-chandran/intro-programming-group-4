@@ -7,3 +7,5 @@ from .messages import MessagesView
 from .my_camp_view import MyCampView
 from .profile_view import ProfileView
 from .new_msg import NewMessageView
+from .add_edit_camp import AddEditCampView
+from .camp_detail import CampDetailView
