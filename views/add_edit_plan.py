@@ -22,6 +22,7 @@ class AddEditPlanView(BaseView):
             )[0]
 
         self.render_widgets()
+        self.master.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""

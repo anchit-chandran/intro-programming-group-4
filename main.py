@@ -6,11 +6,11 @@ import sqlite3
 # Project imports
 from views import *
 from constants import config
-from utilities.db import setup_db
+from utilities.db import setup_db, run_query_get_rows
 
 
 class MainApplication(tk.Tk):
-    def __init__(self):
+    def __init__(self, testing: bool = False):
         super().__init__()
 
         # Initial setup
@@ -18,40 +18,47 @@ class MainApplication(tk.Tk):
         self.GLOBAL_STATE = {}
         self.view_map = {
             "login": LoginView,
-            "plan_detail": PlanDetailView,
+            "plan_detail": PlanDetailView,  # Needs plan_name in global state
             "all_plans": AllPlansView,
             "add_edit_plan": AddEditPlanView,
+            "add_edit_camp": AddEditCampView,
+            "camp_detail": CampDetailView,  # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
-            "my_camp": MyCampView,
+            "new_msg": NewMessageView,
         }
+        # Create the reverse map
+        self.reverse_view_map = {}
+        for view_name, view in self.view_map.items():
+            self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
-        self.DEBUG = True
+        self.DEBUG = True or testing
         if self.DEBUG:
             self.set_global_state(
                 {
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
+                    "plan_name": "Plan 0",
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("login")
+        self.switch_to_view("all_plans")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
 
-        self.switch_view(self.view_map[new_view])
+        self._render_new_view(self.view_map[new_view])
 
     def logout_set_view_to_login(self) -> None:
         # Reset state
         self.set_global_state({})
 
-        self.switch_view(LoginView)
+        self._render_new_view(LoginView)
 
     def _initial_setup(self) -> None:
         # Initial attributes
@@ -66,9 +73,21 @@ class MainApplication(tk.Tk):
         if self.get_global_state().get("is_admin"):
             self.switch_to_view("all_plans")
         else:
-            self.switch_to_view("my_camp")
+            user_id = self.get_global_state().get("user_id")
+            camp_id = run_query_get_rows(
+                f"""
+                                        SELECT camp_id
+                                        FROM User
+                                        WHERE id={user_id}
+                                        """
+            )[0]["camp_id"]
 
-    def switch_view(self, new_view) -> None:
+            current_state = self.get_global_state()
+            current_state["camp_id_to_view"] = camp_id
+            self.set_global_state(current_state)
+            self.switch_to_view("camp_detail")
+
+    def _render_new_view(self, new_view) -> None:
         # Clear current view
         if self.current_view is not None:
             logging.debug(f"Destroying {self.current_view}")
@@ -83,6 +102,13 @@ class MainApplication(tk.Tk):
 
     def set_global_state(self, new_state: dict) -> None:
         self.GLOBAL_STATE = new_state
+
+    def refresh_view(self) -> None:
+        """Reloads the current view"""
+        logging.info(
+            f"Refreshing view: {self.current_view}. Current_state: {self.get_global_state()}"
+        )
+        self.switch_to_view(self.reverse_view_map[self.current_view.__class__])
 
 
 def main():

@@ -13,6 +13,7 @@ class ProfileView(BaseView):
         super().__init__(master)
         self.master = master
         self.render_widgets()
+        self.master.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -85,7 +86,7 @@ class ProfileView(BaseView):
             emergency_contact_number = "No information provided" 
         campID = user_profile.get("camp_id")
         if campID is None:
-            campID = "No information provided" 
+            campID = "-" 
         DOB = user_profile.get("dob")
         if DOB is None:
             DOB = "No information provided" 

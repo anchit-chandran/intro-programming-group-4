@@ -161,7 +161,6 @@ class AllPlansView(BaseView):
                 master=self.cell_frame,
                 text=label,
                 width=column_width,
-                background="black" if header else None,
                 fg=fg,
             )
 
@@ -174,15 +173,33 @@ class AllPlansView(BaseView):
                 self.cell_content.bind("<Enter>", self._handle_mouse_hover_enter)
                 self.cell_content.bind("<Leave>", self._handle_mouse_hover_exit)
 
-        # Add edit buttons
+        # Add action buttons
         if not header:
+            BUTTON_WIDTH = (column_width - 6)//2
             tk.Button(
                 master=self.row_container,
                 text="Edit",
                 command=lambda: self._handle_edit_click(items[0]),
-                width=column_width - 3,
+                width=BUTTON_WIDTH
             ).grid(row=0, column=len(items))
+            tk.Button(
+                master=self.row_container,
+                text="View",
+                command=lambda: self._handle_view_click(items[0]),
+                width=BUTTON_WIDTH
+            ).grid(row=0, column=len(items)+1)
 
+    def _handle_view_click(self, plan_name: str):
+        
+        # ADD TO STATE
+        current_state = self.master.get_global_state()
+        current_state["plan_name"] = plan_name
+        self.master.set_global_state(current_state)
+        
+        # Change to view plan view
+        self.master.switch_to_view("plan_detail")
+        
+    
     def _handle_mouse_hover_enter(self, event):
         event.widget.config(background=config.LIGHTGREY)
 

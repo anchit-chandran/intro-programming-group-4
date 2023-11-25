@@ -10,8 +10,12 @@ from utilities.db import run_query_get_rows
 from utilities.formatting import add_border, calculate_max_col_width
 from .base import BaseView
 
+# Project imports
+from views.base import BaseView
+from constants import config
 
-class MyCampView(BaseView):
+
+class CampDetailView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -58,27 +62,21 @@ class MyCampView(BaseView):
 
     # check if admin for access control
     def is_volunteer(self):
-        volunteer_id = int({self.master.get_global_state().get("is_admin")}.pop())
-        if volunteer_id == 1:
+        is_volunteer = int({self.master.get_global_state().get("is_admin")}.pop())
+        if is_volunteer == 1:
             return False
         else:
             return True
 
     # get and set camp id
     def get_camp_id(self):
-        volunteer_id = int({self.master.get_global_state().get("user_id")}.pop())
-        camp_query = run_query_get_rows(
-            f"SELECT camp_id FROM User WHERE id = '{volunteer_id}'"
-        )
-        camp_id = camp_query[0]["camp_id"]
-        current_global_state = self.master.get_global_state()
-        current_global_state["camp_id"] = camp_id
-        self.master.set_global_state(current_global_state)
+        camp_id = {self.master.get_global_state().get("camp_id_to_view")}.pop()
+        return camp_id
 
     # query all volunteers in the camp
     def get_volunteers(self) -> list[dict]:
         # get volunteer ID to get camp id from db
-        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+        camp_id = self.get_camp_id()
 
         # get all volunteers in the camp
         return run_query_get_rows(
@@ -98,15 +96,14 @@ class MyCampView(BaseView):
 
     # query all refugees in the camp
     def get_refugees(self) -> list[dict]:
-        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+        camp_id = self.get_camp_id()
         return run_query_get_rows(
-            # ????? QUESTION - DO WE DISPLAY THOSE WHO ARE NOT IN CAMP AS WELL???
             f"SELECT * FROM RefugeeFamily WHERE camp_id = {camp_id} AND is_in_camp=1"
         )
 
     # query general info for the camp - top bit
     def get_camp_info(self) -> list[dict]:
-        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+        camp_id = self.get_camp_id()
         result = run_query_get_rows(
             f"SELECT name, location, maxCapacity FROM Camp WHERE id='{camp_id}'"
         )
@@ -114,7 +111,7 @@ class MyCampView(BaseView):
 
     # query resources for the camp
     def get_camp_resources(self) -> list[dict]:
-        camp_id = int({self.master.get_global_state().get("camp_id")}.pop())
+        camp_id = self.get_camp_id()
         resources_result = run_query_get_rows(
             f"SELECT name, amount FROM CampResources WHERE camp_id='{camp_id}'"
         )
@@ -123,8 +120,8 @@ class MyCampView(BaseView):
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
-        # set camp_id into state to retireve for queries in later functions
-        self.get_camp_id()
+        # # set camp_id into state to retireve for queries in later functions
+        # self.get_camp_id()
 
         # get camp info to display from the db
         camp_info = self.get_camp_info()
