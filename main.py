@@ -80,7 +80,7 @@ class MainApplication(tk.Tk):
                                         FROM User
                                         WHERE id={user_id}
                                         """
-            )[0]['camp_id']
+            )[0]["camp_id"]
 
             current_state = self.get_global_state()
             current_state["camp_id_to_view"] = camp_id
