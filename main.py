@@ -20,7 +20,7 @@ class MainApplication(tk.Tk):
             "login": LoginView,
             "plan_detail": PlanDetailView, # Needs plan_name in global state
             "all_plans": AllPlansView,
-            "add_edit_plan": AddEditPlanView,
+            "add_edit_plan": AddEditPlanView, # Needs plan_name_to_edit if edit in global state
             "add_edit_camp": AddEditCampView,
             "camp_detail": CampDetailView, # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
