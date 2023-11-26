@@ -164,7 +164,7 @@ class MessagesView(BaseView):
         self.canvas_unresolved = tk.Canvas(
             self.unresolved_messages_container,
             width=900,
-            height=max(300,(len(self.data_to_render))*50),  # clamp height
+            height=400,  # clamp height
         )
         self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
 
