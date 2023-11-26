@@ -19,7 +19,7 @@ class NewMessageView(BaseView):
         # sets the self.camp_title and self.plan_title variables
         self.set_current_user_plan_and_camp()
         self.render_widgets()
-        self.master.update()
+        self.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -141,7 +141,7 @@ class NewMessageView(BaseView):
             self.render_error_popup_window(message="Message content can't be empty")
             return
 
-        sent_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        sent_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         urgency = self.selected_option_urgency.get()
         is_resolved = False
         sender_id = self.master.get_global_state().get("user_id")

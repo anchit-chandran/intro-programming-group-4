@@ -17,11 +17,39 @@ class DepartedRefugeesView(BaseView):
         self.master = master
         self.render_widgets()
 
+    def get_refugees(self) -> list[dict]:
+        """queries all refugees in the camp"""
+        camp_id = {self.master.get_global_state().get("camp_id_to_view")}.pop()
+        return run_query_get_rows(
+            f"SELECT * FROM RefugeeFamily WHERE camp_id = {camp_id} AND is_in_camp=0"
+        )
+
+    def get_camp_name(self):
+        """retrieves camp name by camp id from db"""
+        camp_id = {self.master.get_global_state().get("camp_id_to_view")}.pop()
+        return run_query_get_rows(f"SELECT name FROM camp WHERE id = {camp_id}")[0][
+            "name"
+        ]
+
+    def handle_view_click(self, refugee_id: int):
+        """navigates to refugee profile view"""
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_view"] = refugee_id
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("refugee_profile")
+
+    def handle_edit_click(self, refugee_id: int):
+        """Navigates to edit refugee from view"""
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_edit"] = refugee_id
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("add_edit_refugee")
+
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
         # Create container
-        self.container = tk.Frame(
+        self.container = ttk.Frame(
             master=self,
             width=config.SCREEN_WIDTH,
             height=300,
@@ -33,17 +61,29 @@ class DepartedRefugeesView(BaseView):
         )
 
         # Header
-        self.header_container = tk.Frame(self.container)
-        self.header_container.pack(pady=15, fill="x", expand=True)
+        self.header_container = ttk.Frame(
+            master=self.container,
+            width=500,
+            height=100,
+        )
+        self.header_container.grid(
+            row=0,
+            column=0,
+        )
 
-        self.header = tk.Label(
+        camp_name = self.get_camp_name()
+        print(camp_name)
+
+        self.header = ttk.Label(
             master=self.header_container,
-            text=f"TEMPLATE",
+            text=f"Departed refugees from {camp_name}",
             font=(60),
         )
         self.header.pack(
             side="left",
         )
+
+        self.render_camp_refugees()
 
     def render_camp_refugees(self) -> None:
         self.all_refugees = self.get_refugees()
@@ -73,36 +113,12 @@ class DepartedRefugeesView(BaseView):
         self.all_refugees_container = ttk.Frame(
             master=self.container,
         )
-        self.all_refugees_container.grid(row=4, column=0, pady=10, sticky="w")
-
-        # table title
-        self.refugees_header = ttk.Label(
-            master=self.all_refugees_container,
-            text="REFUGEE FAMILIES",
-            font=42,
-        )
-        self.refugees_header.grid(row=0, column=0, pady=5, sticky="w")
-
-        # View refugees who left the camp button
-        self.add_refugee_button = ttk.Button(
-            master=self.all_refugees_container,
-            text="View Departed Refugees",
-            command=self.handle_view_departed_click,
-        )
-        self.add_refugee_button.grid(row=0, column=1, pady=5, padx=10, sticky="e")
-
-        # Add refugee button
-        self.add_refugee_button = ttk.Button(
-            master=self.all_refugees_container,
-            text="+ Add Regugee Family",
-            command=self._handle_add_refugee_click,
-        )
-        self.add_refugee_button.grid(row=0, column=2, pady=5, sticky="e")
+        self.all_refugees_container.grid(row=1, column=0, pady=10, sticky="w")
 
         # MAKE THE TABLE SCROLLABLE
         # canvas container
         self.refugee_table_canvas = tk.Canvas(
-            master=self.all_refugees_container, width=980, height=300
+            master=self.all_refugees_container, width=980, height=500
         )
         self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
 
