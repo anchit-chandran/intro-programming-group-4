@@ -17,6 +17,7 @@ class CampDetailView(BaseView):
         self.master = master
         self.is_volunteer = not self.master.get_global_state().get("is_admin")
         self.render_widgets()
+        self.update()
 
     def handle_send_message(self):
         """navigates to new message form view"""

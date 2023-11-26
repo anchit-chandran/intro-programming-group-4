@@ -23,6 +23,8 @@ class PlanDetailView(BaseView):
         self.get_plan_details()
 
         self.render_widgets()
+        
+        self.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
