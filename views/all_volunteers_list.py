@@ -45,7 +45,7 @@ class AllVolunteersView(BaseView):
             side="left",
         )
 
-        # Add plan button
+        # Add volunteer button
         self.add_volunteer_button = tk.Button(
             master=self.header_container,
             text="+ Add Volunteer",
@@ -108,11 +108,14 @@ class AllVolunteersView(BaseView):
                 container=self.table_container,
                 items=row,
                 column_width=self.max_col_width,
-                header=ix == 0,  # True if first row, else False
+                header=ix == 0,  # True if first row, else False; needs to fix this
             )
 
     def get_volunteers(self) -> 'list[dict]':
         return run_query_get_rows("SELECT * FROM User WHERE is_admin == 0")
+
+    #def get_volunteers_status(self, username: str) -> int:
+    #    return run_query_get_rows("SELECT is_active FROM User WHERE username = {username}")
 
     def _render_row(
         self,
@@ -142,7 +145,7 @@ class AllVolunteersView(BaseView):
             add_border(self.cell_frame)
 
             # Get color
-            if label == "Ongoing":
+            if label == "Active":
                 fg = "green"
             else:
                 fg = None
@@ -165,7 +168,7 @@ class AllVolunteersView(BaseView):
 
         # Add action buttons
         if not header:
-            BUTTON_WIDTH = (column_width - 6)//2
+            BUTTON_WIDTH = (column_width)//4
             tk.Button(
                 master=self.row_container,
                 text="Edit",
@@ -181,18 +184,18 @@ class AllVolunteersView(BaseView):
             tk.Button(
                 master=self.row_container,
                 text="Deactivate",
-                command=lambda: self._handle_deactivate_click(items[0]),
+                command=self._render_deactivate_confirm_popup_window,
                 width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items))
+            ).grid(row=0, column=len(items)+2)
             tk.Button(
                 master=self.row_container,
                 text="Delete",
-                command=lambda: self._handle_delete_click(items[0]),
+                command=self._render_delete_confirm_popup_window,
                 width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items))
+            ).grid(row=0, column=len(items)+3)
 
 
-    def _handle_view_click(self, volunteer_name: str):  # is this needed?
+    def _handle_view_click(self, volunteer_name: str):  
         
         # ADD TO STATE
         current_state = self.master.get_global_state()
@@ -227,10 +230,76 @@ class AllVolunteersView(BaseView):
 
         self.master.switch_to_view("add_edit_volunteer")   # link to Nondu's view
 
-    def _handle_deactivate_click(self, volunteer_name: str):   
-        current_global_state = self.master.get_global_state()
-        current_global_state["_name_to_edit"] = volunteer_name
-        self.master.set_global_state(current_global_state)
 
-        self.master.switch_to_view("add_edit_volunteer")   # link to Nondu's view
+    def _render_deactivate_confirm_popup_window(self) -> None:
+        self.error_popup_window = tk.Toplevel(self.master)
+        self.error_popup_window.title("🚨 Deactivate Volunteer")
+        tk.Label(
+            master=self.error_popup_window,
+            text="Are you sure you want to deactivate this volunteer?",
+        ).pack(
+            pady=2,
+            padx=10,
+            expand=True,
+            fill="both",
+        )
 
+        actions_container = tk.Frame(
+            master=self.error_popup_window,
+        )
+        actions_container.pack()
+        tk.Button(
+            master=actions_container,
+            text="Cancel",
+            command=lambda: self._delete_window(self.error_popup_window),
+        ).pack(
+            pady=2,
+            side="left",
+            fill="x",
+        )
+        tk.Button(
+            master=actions_container,
+            text="Deactivate",
+            fg="red",
+        ).pack(
+            pady=2,
+            side="right",
+            fill="x",
+        )
+
+    # how to delete
+    def _render_delete_confirm_popup_window(self) -> None:
+        self.error_popup_window = tk.Toplevel(self.master)
+        self.error_popup_window.title("🚨 Delete Volunteer")
+        tk.Label(
+            master=self.error_popup_window,
+            text="Are you sure you want to delete this volunteer?",
+        ).pack(
+            pady=2,
+            padx=10,
+            expand=True,
+            fill="both",
+        )
+
+        actions_container = tk.Frame(
+            master=self.error_popup_window,
+        )
+        actions_container.pack()
+        tk.Button(
+            master=actions_container,
+            text="Cancel",
+            command=lambda: self._delete_window(self.error_popup_window),
+        ).pack(
+            pady=2,
+            side="left",
+            fill="x",
+        )
+        tk.Button(
+            master=actions_container,
+            text="Delete",
+            fg="red",
+        ).pack(
+            pady=2,
+            side="right",
+            fill="x",
+        )
