@@ -11,6 +11,7 @@ class CampDetailView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        self.is_volunteer = not self.master.get_global_state().get("is_admin")
         self.render_widgets()
 
     def handle_send_message(self):
@@ -41,14 +42,6 @@ class CampDetailView(BaseView):
         current_state.pop("refugee_id_to_edit", None)
         self.master.set_global_state(current_state)
         self.master.switch_to_view("add_edit_refugee")
-
-    def is_volunteer(self):
-        """checks if the user is admin for access control"""
-        is_volunteer = int({self.master.get_global_state().get("is_admin")}.pop())
-        if is_volunteer == 1:
-            return False
-        else:
-            return True
 
     def get_camp_id(self):
         """gets camp id from state"""
@@ -155,15 +148,6 @@ class CampDetailView(BaseView):
         )
         self.info_container.grid(row=0, column=0, padx=30, pady=20, sticky="nw")
 
-        # # header span 2 columns
-        # self.info_header = ttk.Label(
-        #     master=self.info_container,
-        #     text="INFORMATION",
-        # )
-        # self.info_header.grid(
-        #     row=3, column=0, columnspan=2, pady=20, padx=10, sticky="nw"
-        # )
-
         # left label
         self.location_label = ttk.Label(
             master=self.info_container,
@@ -245,7 +229,7 @@ class CampDetailView(BaseView):
             row_number += 1
 
         # if volunteer - show message button, if not - hide
-        if self.is_volunteer():
+        if self.is_volunteer:
             # button
             self.send_message_button = ttk.Button(
                 master=self.top_container,
