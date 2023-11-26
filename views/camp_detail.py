@@ -275,7 +275,7 @@ class CampDetailView(BaseView):
             "Id",
             "First Name",
             "Last Name",
-            "Phone number",
+            "Phone #",
             "Age",
             "Languages",
         ]
@@ -314,7 +314,7 @@ class CampDetailView(BaseView):
         self.table_container.grid(row=1, column=0)
 
         # Find the max col width
-        self.max_col_width = calculate_max_col_width(self.data_to_render)
+        self.max_col_width = 15
 
         for ix, row in enumerate(self.data_to_render):
             self._render_row(
@@ -331,8 +331,8 @@ class CampDetailView(BaseView):
         # headers list
         self.header_cols = [
             "Id",
-            "Representative Name",
-            "Medical Conditions",
+            "Main Rep Name",
+            "Med Conditions",
             "Adults",
             "Children",
             "Missing members",
@@ -382,7 +382,7 @@ class CampDetailView(BaseView):
         # MAKE THE TABLE SCROLLABLE
         # canvas container
         self.refugee_table_canvas = tk.Canvas(
-            master=self.all_refugees_container, width=980, height=200
+            master=self.all_refugees_container, width=1200, height=200
         )
         self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
 
@@ -408,7 +408,7 @@ class CampDetailView(BaseView):
         self.refugee_table_canvas.configure(yscrollcommand=self.refugee_scrollbar.set)
 
         # Find the max col width
-        self.max_col_width = calculate_max_col_width(self.data_to_render)
+        self.max_col_width = 15
 
         for ix, row in enumerate(self.data_to_render):
             self._render_row(
@@ -438,17 +438,23 @@ class CampDetailView(BaseView):
         )
         self.row_container.grid(row=container.grid_size()[1], sticky="w")
 
-        # Add more space for col width
-        column_width += 10
-
         for ix, label in enumerate(items):
+            column_width = 15
             self.cell_frame = ttk.Frame(
                 master=self.row_container,
-                width=200,
+                width=300,
                 height=25,
             )
             self.cell_frame.grid(row=0, column=ix, pady=5)
             add_border(self.cell_frame)
+            
+            # Decrease width for id column
+            if ix == 0:
+                column_width = 3
+            
+            # ADD SPACE FOR LANGUAGES FOR VOLUNTEERS
+            if not is_refugee_table and ix == 5:
+                column_width += 10
 
             self.cell_content = ttk.Label(
                 master=self.cell_frame,
@@ -461,22 +467,23 @@ class CampDetailView(BaseView):
                 expand=True,
             )
 
-            # Add edit buttons
-            if not header and is_refugee_table:
-                # edit btn
-                self.edit_refugees_btn = ttk.Button(
-                    master=self.row_container,
-                    text="EDIT",
-                    command=lambda: self.handle_edit_click(items[0]),
-                    width=column_width - 3,
-                )
-                self.edit_refugees_btn.grid(row=0, column=len(items) + 1, padx=5)
+        # Add edit buttons
+        if not header and is_refugee_table:
+            BUTTON_WIDTH = 3
+            # edit btn
+            self.edit_refugees_btn = ttk.Button(
+                master=self.row_container,
+                text="EDIT",
+                command=lambda: self.handle_edit_click(items[0]),
+                width=BUTTON_WIDTH,
+            )
+            self.edit_refugees_btn.grid(row=0, column=len(items) + 1, padx=5)
 
-                # view btn
-                self.edit_refugees_btn = ttk.Button(
-                    master=self.row_container,
-                    text="VIEW",
-                    command=lambda: self.handle_view_click(items[0]),
-                    width=column_width - 3,
-                )
-                self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)
+            # view btn
+            self.edit_refugees_btn = ttk.Button(
+                master=self.row_container,
+                text="VIEW",
+                command=lambda: self.handle_view_click(items[0]),
+                width=BUTTON_WIDTH,
+            )
+            self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)
