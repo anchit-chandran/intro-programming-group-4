@@ -9,4 +9,6 @@ from .new_msg import NewMessageView
 from .add_edit_camp import AddEditCampView
 from .camp_detail import CampDetailView
 from .edit_resources import EditResourcesView
+from .add_edit_refugee import AddEditRefugeeView
 from .departed_refugees import DepartedRefugeesView
+from .refugee_profile_view import RefugeeProfileView

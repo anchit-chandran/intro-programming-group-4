@@ -28,7 +28,9 @@ class MainApplication(tk.Tk):
             "profile": ProfileView,
             "new_msg": NewMessageView,
             "edit_resources": EditResourcesView,  # Needs camp_id_for_resources in global state,
-            "departed_refugees": DepartedRefugeesView,
+            "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add
+            "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
+            "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
         }
         # Create the reverse map
         self.reverse_view_map = {}
