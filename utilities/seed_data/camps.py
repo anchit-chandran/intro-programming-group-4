@@ -15,14 +15,14 @@ for plan_id in range(1, 4):
 
         camp_data.append(new_camp)
 
-RESOURCE_NAMES = ["Food", "Water", "Medicine"]
+RESOURCE_NAMES = ["Food", "Water", "Medicine", "Clothing"]
 # add resources for each camp
 for camp_id in range(1, len(camp_data) + 1):
-    # create 3 resources, per camp
-    for resource in range(1, 4):
+    # create resources, per camp
+    for j in range(len(RESOURCE_NAMES)):
         new_resource = {
-            "name": f"{RESOURCE_NAMES[resource-1]}",
-            "amount": 100 * resource,
+            "name": f"{RESOURCE_NAMES[j]}",
+            "amount": 100 * j if j else 100,
             "camp_id": camp_id,
         }
 
