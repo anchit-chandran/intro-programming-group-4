@@ -132,7 +132,7 @@ class PlanDetailView(BaseView):
             "Location",
             "Current Capacity (n)",
             "Volunteers (n)",
-            "Refugee Familes (n)",
+            "Refugee Families (n)",
             "Resources",
             "Actions",
         ]
@@ -318,7 +318,7 @@ class PlanDetailView(BaseView):
         refugee_families = run_query_get_rows(
             f"""
             SELECT
-                SUM(n_adults + n_children) AS n_refugee_families
+                COUNT(*) as n_refugee_families
             FROM
                 RefugeeFamily
             WHERE
@@ -356,6 +356,7 @@ class PlanDetailView(BaseView):
                 RefugeeFamily
             WHERE
                 camp_id = '{camp["id"]}'
+                AND is_in_camp = 1
         """
         )[0]["current_capacity"]
 
