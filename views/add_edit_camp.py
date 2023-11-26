@@ -34,7 +34,7 @@ class AddEditCampView(BaseView):
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"TEMPLATE",
+            text=f"ADD EDIT CAMP",
             font=(60),
         )
         self.header.pack(
