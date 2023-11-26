@@ -123,7 +123,7 @@ class CampDetailView(BaseView):
 
         self.header = ttk.Label(
             master=self.header_container,
-            text=f"CAMP DETAIL VIEW",
+            text=f"Camp Details",
             font=(60),
         )
         self.header.pack(
