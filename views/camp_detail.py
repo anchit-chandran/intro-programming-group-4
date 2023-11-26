@@ -16,40 +16,31 @@ class CampDetailView(BaseView):
     def handle_send_message(self):
         """navigates to new message form view"""
         self.master.switch_to_view("new_msg")
-        return
 
-    # TO DO: add actual links
     def handle_edit_click(self, refugee_id: int):
         """Navigates to edit refugee from view"""
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
-        # self.master.switch_to_view("add_edit_refugee")
-        return
+        self.master.switch_to_view("add_edit_refugee")
 
-    # TO DO: add actual links
     def handle_view_click(self, refugee_id: int):
         """navigates to refugee profile view"""
         current_global_state = self.master.get_global_state()
-        current_global_state["refugee_id_to_edit"] = refugee_id
+        current_global_state["refugee_id_to_view"] = refugee_id
         self.master.set_global_state(current_global_state)
-        # self.master.switch_to_view("refugee_profile")
-        return
+        self.master.switch_to_view("refugee_profile")
 
-    # to do: add actual link
     def handle_view_departed_click(self):
         """navigates to departed refugee list view"""
-        # self.master.switch_to_view("departed_refugee_list")
-        return
+        self.master.switch_to_view("departed_refugees")
 
-    # TO DO: add actual links
     def _handle_add_refugee_click(self):
         """navigates to add refugee form view"""
         current_state = self.master.get_global_state()
         current_state.pop("refugee_id_to_edit", None)
         self.master.set_global_state(current_state)
-        # self.master.switch_to_view("add_edit_refugee")
-        return
+        self.master.switch_to_view("add_edit_refugee")
 
     def is_volunteer(self):
         """checks if the user is admin for access control"""
@@ -176,30 +167,43 @@ class CampDetailView(BaseView):
         # left label
         self.location_label = ttk.Label(
             master=self.info_container,
-            text="Location:",
+            text="Camp name:",
         )
         self.location_label.grid(row=4, column=0, sticky="w", pady=10, padx=10)
+
+        self.location_label = ttk.Label(
+            master=self.info_container,
+            text="Location:",
+        )
+        self.location_label.grid(row=5, column=0, sticky="w", pady=10, padx=10)
 
         self.max_capacity_label = ttk.Label(
             master=self.info_container,
             text="Max Capacity:",
         )
-        self.max_capacity_label.grid(row=5, column=0, sticky="w", pady=10, padx=10)
+        self.max_capacity_label.grid(row=6, column=0, sticky="w", pady=10, padx=10)
 
         # right info
         self.location_info = tk.Entry(
             master=self.info_container,
             state="disabled",
-            textvariable=tk.StringVar(value=camp_info["location"]),
+            textvariable=tk.StringVar(value=camp_info["name"]),
         )
         self.location_info.grid(row=4, column=1, sticky="w", pady=10, padx=10)
+
+        self.location_info = tk.Entry(
+            master=self.info_container,
+            state="disabled",
+            textvariable=tk.StringVar(value=camp_info["location"]),
+        )
+        self.location_info.grid(row=5, column=1, sticky="w", pady=10, padx=10)
 
         self.max_capacity_info = tk.Entry(
             master=self.info_container,
             state="disabled",
             textvariable=tk.StringVar(value=camp_info["maxCapacity"]),
         )
-        self.max_capacity_info.grid(row=5, column=1, sticky="w", pady=10, padx=10)
+        self.max_capacity_info.grid(row=6, column=1, sticky="w", pady=10, padx=10)
 
         # resources container
         self.resources_container = tk.LabelFrame(
@@ -369,6 +373,8 @@ class CampDetailView(BaseView):
             command=self.handle_view_departed_click,
         )
         self.add_refugee_button.grid(row=0, column=1, pady=5, padx=10, sticky="e")
+
+        camp_id = self.get_camp_id()
 
         # Add refugee button
         self.add_refugee_button = ttk.Button(

@@ -7,7 +7,7 @@ from views.base import BaseView
 from constants import config
 
 
-class AddEditRefugeeView(BaseView):
+class DepartedRefugeesView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -34,7 +34,7 @@ class AddEditRefugeeView(BaseView):
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"Add edit refugee view",
+            text=f"departed refugees",
             font=(60),
         )
         self.header.pack(
