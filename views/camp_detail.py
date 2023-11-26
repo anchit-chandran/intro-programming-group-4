@@ -146,7 +146,7 @@ class CampDetailView(BaseView):
             width=300,
             height=600,
         )
-        self.info_container.grid(row=0, column=0, padx=30, pady=20, sticky="nw")
+        self.info_container.grid(row=0, column=0, padx=30, sticky="nw")
 
         # left label
         self.location_label = ttk.Label(
@@ -195,7 +195,7 @@ class CampDetailView(BaseView):
             text="Resources",
             width=300,
         )
-        self.resources_container.grid(row=0, column=1, padx=30, pady=10, sticky="nw")
+        self.resources_container.grid(row=0, column=1, padx=30, sticky="nw")
 
         self.resources_num_container = ttk.Frame(
             master=self.resources_container,
@@ -330,8 +330,9 @@ class CampDetailView(BaseView):
 
         self.all_refugees_container = ttk.Frame(
             master=self.container,
+            width=1000,
         )
-        self.all_refugees_container.grid(row=4, column=0, pady=10, sticky="w")
+        self.all_refugees_container.grid(row=4, column=0, columnspan=10, pady=10, sticky="w")
 
         # table title
         self.refugees_header = ttk.Label(
@@ -347,7 +348,7 @@ class CampDetailView(BaseView):
             text="View Departed Refugees",
             command=self.handle_view_departed_click,
         )
-        self.add_refugee_button.grid(row=0, column=1, pady=5, padx=10, sticky="e")
+        self.add_refugee_button.grid(row=0, column=1, sticky="w")
 
         camp_id = self.get_camp_id()
 
@@ -357,12 +358,12 @@ class CampDetailView(BaseView):
             text="+ Add Regugee Family",
             command=self._handle_add_refugee_click,
         )
-        self.add_refugee_button.grid(row=0, column=2, pady=5, sticky="e")
+        self.add_refugee_button.grid(row=0, column=2, sticky="w")
 
         # MAKE THE TABLE SCROLLABLE
         # canvas container
         self.refugee_table_canvas = tk.Canvas(
-            master=self.all_refugees_container, width=650, height=200
+            master=self.all_refugees_container, width=1000, height=200
         )
         self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
 
