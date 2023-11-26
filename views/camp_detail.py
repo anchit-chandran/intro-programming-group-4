@@ -1,10 +1,14 @@
 """TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
 import tkinter as tk
+import tkinter.ttk as ttk
+from datetime import datetime
 
 # Project imports
 from views.base import BaseView
 from constants import config
+from utilities.db import run_query_get_rows
+from utilities.formatting import add_border
 
 
 class CampDetailView(BaseView):
