@@ -213,15 +213,6 @@ class CampDetailView(BaseView):
         )
         self.resources_container.grid(row=0, column=1, padx=30, pady=10, sticky="nw")
 
-        # header span 2 columns
-        # self.resources_header = ttk.Label(
-        #     master=self.resources_container,
-        #     text="RESOURCES",
-        # )
-        # self.resources_header.grid(
-        #     row=3, column=1, columnspan=2, pady=20, padx=10, sticky="w"
-        # )
-
         self.resources_num_container = ttk.Frame(
             master=self.resources_container,
             width=300,
