@@ -19,6 +19,7 @@ class AllVolunteersView(BaseView):
         self.render_widgets()
         self.update()
 
+
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
@@ -58,6 +59,11 @@ class AllVolunteersView(BaseView):
         # render table
         self.render_all_volunteers()
 
+        # scrollbar function
+        self.canvas_volunteer.bind(
+            "<Configure>", self._on_canvas_configure_volunteer_table_container
+        )
+
     def render_all_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
 
@@ -71,7 +77,12 @@ class AllVolunteersView(BaseView):
             "Phone Number",
             "Camp Name",
             "Status",
-            "Edit Buttons",
+            "Date of Birth",
+            "Languages",
+            "Skills",
+            "Emergency Contact",
+            "Emergency Number",
+            "Edit",
         ]
         self.data_to_render = [self.header_cols]
 
@@ -81,28 +92,86 @@ class AllVolunteersView(BaseView):
             data_to_add.append(volunteer["username"])
             data_to_add.append(volunteer["first_name"])
             data_to_add.append(volunteer["last_name"])
-            data_to_add.append(volunteer["sex"])
+            # sex
+            sex = volunteer["sex"]
+            if sex == "F":
+                data_to_add.append("Female")
+            else:
+                data_to_add.append("Male")
+
             data_to_add.append(volunteer["phone_number"])
             data_to_add.append(volunteer["camp_id"])
+
             # status
             status = volunteer["is_active"]
             if status == 1:
                 data_to_add.append("Active")
             else:
                 data_to_add.append("Deactivated")
+    
+            data_to_add.append(get_date(volunteer["dob"]))
+            data_to_add.append(volunteer["languages_spoken"])
+            data_to_add.append(volunteer["skills"])
+            data_to_add.append(volunteer["emergency_contact_name"])
+            data_to_add.append(volunteer["emergency_contact_number"])
 
             self.data_to_render.append(data_to_add)
 
         self.all_volunteers_container = tk.Frame(
             master=self.container,
+            width=500,
+        )
+        self.all_volunteers_container.pack(fill="both", expand=True)
+        
+
+        # scroll bar 
+        # scrollbar function
+        self.canvas_volunteer = tk.Canvas(
+            self.all_volunteers_container,
+            width=2000,
+            height=200,
         )
 
-        self.all_volunteers_container.pack()
-
-        self.table_container = tk.Frame(
-            master=self.all_volunteers_container,
+        # create a scrollbar for canvas
+        scrollbar_y = ttk.Scrollbar(
+            self.all_volunteers_container,
+            orient=tk.VERTICAL,
+            command=self.canvas_volunteer.yview,
         )
-        self.table_container.pack()
+        scrollbar_y.pack(
+            side=tk.RIGHT,
+            fill=tk.Y,
+        )
+
+        scrollbar_x = ttk.Scrollbar(
+            self.all_volunteers_container,
+            orient=tk.HORIZONTAL,
+            command=self.canvas_volunteer.xview,
+        )
+        scrollbar_x.pack(
+            side=tk.BOTTOM,
+            fill=tk.X,
+        )
+
+        self.canvas_volunteer.pack(side=tk.LEFT, fill="both", expand=True)
+
+        # Configure the canvas to use the scrollbar
+        self.canvas_volunteer.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+
+         # Create a frame inside the canvas
+        table_frame = tk.Frame(
+            self.canvas_volunteer,
+        )
+        self.canvas_volunteer.create_window((0, 0), window=table_frame, anchor=tk.NW)
+        # scrollbar attempt end
+        
+        self.table_container = tk.LabelFrame(
+            master=table_frame,
+            text="Volunteers Information",
+            padx=10,
+            pady=10,        
+        )
+        self.table_container.pack(padx=10, pady=50, fill="both", expand=True)  
 
         # Find the max col width
         self.max_col_width = calculate_max_col_width(self.data_to_render)
@@ -114,57 +183,12 @@ class AllVolunteersView(BaseView):
                 column_width=self.max_col_width,
                 header=ix == 0,  # True if first row, else False; needs to fix this
             )
-
-        # MAKE THE TABLE SCROLLABLE
-        # canvas container
-        #self.volunteer_table_canvas = tk.Canvas(
-        #    master=self.all_volunteers_container, width=1000, height=200
-        #)
-        #self.volunteer_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
-
-        # table
-        #self.table_container = ttk.Frame(
-        #    master=self.volunteer_table_canvas,
-        #)
-        #self.table_container.grid(row=1, column=0)
-
-        # create scrollable window
-        #self.volunteer_table_canvas.create_window(
-        #    (0, 0), window=self.table_container, anchor="nw"
-        #)
-
-        # create scrollbar
-        #self.volunteer_scrollbar = ttk.Scrollbar(
-        #    master=self.volunteer_table_canvas,
-        #    orient="vertical",
-         #   command=self.volunteer_table_canvas.yview,
-        #)
-        #self.volunteer_scrollbar.grid(row=1, column=1, sticky="nse", padx=1)
-
-        #self.volunteer_table_canvas.configure(yscrollcommand=self.volunteer_scrollbar.set)
-
-        # Find the max col width
-        #self.max_col_width = 15
-
-        #for ix, row in enumerate(self.data_to_render):
-        #    self._render_row(
-         #       container=self.table_container,
-         #       items=row,
-         #       column_width=self.max_col_width,
-         #       header=ix == 0,  # True if first row, else False
-         #   )
-
-        # updating scroll area
-        #self.volunteer_table_canvas.update_idletasks()  # to checck everything is rendered
-        #self.volunteer_table_canvas.configure(
-          #  scrollregion=self.volunteer_table_canvas.bbox("all")
-        #)  # setting the area scrolled with all the items inside
+        
 
     def get_volunteers(self) -> 'list[dict]':
         return run_query_get_rows("SELECT * FROM User WHERE is_admin == 0")
 
-    #def get_volunteers_status(self, username: str) -> int:
-    #    return run_query_get_rows("SELECT is_active FROM User WHERE username = {username}")
+   
 
     def _render_row(
         self,
@@ -217,42 +241,40 @@ class AllVolunteersView(BaseView):
 
         # Add action buttons
         if not header:
-            BUTTON_WIDTH = (column_width)//4
+            BUTTON_WIDTH = (column_width - 6)//2
             tk.Button(
                 master=self.row_container,
                 text="Edit",
                 command=lambda: self._handle_edit_click(items[0]),
-                width=BUTTON_WIDTH
+                width=5
             ).grid(row=0, column=len(items))
             tk.Button(
                 master=self.row_container,
-                text="View",
-                command=lambda: self._handle_view_click(items[0]),
-                width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items)+1)
-            tk.Button(
-                master=self.row_container,
-                text="Disable",
+                text="Deactivate",
                 command=self._render_deactivate_confirm_popup_window,
-                width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items)+2)
+                width=5
+            ).grid(row=0, column=len(items)+1)
             tk.Button(
                 master=self.row_container,
                 text="Delete",
                 command=self._render_delete_confirm_popup_window,
-                width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items)+3)
+                width=4
+            ).grid(row=0, column=len(items)+2)
 
-
-    def _handle_view_click(self, volunteer_name: str):  
-        
-        # ADD TO STATE
-        current_state = self.master.get_global_state()
-        current_state["volunteer_name"] = volunteer_name
-        self.master.set_global_state(current_state)
+    # Bind the canvas to update the scroll region
+    def _on_canvas_configure_volunteer_table_container(self, event):
+        self.canvas_volunteer.configure(
+            scrollregion=self.canvas_volunteer.bbox("all")
+        )
+    # do not need this 
+    #def _handle_view_click(self, volunteer_name: str):  
+    #    # ADD TO STATE
+    #    current_state = self.master.get_global_state()
+    #    current_state["volunteer_name"] = volunteer_name
+    #    self.master.set_global_state(current_state)
         
         # Change to view plan view
-        self.master.switch_to_view("volunteer_detail")   #change this to a volunteer detail view
+    #    self.master.switch_to_view("volunteer_detail")   #change this to a volunteer detail view
         
     
     def _handle_mouse_hover_enter(self, event):
