@@ -111,4 +111,37 @@ current_state['new_variable'] = 'new_value'
 self.master.set_global_state(current_state)
 ```
 
+# Tests
+
+Run tests using:
+
+```python
+python test.py
+```
+
+This is also automatically run on PR.
+
+# Naming conventions
+
+**All views / list view (any view which shows details for many entities e.g. All Plans)**:
+
+```python
+all_plans.py # python file name
+class AllPlansView # view class name
+```
+
+**Detail Views (any view which shows details for a single entity e.g. Refugee Profile)**:
+```python
+refugee_detail.py # python file name
+class RefugeeDetail # view class name
+GLOBAL_STATE['refugee_id_to_view'] # global state variable
+```
+
+**Add / Edit Forms (these should all be a single view which can both add / edit) e.g. Add / Edit Plan**
+
+```python
+add_edit_plan.py # python file name
+class AddEditPlanView # view class name
+GLOBAL_STATE['plan_name_to_edit'] # global state variable if editing
+```
 
