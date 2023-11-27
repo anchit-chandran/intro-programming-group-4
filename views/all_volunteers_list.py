@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+import tkinter.ttk as ttk
 
 # Project imports
 from constants import config
@@ -16,6 +17,7 @@ class AllVolunteersView(BaseView):
         super().__init__(master)
         self.master = master
         self.render_widgets()
+        self.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -27,13 +29,11 @@ class AllVolunteersView(BaseView):
             height=300,
         )
         self.container.pack(
-            fill="both",
-            padx=30,
-            pady=100,
+            pady=10,
         )
 
         # Header
-        self.header_container = tk.Frame(self.container)
+        self.header_container = ttk.Frame(self.container)
         self.header_container.pack(pady=15, fill="x", expand=True)
 
         self.header = tk.Label(
@@ -54,7 +54,8 @@ class AllVolunteersView(BaseView):
         self.add_volunteer_button.pack(
             side="right",
         )
-
+        
+        # render table
         self.render_all_volunteers()
 
     def render_all_volunteers(self) -> None:
@@ -69,9 +70,11 @@ class AllVolunteersView(BaseView):
             "Sex",
             "Phone Number",
             "Camp Name",
-            "Status"
+            "Status",
+            "Edit Buttons",
         ]
         self.data_to_render = [self.header_cols]
+
         for volunteer in self.all_volunteers:
             data_to_add = []
             data_to_add.append(volunteer["id"])
@@ -93,6 +96,7 @@ class AllVolunteersView(BaseView):
         self.all_volunteers_container = tk.Frame(
             master=self.container,
         )
+
         self.all_volunteers_container.pack()
 
         self.table_container = tk.Frame(
@@ -111,6 +115,51 @@ class AllVolunteersView(BaseView):
                 header=ix == 0,  # True if first row, else False; needs to fix this
             )
 
+        # MAKE THE TABLE SCROLLABLE
+        # canvas container
+        #self.volunteer_table_canvas = tk.Canvas(
+        #    master=self.all_volunteers_container, width=1000, height=200
+        #)
+        #self.volunteer_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
+
+        # table
+        #self.table_container = ttk.Frame(
+        #    master=self.volunteer_table_canvas,
+        #)
+        #self.table_container.grid(row=1, column=0)
+
+        # create scrollable window
+        #self.volunteer_table_canvas.create_window(
+        #    (0, 0), window=self.table_container, anchor="nw"
+        #)
+
+        # create scrollbar
+        #self.volunteer_scrollbar = ttk.Scrollbar(
+        #    master=self.volunteer_table_canvas,
+        #    orient="vertical",
+         #   command=self.volunteer_table_canvas.yview,
+        #)
+        #self.volunteer_scrollbar.grid(row=1, column=1, sticky="nse", padx=1)
+
+        #self.volunteer_table_canvas.configure(yscrollcommand=self.volunteer_scrollbar.set)
+
+        # Find the max col width
+        #self.max_col_width = 15
+
+        #for ix, row in enumerate(self.data_to_render):
+        #    self._render_row(
+         #       container=self.table_container,
+         #       items=row,
+         #       column_width=self.max_col_width,
+         #       header=ix == 0,  # True if first row, else False
+         #   )
+
+        # updating scroll area
+        #self.volunteer_table_canvas.update_idletasks()  # to checck everything is rendered
+        #self.volunteer_table_canvas.configure(
+          #  scrollregion=self.volunteer_table_canvas.bbox("all")
+        #)  # setting the area scrolled with all the items inside
+
     def get_volunteers(self) -> 'list[dict]':
         return run_query_get_rows("SELECT * FROM User WHERE is_admin == 0")
 
@@ -127,7 +176,7 @@ class AllVolunteersView(BaseView):
         self.row_container = tk.Frame(
             master=container,
         )
-        self.row_container.pack()
+        self.row_container.grid(row=container.grid_size()[1], sticky="w")
 
         # Add more space for col width
         column_width += 10
@@ -183,7 +232,7 @@ class AllVolunteersView(BaseView):
             ).grid(row=0, column=len(items)+1)
             tk.Button(
                 master=self.row_container,
-                text="Deactivate",
+                text="Disable",
                 command=self._render_deactivate_confirm_popup_window,
                 width=BUTTON_WIDTH
             ).grid(row=0, column=len(items)+2)
@@ -303,3 +352,5 @@ class AllVolunteersView(BaseView):
             side="right",
             fill="x",
         )
+
+
