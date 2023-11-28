@@ -94,6 +94,12 @@ class CampDetailView(BaseView):
         )
         return resources_result
 
+    def handle_back_button(self):
+        current_state = self.master.get_global_state()
+        current_state.pop("camp_id_to_view", None)
+        self.master.set_global_state(current_state)
+        self.master.switch_to_view("plan_detail")
+
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
@@ -144,6 +150,14 @@ class CampDetailView(BaseView):
         )
         self.top_container.grid(row=1, column=0, padx=50, pady=20, sticky="nw")
 
+        # back button
+        self.send_message_button = ttk.Button(
+            master=self.top_container,
+            text="GO BACK",
+            command=self.handle_back_button,
+        )
+        self.send_message_button.grid(row=0, column=0, padx=30, pady=20, sticky="ne")
+
         # info container
         self.info_container = tk.LabelFrame(
             master=self.top_container,
@@ -151,7 +165,7 @@ class CampDetailView(BaseView):
             width=300,
             height=600,
         )
-        self.info_container.grid(row=0, column=0, padx=30, sticky="nw")
+        self.info_container.grid(row=0, column=1, padx=30, sticky="nw")
 
         # left label
         self.location_label = ttk.Label(
@@ -200,7 +214,7 @@ class CampDetailView(BaseView):
             text="Resources",
             width=300,
         )
-        self.resources_container.grid(row=0, column=1, padx=30, sticky="nw")
+        self.resources_container.grid(row=0, column=2, padx=30, sticky="nw")
 
         self.resources_num_container = ttk.Frame(
             master=self.resources_container,
@@ -242,7 +256,7 @@ class CampDetailView(BaseView):
                 command=self.handle_send_message,
             )
             self.send_message_button.grid(
-                row=0, column=2, padx=30, pady=20, sticky="ne"
+                row=0, column=3, padx=30, pady=20, sticky="ne"
             )
 
         # render tables
