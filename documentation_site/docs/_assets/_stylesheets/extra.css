@@ -1,0 +1,70 @@
+:root {
+    --main: #01752A;
+    --secondary: #4059AD;
+    --accent: #ecdbcb;
+    --md-accent-fg-color: var(--main);
+    --md-primary-fg-color--dark: var(--main);
+    --md-typeset-a-color: var(--main);
+}
+
+.md-header__ellipsis .md-ellipsis {
+    font-size: 2em;
+}
+
+/* nav   */
+
+/* mobile nav sidebar */
+@media screen and (max-width: 76.1875em) {
+    .md-nav--primary .md-nav__title[for=__drawer] {
+        background-color: white;
+        color: black;
+    }
+}
+
+.md-banner {
+    display: flex;
+}
+
+.md-banner__inner.md-grid.md-typeset{
+    max-height: 1rem;
+}
+
+.md-header, .md-tabs {
+    background-color: var(--main);
+}
+
+.md-nav__item .md-nav__link--active {
+    color: var(--main);
+}
+
+.md-source {
+    display: none;
+}
+
+.md-header {
+    background-color: white;
+    color: black;
+}
+
+.md-header__button.md-logo img, .md-header__button.md-logo svg {
+    height: 5rem !important;
+    width: auto;
+}
+
+footer.md-footer {
+    background-color: var(--main);
+}
+
+p>a.md-button.md-button--primary{
+    background-color: var(--main);
+    border-color: var(--main);
+    color: var(--md-primary-bg-color);
+    display: table;
+    margin: 1em auto;
+}
+
+.card {
+    max-width: 15rem;
+    margin-left: auto;
+    margin-right: auto;
+}

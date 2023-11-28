@@ -117,7 +117,35 @@ def main():
     app = MainApplication()
     app.mainloop()
 
+def mkdocs():
+    import os
+    os.chdir('documentation_site')
+    os.system('mkdocs serve')
+    
+def open_webpage():
+    import webbrowser
+    webbrowser.open("http://127.0.0.1:8000/foundry/")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    main()
+    
+    import multiprocessing
+    p1 = multiprocessing.Process(name='p1', target=main)
+    p1.daemon = True
+    p = multiprocessing.Process(name='p', target=mkdocs)
+    p.daemon = True
+    wb = multiprocessing.Process(name='wb', target=open_webpage)
+    wb.daemon = True
+    
+    p1.start()
+    p.start()
+    import time
+    time.sleep(1)
+    wb.start()
+    
+    p1.join()
+    p.join()
+    wb.join()
+    
+    
+    
