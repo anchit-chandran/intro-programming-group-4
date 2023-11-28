@@ -132,14 +132,22 @@ class CampDetailView(BaseView):
             column=0,
         )
 
+        # back button
+        self.send_message_button = ttk.Button(
+            master=self.header_container,
+            text="GO BACK TO PLAN",
+            command=self.handle_back_button,
+        )
+        self.send_message_button.grid(
+            row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
+        )
+
         self.header = ttk.Label(
             master=self.header_container,
             text=f"Camp Details",
             font=(60),
         )
-        self.header.pack(
-            side="left",
-        )
+        self.header.grid(row=0, column=1, padx=(0, 30), pady=20, sticky="nw")
 
         # ------------------------ Top container------------------------------
 
@@ -149,14 +157,6 @@ class CampDetailView(BaseView):
             height=600,
         )
         self.top_container.grid(row=1, column=0, padx=50, pady=20, sticky="nw")
-
-        # back button
-        self.send_message_button = ttk.Button(
-            master=self.top_container,
-            text="GO BACK",
-            command=self.handle_back_button,
-        )
-        self.send_message_button.grid(row=0, column=0, padx=30, pady=20, sticky="ne")
 
         # info container
         self.info_container = tk.LabelFrame(

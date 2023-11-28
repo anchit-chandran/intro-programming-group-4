@@ -45,6 +45,9 @@ class DepartedRefugeesView(BaseView):
         self.master.set_global_state(current_global_state)
         self.master.switch_to_view("add_edit_refugee")
 
+    def handle_back_button(self):
+        self.master.switch_to_view("camp_detail")
+
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
@@ -71,6 +74,16 @@ class DepartedRefugeesView(BaseView):
             column=0,
         )
 
+        # back button
+        self.send_message_button = ttk.Button(
+            master=self.header_container,
+            text="GO BACK TO PLAN",
+            command=self.handle_back_button,
+        )
+        self.send_message_button.grid(
+            row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
+        )
+
         camp_name = self.get_camp_name()
         print(camp_name)
 
@@ -79,9 +92,7 @@ class DepartedRefugeesView(BaseView):
             text=f"Departed refugees from {camp_name}",
             font=(60),
         )
-        self.header.pack(
-            side="left",
-        )
+        self.header.grid(row=0, column=1, padx=(0, 30), pady=20, sticky="nw")
 
         self.render_camp_refugees()
 
