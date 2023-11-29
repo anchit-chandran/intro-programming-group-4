@@ -40,7 +40,7 @@ class AddEditUserView(BaseView):
 
         # Create submit button
         self.submit_button = tk.Button(
-            master=self,  # Add a comma here
+            master=self,  
             text='Submit',
             command=lambda: self.submit(entries, fields)
         )
