@@ -1,6 +1,7 @@
 """TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
 import tkinter as tk
+from tkinter import messagebox
 import logging
 import datetime
 
@@ -166,6 +167,7 @@ class NewMessageView(BaseView):
 
         if data is None:
             return
+
         logging.info(f"Sending message: {data}")
         insert_query_with_values(
             query="""INSERT INTO Messages 
@@ -195,35 +197,11 @@ class NewMessageView(BaseView):
                 "receiver_id": data["receiver_id"],
             },
         )
-        self.render_success_popup_window(message="Message sent successfully")
-    
-    def _handle_ok_click_succes_popup_window(self):
-        self.success_popup_window.destroy()
-        self.master.switch_to_view("messages")
-        
-    def render_success_popup_window(self, message: str) -> None:
-        self.success_popup_window = tk.Toplevel(self.master, width=100, height=100)
-        self.success_popup_window.title("✅ Message sent")
-        self.success_popup_window.geometry("200x75")
-        tk.Label(
-            master=self.success_popup_window,
-            text=message,
-        ).pack(
-            pady=2,
-            expand=True,
-            fill="both",
-        )
-        tk.Button(
-            master=self.success_popup_window,
-            text="Ok",
-            command=self._handle_ok_click_succes_popup_window,
-        ).pack(
-            padx=5,
-            pady=5,
-        )
+        self.handle_successful_msg_sent()
 
-        # Disable main window
-        self.success_popup_window.grab_set()
+    def handle_successful_msg_sent(self, message=""):
+        messagebox.showinfo(title="📨 Success", message=f"Message sent!")
+        self.master.switch_to_view("messages")
 
     def handle_to_select_change_send_to(self, value):
         return
