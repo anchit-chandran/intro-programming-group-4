@@ -5,7 +5,9 @@ import tkinter as tk
 # Project imports
 from constants import config
 from utilities.db import run_query_get_rows
-from .base import BaseView
+from views.base import BaseView
+from constants import config
+
 
 
 class ProfileView(BaseView):
@@ -15,6 +17,12 @@ class ProfileView(BaseView):
         self.render_widgets()
         self.master.update()
 
+       # Edit button click
+    def handle_edit_click(self):
+        """Handles edit profile button click"""
+        self.master.switch_to_view("add_edit_user_profile")
+
+            
     def render_widgets(self) -> None:
         """Renders widgets for view"""
         
@@ -125,7 +133,7 @@ class ProfileView(BaseView):
              height = 50,
          )         
         
-                
+              
         # Set up - labels and entries
         self.userID_label = tk.Label(
             master=self.user_details_label_container,
@@ -311,6 +319,7 @@ class ProfileView(BaseView):
             text="Edit",
             fg="white",
             bg="blue",
+            command=self.handle_edit_click,
         )
       
         # Add to grid    
@@ -359,5 +368,7 @@ class ProfileView(BaseView):
         self.emergency_contact_number_entry.grid(row=1, column=1,)
         
         self.edit_button.grid(row=0, column=0,)
-        
-        
+    
+    
+    
+
