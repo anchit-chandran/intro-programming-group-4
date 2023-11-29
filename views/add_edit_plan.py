@@ -626,9 +626,9 @@ class AddEditPlanView(BaseView):
             error_msg = ""
             for field, field_errors in errors.items():
                 if field_errors:
-                    error_msg += "**" + self._render_field_label_from_key(field).upper() + "**\n"
+                    error_msg += self._render_field_label_from_key(field).upper()
                     for field_error in field_errors:
-                        error_msg += f"{field_error}\n"
+                        error_msg += f"\t{field_error}\n"
                     error_msg += "\n\n"
             self.render_error_popup_window(message=error_msg)
 
