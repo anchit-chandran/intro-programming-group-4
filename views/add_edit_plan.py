@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import messagebox
 import datetime
 import re
 
@@ -15,7 +16,7 @@ class AddEditPlanView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        
+
         # SET INSTANCE VARIABLES
         self.MAX_CHAR_LEN = 20
 
@@ -234,8 +235,6 @@ class AddEditPlanView(BaseView):
         )
         self.plan_name_entry.pack()
 
-        
-
     def _render_start_date(self, form_container, on_row: int) -> None:
         # DATE
         self.start_date_container = tk.Frame(
@@ -373,7 +372,7 @@ class AddEditPlanView(BaseView):
         self.plan_location_text = tk.StringVar()
         if self.is_edit:
             self.plan_location_text.set(self.edit_plan_details["location"])
-        
+
         # Set char length limit
         self.plan_location_text.trace(
             "w",
@@ -482,7 +481,7 @@ class AddEditPlanView(BaseView):
         self.description_text = tk.StringVar()
         if self.is_edit:
             self.description_text.set(self.edit_plan_details["description"])
-        
+
         # Set char length limit
         self.description_text.trace(
             "w",
@@ -572,8 +571,7 @@ class AddEditPlanView(BaseView):
         }
 
         return key_name_map[field_key]
-                
-    
+
     def _handle_submit(self) -> None:
         plan_id = self.plan_id_entry.get()
         plan_name = self.plan_name_entry.get()
@@ -617,11 +615,11 @@ class AddEditPlanView(BaseView):
             self.form_is_valid = False
             errors["start_date"].append(date_error_msg)
 
-        # EMAIL VALIDATION
+        # EMAIL VALIDATION
         if central_email and not is_valid_email(central_email):
             self.form_is_valid = False
             errors["central_email"].append("Invalid email.")
-        
+
         if not self.form_is_valid:
             error_msg = ""
             for field, field_errors in errors.items():
@@ -704,40 +702,19 @@ class AddEditPlanView(BaseView):
         return f"{year}-{month}-{day}"
 
     def _render_delete_confirm_popup_window(self) -> None:
-        self.error_popup_window = tk.Toplevel(self.master)
-        self.error_popup_window.title("🚨 Delete Plan")
-        tk.Label(
-            master=self.error_popup_window,
-            text="Are you sure you want to delete this plan?",
-        ).pack(
-            pady=2,
-            padx=10,
-            expand=True,
-            fill="both",
-        )
+        title = "🚨 Delete Plan"
+        message = "Are you sure you want to delete this plan?"
+        confirm = messagebox.askokcancel(title=title, message=message)
+        if confirm:
+            logging.debug(f"Deleting {self.edit_plan_details['id']=}")
 
-        actions_container = tk.Frame(
-            master=self.error_popup_window,
+        # Perform deletion
+        insert_query_with_values(
+            query="""DELETE 
+                                 FROM Plan
+                                 WHERE id = :id
+                                 """,
+            values={"id": self.edit_plan_details["id"]},
         )
-        actions_container.pack()
-        tk.Button(
-            master=actions_container,
-            text="Cancel",
-            command=lambda: self._delete_window(self.error_popup_window),
-        ).pack(
-            pady=2,
-            side="left",
-            fill="x",
-        )
-        tk.Button(
-            master=actions_container,
-            text="Delete",
-            fg="red",
-        ).pack(
-            pady=2,
-            side="right",
-            fill="x",
-        )
-
-        # Disable main window
-        self.error_popup_window.grab_set()
+        
+        self.master.switch_to_view('all_plans')
