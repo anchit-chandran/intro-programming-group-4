@@ -132,15 +132,17 @@ class CampDetailView(BaseView):
             column=0,
         )
 
-        # back button
-        self.send_message_button = ttk.Button(
-            master=self.header_container,
-            text="GO BACK TO PLAN",
-            command=self.handle_back_button,
-        )
-        self.send_message_button.grid(
-            row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
-        )
+        # if not volunteer show button
+        if not self.is_volunteer:
+            # back button
+            self.go_back_button = ttk.Button(
+                master=self.header_container,
+                text="GO BACK TO PLAN",
+                command=self.handle_back_button,
+            )
+            self.go_back_button.grid(
+                row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
+            )
 
         self.header = ttk.Label(
             master=self.header_container,

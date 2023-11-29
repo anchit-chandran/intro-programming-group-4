@@ -75,14 +75,12 @@ class DepartedRefugeesView(BaseView):
         )
 
         # back button
-        self.send_message_button = ttk.Button(
+        self.go_back_button = ttk.Button(
             master=self.header_container,
-            text="GO BACK TO PLAN",
+            text="GO BACK TO CAMP",
             command=self.handle_back_button,
         )
-        self.send_message_button.grid(
-            row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
-        )
+        self.go_back_button.grid(row=0, column=0, padx=(0, 30), pady=20, sticky="ne")
 
         camp_name = self.get_camp_name()
         print(camp_name)
