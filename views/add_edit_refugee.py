@@ -16,8 +16,13 @@ class AddEditRefugeeView(BaseView):
         super().__init__(master)
         self.master = master
 
+        # check the user role
+        self.is_volunteer = not self.master.get_global_state().get("is_admin")
+
         # SET INSTANCE VARIABLES
         self.MAX_CHAR_LEN = 20
+        self.plan_title_text = self.master.GLOBAL_STATE.get("plan_name")
+        self.camp_id = self.master.GLOBAL_STATE.get("camp_id_to_view")
 
         self.edit_refugee_id = self.master.GLOBAL_STATE.get("refugee_id_to_edit")
         self.is_edit = bool(self.edit_refugee_id)
@@ -66,33 +71,39 @@ class AddEditRefugeeView(BaseView):
             fill="both",
             expand=True,
         )
-
         # display plan - can't change
-
+        self._render_plan_name(
+            self.form_container,
+            on_row=0,
+        )
         # display camp - question - can change or not?
+        self._render_camp_name(
+            self.form_container,
+            on_row=0,
+        )
 
         # id
         self._render_refugee_id(
             self.form_container,
-            on_row=0,
+            on_row=1,
         )
 
         # rep name
         self._render_main_rep_name(
             self.form_container,
-            on_row=1,
+            on_row=2,
         )
 
         # medical condition
         self._render_med_condition_name(
             self.form_container,
-            on_row=2,
+            on_row=3,
         )
 
         # number of adults
         self._render_num_adults_name(
             self.form_container,
-            on_row=2,
+            on_row=4,
         )
 
         # number of children
@@ -109,6 +120,93 @@ class AddEditRefugeeView(BaseView):
 
     # -------------- Rendering functions for inputs ------------
 
+    # render plan name
+    def _render_plan_name(self, form_container, on_row: int) -> None:
+        self.plan_name_container = tk.Frame(
+            master=form_container,
+        )
+        self.plan_name_container.grid(row=on_row, column=0, sticky="w")
+
+        self.plan_name_label_container = tk.Frame(
+            master=self.plan_name_container,
+        )
+        self.plan_name_label_container.pack(
+            expand=True,
+            fill="x",
+        )
+        self.plan_name_label = tk.Label(
+            master=self.plan_name_label_container,
+            text="Plan Name",
+        )
+        self.plan_name_label.pack(
+            side="left",
+        )
+
+        self.plan_name_entry_container = tk.Frame(
+            master=self.plan_name_container,
+        )
+        self.plan_name_entry_container.pack(
+            expand=True,
+            fill="x",
+        )
+
+        self.plan_name_str_text = tk.StringVar()
+        if not self.is_volunteer:
+            self.plan_name_str_text.set(self.master.GLOBAL_STATE.get("plan_name"))
+        else:
+            self.plan_name = self._get_plan_name()
+            self.plan_name_str_text.set(self.plan_name)
+
+        self.plan_name_entry = tk.Entry(
+            master=self.plan_name_entry_container,
+            width=20,
+            state="disabled",
+            textvariable=self.plan_name_str_text,
+        )
+        self.plan_name_entry.pack()
+
+    # render camp name
+    def _render_camp_name(self, form_container, on_row: int) -> None:
+        self.camp_name_container = tk.Frame(
+            master=form_container,
+        )
+        self.camp_name_container.grid(row=on_row, column=1, sticky="e")
+
+        self.camp_name_label_container = tk.Frame(
+            master=self.camp_name_container,
+        )
+        self.camp_name_label_container.pack(
+            expand=True,
+            fill="x",
+        )
+        self.camp_name_label = tk.Label(
+            master=self.camp_name_label_container,
+            text="Camp Name",
+        )
+        self.camp_name_label.pack(
+            side="left",
+        )
+
+        self.camp_name_entry_container = tk.Frame(
+            master=self.camp_name_container,
+        )
+        self.camp_name_entry_container.pack(
+            expand=True,
+            fill="x",
+        )
+
+        self.camp_name_str_text = tk.StringVar()
+        self.camp_name = self._get_camp_name()
+        self.camp_name_str_text.set(self.camp_name)
+
+        self.camp_name_entry = tk.Entry(
+            master=self.camp_name_entry_container,
+            width=20,
+            state="disabled",
+            textvariable=self.camp_name_str_text,
+        )
+        self.camp_name_entry.pack()
+
     #  Refugee ID
     def _render_refugee_id(self, form_container, on_row: int) -> None:
         """Renders refugee ID if exists or new refugee ID if adding"""
@@ -118,6 +216,7 @@ class AddEditRefugeeView(BaseView):
         self.refugee_id_container.grid(
             row=on_row,
             column=0,
+            columnspan=2,
         )
 
         self.refugee_id_label_container = tk.Frame(
@@ -166,6 +265,7 @@ class AddEditRefugeeView(BaseView):
         self.rep_name_container.grid(
             row=on_row,
             column=0,
+            columnspan=2,
         )
 
         self.rep_name_label_container = tk.Frame(
@@ -216,6 +316,7 @@ class AddEditRefugeeView(BaseView):
         self.med_condition_container.grid(
             row=on_row,
             column=0,
+            columnspan=2,
         )
 
         self.med_condition_label_container = tk.Frame(
@@ -266,6 +367,7 @@ class AddEditRefugeeView(BaseView):
         self.num_adults_container.grid(
             row=on_row,
             column=0,
+            columnspan=2,
         )
 
         self.num_adults_label_container = tk.Frame(
@@ -315,3 +417,16 @@ class AddEditRefugeeView(BaseView):
             "SELECT MAX(id) AS latest_refugee_id FROM RefugeeFamily"
         )[0].get("latest_refugee_id")
         return latest_refugee_id
+
+    def _get_plan_name(self):
+        plan_name = run_query_get_rows(
+            f"SELECT title FROM Plan AS p INNER JOIN Camp AS c ON p.id = c.plan_id WHERE c.id = {self.camp_id}"
+        )[0].get("title")
+        return plan_name
+
+    def _get_camp_name(self) -> list[dict]:
+        """queries name of the camp"""
+        camp_name = run_query_get_rows(
+            f"SELECT name FROM Camp WHERE id='{self.camp_id}'"
+        )[0].get("name")
+        return camp_name
