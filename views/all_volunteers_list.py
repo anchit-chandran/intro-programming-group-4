@@ -291,7 +291,7 @@ class AllVolunteersView(BaseView):
         current_state.pop("volunteer_name_to_edit", None)
         self.master.set_global_state(current_state)
         
-        self.master.switch_to_view("add_edit_volunteer")   # link to Nondu's view
+        self.master.switch_to_view("add_edit_user")   # link to Nondu's view
 
     def _handle_edit_click(self, volunteer_name: str):   
         # Add plan name to global state for edit view
@@ -299,7 +299,7 @@ class AllVolunteersView(BaseView):
         current_global_state["_name_to_edit"] = volunteer_name
         self.master.set_global_state(current_global_state)
 
-        self.master.switch_to_view("add_edit_volunteer")   # link to Nondu's view
+        self.master.switch_to_view("add_edit_user")   # link to Nondu's view
 
 
     def _render_deactivate_confirm_popup_window(self) -> None:

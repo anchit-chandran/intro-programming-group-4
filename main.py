@@ -31,6 +31,7 @@ class MainApplication(tk.Tk):
             "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add
             "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
+            "add_edit_user": AddEditUserView,
         }
         # Create the reverse map
         self.reverse_view_map = {}
@@ -89,7 +90,7 @@ class MainApplication(tk.Tk):
             current_state = self.get_global_state()
             current_state["camp_id_to_view"] = camp_id
             self.set_global_state(current_state)
-            self.switch_to_view("camp_detail")
+            self.switch_to_view("all_volunteers_list")
 
     def _render_new_view(self, new_view) -> None:
         # Clear current view
