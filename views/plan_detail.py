@@ -201,7 +201,7 @@ class PlanDetailView(BaseView):
 
         # Add action buttons
         if not header:
-            BUTTON_WIDTH = column_width - 30
+            BUTTON_WIDTH = column_width - 20
 
             self.buttons_frame = tk.Frame(
                 master=self.row_container,
