@@ -3,8 +3,6 @@ import logging
 import tkinter as tk
 
 # Project imports
-from constants import config
-from .all_plans import AllPlansView
 from .base import BaseView
 from utilities.db import run_query_get_rows
 from constants.config import TITLE
@@ -19,7 +17,7 @@ class LoginView(BaseView):
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
-        
+
         # Create container
         self.container = tk.LabelFrame(
             master=self,
@@ -39,7 +37,6 @@ class LoginView(BaseView):
             image=self.logo,
         )
         self.logo_label.pack()
-        
 
         # Username
         self.username_frame = tk.Frame(
@@ -97,14 +94,15 @@ class LoginView(BaseView):
 
         return True
 
-
     def _on_login(self) -> None:
         """Callback fn for login button"""
         username = self.username.get().strip()
         password = self.password.get()
 
         if not self._input_valid(username, password):
-            self.render_error_popup_window(message="Fields cannot be blank.")
+            title = "Invalid"
+            message = "Fields cannot be blank."
+            self.render_error_popup_window(message=message)
             return None
 
         # Passes all form validation. Check username + pw correct
@@ -117,7 +115,7 @@ class LoginView(BaseView):
         # U/n or pw incorrect
         if not un_pw_correct:
             self.render_error_popup_window(
-                message="Username or password incorrect. Please check and try again."
+                message="Username or password incorrect. Please check and try again.",
             )
             return None
 

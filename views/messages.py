@@ -92,12 +92,12 @@ class MessagesView(BaseView):
         )[0]["username"]
 
         camp_id_query = f"SELECT camp_id FROM User WHERE id = {sender_id}"
-      
+
         camp_id = run_query_get_rows(camp_id_query)[0]["camp_id"]
-        
+
         # admins don't have plans / camps
         if not camp_id:
-            return '-', '-', sender_name
+            return "-", "-", sender_name
 
         camp = run_query_get_rows(
             f"SELECT name, plan_id FROM Camp WHERE id = {camp_id}"
@@ -114,11 +114,10 @@ class MessagesView(BaseView):
         """Returns data to render in table"""
         data_to_render = []
         for message in data:
-            
             data_to_add = []
             data_to_add.append(message["id"])
-            
-            # Just get date and time HH:MM 
+
+            # Just get date and time HH:MM
             data_to_add.append(message["sent_at"][:-3])
 
             # Get Plan & CAMP & Sender name
@@ -137,7 +136,7 @@ class MessagesView(BaseView):
 
     def render_unresolved_messages(self):
         self.unresolved_messages = self.get_messages(is_resolved=False)
-        
+
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
             "Msg ID",
@@ -155,7 +154,7 @@ class MessagesView(BaseView):
 
         self.unresolved_messages_container = tk.Frame(
             master=self.container,
-            width=500,
+            width=1400,
         )
         self.unresolved_messages_container.pack(fill="both", expand=True)
 
@@ -163,7 +162,7 @@ class MessagesView(BaseView):
         # Create a canvas widget
         self.canvas_unresolved = tk.Canvas(
             self.unresolved_messages_container,
-            width=900,
+            width=1400,
             height=400,  # clamp height
         )
         self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
@@ -193,8 +192,14 @@ class MessagesView(BaseView):
             text="Unresolved Messages",
             padx=10,
             pady=10,
+            width=1400,
         )
-        self.unresolved_table_container.pack(padx=10, pady=50, fill="both", expand=True)
+        self.unresolved_table_container.pack(
+            padx=10,
+            pady=50,
+            fill="both",
+            expand=True,
+        )
 
         for ix, row in enumerate(self.data_to_render):
             self._render_row(
@@ -215,7 +220,6 @@ class MessagesView(BaseView):
 
     def render_resolved_messages(self):
         self.resolved_messages = self.get_messages(is_resolved=True)
-   
 
         # Get the data as simple list[str], starting with col headers
         self.header_cols = [
@@ -234,7 +238,7 @@ class MessagesView(BaseView):
 
         self.resolved_messages_container = tk.Frame(
             master=self.container,
-            width=500,
+            # width=500,
             pady=50,
         )
         self.resolved_messages_container.pack(fill="both", expand=True)
@@ -243,7 +247,7 @@ class MessagesView(BaseView):
         # Create a canvas widget
         self.canvas_resolved = tk.Canvas(
             self.resolved_messages_container,
-            width=1400,
+            # width=1400,
         )
         self.canvas_resolved.pack(
             side=tk.LEFT,
@@ -257,7 +261,7 @@ class MessagesView(BaseView):
             orient=tk.VERTICAL,
             command=self.canvas_resolved.yview,
         )
-        scrollbar.pack(side=tk.RIGHT, fill='y')
+        scrollbar.pack(side=tk.RIGHT, fill="y")
 
         # Configure the canvas to use the scrollbar
         self.canvas_resolved.configure(yscrollcommand=scrollbar.set)
@@ -305,7 +309,7 @@ class MessagesView(BaseView):
         self,
         container: tk.Frame,
         items: list[str],
-        column_width=12,
+        column_width=18,
         header=False,
         resolved_messages=True,
     ) -> None:
@@ -323,9 +327,9 @@ class MessagesView(BaseView):
             self.cell_frame.grid(
                 row=0,
                 column=ix,
-                
             )
-            if not header: add_border(self.cell_frame)
+            if not header:
+                add_border(self.cell_frame)
 
             self.cell_content = tk.Label(
                 master=self.cell_frame,
@@ -345,7 +349,7 @@ class MessagesView(BaseView):
             tk.Button(
                 master=self.row_container,
                 text="Undo" if resolved_messages else "Resolve",
-                width=5,
+                width=column_width,
                 command=lambda: self._handle_resolve_undo_click(message_id=items[0]),
             ).grid(row=0, column=len(items))
 
