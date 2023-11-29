@@ -1,17 +1,33 @@
-"""TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
+import logging
 import tkinter as tk
+import datetime
+import re
 
 # Project imports
-from views.base import BaseView
 from constants import config
+from utilities.db import run_query_get_rows, insert_query_with_values
+from utilities.validators import is_valid_email
+from .base import BaseView
 
 
 class AddEditRefugeeView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+
+        # SET INSTANCE VARIABLES
+        self.MAX_CHAR_LEN = 20
+
+        self.edit_refugee_id = self.master.GLOBAL_STATE.get("refugee_id_to_edit")
+        self.is_edit = bool(self.edit_refugee_id)
+        if self.is_edit:
+            self.edit_refugee_details = run_query_get_rows(
+                f"SELECT * FROM RefugeeFamily WHERE id = '{self.edit_refugee_id}'"
+            )[0]
+
         self.render_widgets()
+        self.master.update()
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -40,3 +56,262 @@ class AddEditRefugeeView(BaseView):
         self.header.pack(
             side="left",
         )
+
+        # ----------------------- FORM ----------------------------
+        self.form_container = tk.Frame(
+            master=self.container,
+        )
+        self.form_container.pack(
+            pady=15,
+            fill="both",
+            expand=True,
+        )
+
+        # display plan - can't change
+
+        # display camp - question - can change or not?
+
+        # id
+        self._render_refugee_id(
+            self.form_container,
+            on_row=0,
+        )
+
+        # rep name
+        self._render_main_rep_name(
+            self.form_container,
+            on_row=1,
+        )
+
+        # medical condition
+        self._render_med_condition_name(
+            self.form_container,
+            on_row=2,
+        )
+
+        # number of adults
+        self._render_num_adults_name(
+            self.form_container,
+            on_row=2,
+        )
+
+        # number of children
+
+        # main_rep_home_towm
+
+        # main_rep_age
+
+        # main_rep_sex
+
+        # number of missing people
+
+        # Status
+
+    # -------------- Rendering functions for inputs ------------
+
+    #  Refugee ID
+    def _render_refugee_id(self, form_container, on_row: int) -> None:
+        """Renders refugee ID if exists or new refugee ID if adding"""
+        self.refugee_id_container = tk.Frame(
+            master=form_container,
+        )
+        self.refugee_id_container.grid(
+            row=on_row,
+            column=0,
+        )
+
+        self.refugee_id_label_container = tk.Frame(
+            master=self.refugee_id_container,
+        )
+        self.refugee_id_label_container.pack(
+            expand=True,
+            fill="x",
+        )
+        self.refugee_id_label = tk.Label(
+            master=self.refugee_id_label_container,
+            text="Refugee ID",
+        )
+        self.refugee_id_label.pack(
+            side="left",
+        )
+
+        self.refugee_id_entry_container = tk.Frame(
+            master=self.refugee_id_container,
+        )
+        self.refugee_id_entry_container.pack(
+            expand=True,
+            fill="x",
+        )
+
+        self.refugee_id_text = tk.StringVar()
+        if self.is_edit:
+            self.refugee_id_text.set(self.edit_refugee_details["id"])
+        else:
+            # Get latest refugee id
+            self.refugee_id_text.set(self._get_latest_refugee_id() + 1)
+
+        self.refugee_id_entry = tk.Entry(
+            master=self.refugee_id_entry_container,
+            width=50,
+            state="disabled",
+            textvariable=self.refugee_id_text,
+        )
+        self.refugee_id_entry.pack()
+
+    # Refugee main rep namme
+    def _render_main_rep_name(self, form_container, on_row: int) -> None:
+        self.rep_name_container = tk.Frame(
+            master=form_container,
+        )
+        self.rep_name_container.grid(
+            row=on_row,
+            column=0,
+        )
+
+        self.rep_name_label_container = tk.Frame(
+            master=self.rep_name_container,
+        )
+        self.rep_name_label_container.pack(
+            expand=True,
+            fill="x",
+        )
+        self.rep_name_label = tk.Label(
+            master=self.rep_name_label_container,
+            text="Name (max 40 chars)",
+        )
+        self.rep_name_label.pack(
+            side="left",
+        )
+
+        self.rep_name_entry_container = tk.Frame(
+            master=self.rep_name_container,
+        )
+        self.rep_name_entry_container.pack(
+            expand=True,
+            fill="x",
+        )
+
+        self.main_rep_text = tk.StringVar()
+        if self.is_edit:
+            self.main_rep_text.set(self.edit_refugee_details["main_rep_name"])
+        # Set char length limit
+        self.main_rep_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.main_rep_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
+        self.rep_name_entry = tk.Entry(
+            master=self.rep_name_entry_container,
+            width=50,
+            textvariable=self.main_rep_text,
+        )
+        self.rep_name_entry.pack()
+
+    # Medical conition
+    def _render_med_condition_name(self, form_container, on_row: int) -> None:
+        self.med_condition_container = tk.Frame(
+            master=form_container,
+        )
+        self.med_condition_container.grid(
+            row=on_row,
+            column=0,
+        )
+
+        self.med_condition_label_container = tk.Frame(
+            master=self.med_condition_container,
+        )
+        self.med_condition_label_container.pack(
+            expand=True,
+            fill="x",
+        )
+        self.med_condition_label = tk.Label(
+            master=self.med_condition_label_container,
+            text="Medical Condition (max 40 chars)",
+        )
+        self.med_condition_label.pack(
+            side="left",
+        )
+
+        self.med_condition_entry_container = tk.Frame(
+            master=self.med_condition_container,
+        )
+        self.med_condition_entry_container.pack(
+            expand=True,
+            fill="x",
+        )
+
+        self.main_rep_text = tk.StringVar()
+        if self.is_edit:
+            self.main_rep_text.set(self.edit_refugee_details["medical_conditions"])
+        # Set char length limit
+        self.main_rep_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=self.main_rep_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
+        self.med_condition_entry = tk.Entry(
+            master=self.med_condition_entry_container,
+            width=50,
+            textvariable=self.main_rep_text,
+        )
+        self.med_condition_entry.pack()
+
+    # Number of adults
+    def _render_num_adults_name(self, form_container, on_row: int) -> None:
+        self.num_adults_container = tk.Frame(
+            master=form_container,
+        )
+        self.num_adults_container.grid(
+            row=on_row,
+            column=0,
+        )
+
+        self.num_adults_label_container = tk.Frame(
+            master=self.num_adults_container,
+        )
+        self.num_adults_label_container.pack(
+            expand=True,
+            fill="x",
+        )
+        self.num_adults_label = tk.Label(
+            master=self.num_adults_label_container,
+            text="Number of adults",
+        )
+        self.num_adults_label.pack(
+            side="left",
+        )
+
+        self.num_adults_entry_container = tk.Frame(
+            master=self.num_adults_container,
+        )
+        self.num_adults_entry_container.pack(
+            expand=True,
+            fill="x",
+        )
+
+        self.main_rep_text = tk.IntVar()
+        if self.is_edit:
+            self.main_rep_text.set(self.edit_refugee_details["n_adults"])
+        # TO DO: Check if it is a valid number???
+        # # Set char length limit
+        # self.main_rep_text.trace(
+        #     "w",
+        #     lambda *args: self.set_character_limit(
+        #         entry_text=self.main_rep_text, char_limit=self.MAX_CHAR_LEN
+        #     ),
+        # )
+        self.num_adults_entry = tk.Entry(
+            master=self.num_adults_entry_container,
+            width=50,
+            textvariable=self.main_rep_text,
+        )
+        self.num_adults_entry.pack()
+
+    # ------------------- HELPER FUNCTIONS ----------------------
+    def _get_latest_refugee_id(self) -> int:
+        latest_refugee_id = run_query_get_rows(
+            "SELECT MAX(id) AS latest_refugee_id FROM RefugeeFamily"
+        )[0].get("latest_refugee_id")
+        return latest_refugee_id
