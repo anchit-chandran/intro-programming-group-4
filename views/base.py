@@ -50,6 +50,9 @@ class BaseView(tk.Frame):
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")
 
+    def _handle_refugee_profile_click(self) -> None:
+        self.master.switch_to_view("refugee_profile") 
+
     def _handle_messages(self) -> None:
         self.master.switch_to_view("messages")
 
@@ -108,6 +111,19 @@ class BaseView(tk.Frame):
                 sticky="w",
             )
 
+        # Add Refugee Profile button
+        self.refugee_profile_button = tk.Button(
+            master=self.nav_container,
+            text="Refugee Profile",
+            command=self._handle_refugee_profile_click,
+        )
+        self.refugee_profile_button.grid(
+            row=0,
+            column=4,
+            sticky="w",
+        )
+
+
         self.profile_button = tk.Button(
             master=self.nav_container,
             text="My Profile",
@@ -115,7 +131,7 @@ class BaseView(tk.Frame):
         )
         self.profile_button.grid(
             row=0,
-            column=4,
+            column=5,
             sticky="e",
         )
 
@@ -133,7 +149,7 @@ class BaseView(tk.Frame):
         )
         self.messages_button.grid(
             row=0,
-            column=5,
+            column=6,
             sticky="w",
         )
 
@@ -144,7 +160,7 @@ class BaseView(tk.Frame):
         )
         self.refresh_button.grid(
             row=0,
-            column=6,
+            column=7,
             sticky="e",
         )
 
@@ -155,7 +171,7 @@ class BaseView(tk.Frame):
         )
         self.logout_button.grid(
             row=0,
-            column=7,
+            column=8,
             sticky="e",
         )
 
@@ -165,7 +181,7 @@ class BaseView(tk.Frame):
         )
         self.username_frame.grid(
             row=0,
-            column=8,
+            column=9,
             sticky="w",
         )
         self.role_text = (
