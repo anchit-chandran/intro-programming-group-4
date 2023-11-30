@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import messagebox
 import datetime
 import re
 
@@ -640,7 +641,7 @@ class AddEditRefugeeView(BaseView):
         self.submit_button = tk.Button(
             master=self.action_buttons_container,
             text="Add Refugee" if not self.is_edit else "Update Refugee Info",
-            # command=self._handle_submit,
+            command=self._handle_submit,
             fg="green",
         )
         self.submit_button.pack(side="right", padx=(10, 0))
@@ -657,7 +658,7 @@ class AddEditRefugeeView(BaseView):
                 master=self.action_buttons_container,
                 text="Delete",
                 fg="red",
-                # command=self._render_delete_confirm_popup_window,
+                command=self._render_delete_confirm_popup_window,
             )
             self.delete_button.pack(side="left", padx=10)
 
@@ -680,3 +681,24 @@ class AddEditRefugeeView(BaseView):
             f"SELECT name FROM Camp WHERE id='{self.camp_id}'"
         )[0].get("name")
         return camp_name
+
+    def _handle_submit():
+        pass
+
+    def _render_delete_confirm_popup_window(self) -> None:
+        title = "🚨 Delete Refugee Record"
+        message = "Are you sure you want to delete this refugee family record?"
+        confirm = messagebox.askokcancel(title=title, message=message)
+        if confirm:
+            logging.debug(f"Deleting {self.edit_refugee_details['id']=}")
+
+        # Perform deletion
+        insert_query_with_values(
+            query="""DELETE 
+                                 FROM RefugeeFamily
+                                 WHERE id = :id
+                                 """,
+            values={"id": self.edit_refugee_details["id"]},
+        )
+
+        self.master.switch_to_view("camp_detail")
