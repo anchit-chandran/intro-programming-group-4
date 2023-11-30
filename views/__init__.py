@@ -3,6 +3,7 @@ from .plan_detail import PlanDetailView
 from .all_plans import AllPlansView
 from .add_edit_plan import AddEditPlanView
 from .all_volunteers_list import AllVolunteersView
+from .add_edit_volunteer import AddEditUserView
 from .messages import MessagesView
 from .profile_view import ProfileView
 from .new_msg import NewMessageView
