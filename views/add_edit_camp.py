@@ -26,10 +26,10 @@ class AddEditCampView(BaseView):
 
         self.camp_id = self.master.get_global_state().get("camp_id_to_edit")
         self.plan_id_for_camp = self._get_plan_id()
-        self.camp_name_is_edit = bool(self.camp_name_to_edit)
+        self.camp_name_is_edit = bool(self.camp_id)
         if self.camp_name_is_edit:
             self.edit_camp_details = run_query_get_rows(
-                f"SELECT * FROM Camp WHERE name = '{self.camp_name_to_edit}'"
+                f"SELECT * FROM Camp WHERE id = '{self.camp_id}'"
                 # select all columns from camp table for this camp name
             )[
                 0
@@ -57,7 +57,7 @@ class AddEditCampView(BaseView):
         self.header_container = tk.Frame(self.container)
         self.header_container.pack(pady=5, fill="x", expand=True)
 
-        self.header_text = "Edit Camp" if self.camp_name_is_edit else "Add Plan"
+        self.header_text = "Edit Camp" if self.camp_name_is_edit else "Add Camp"
         self.header = tk.Label(
             master=self.header_container, text=self.header_text, font=(30)
         )
