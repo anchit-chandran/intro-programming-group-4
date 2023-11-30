@@ -182,6 +182,11 @@ class AddEditCampView(BaseView):
         )
         self.plan_id_entry.pack()
 
+    def _get_latest_camp_id(self) -> int:
+        latest_camp_id = run_query_get_rows(
+            "SELECT MAX(id) AS latest_camp_id FROM Camp"
+        )[0].get("latest_camp_id")
+        return latest_camp_id
 
     def _render_camp_id(self, form_container, on_row: int) -> None:
         self.camp_id_container = tk.Frame(
@@ -229,11 +234,6 @@ class AddEditCampView(BaseView):
         )
         self.camp_id_entry.pack()
 
-    def _get_latest_camp_id(self) -> int:
-        latest_camp_id = run_query_get_rows(
-            "SELECT MAX(id) AS latest_camp_id FROM Plan"
-        )[0].get("latest_plan_id")
-        return latest_camp_id
 
     # Function to fill out camp name in form
     def _render_camp_name(self, form_container, on_row: int) -> None:
