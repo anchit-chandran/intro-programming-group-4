@@ -61,8 +61,8 @@ class RefugeeProfileView(BaseView):
             pady=10,
         )
 
-       # User profile variables
-        # Assuming you have a way to identify the refugee, for example, the refugee ID
+       # Refugee profile variables
+        
         refugee_family_id = self.master.get_global_state().get("refugee_id_to_view")  
         refugee_family_data = run_query_get_rows(f"SELECT * FROM RefugeeFamily WHERE id = '{refugee_family_id}'")[0]
 
@@ -108,7 +108,7 @@ class RefugeeProfileView(BaseView):
         elif is_in_camp == 0:
             is_in_camp_value = "NO"
 
-        # Assuming you have a way to identify the camp, for example, the camp ID
+        # Camp details variables
         camp_id = refugee_family_data.get("camp_id")
         camp_data = run_query_get_rows(f"SELECT * FROM Camp WHERE id = '{camp_id}'")[0]
         camp_location = camp_data.get("location")
@@ -116,7 +116,7 @@ class RefugeeProfileView(BaseView):
             camp_location = "No information provided"
         
 
-        # Section: Display refugee family details
+        # Section: Refugee family details
         self.refugee_details_label_container = tk.LabelFrame(
             master=self.container,
             text="Refugee Family Details",
@@ -124,14 +124,14 @@ class RefugeeProfileView(BaseView):
             height=300,
         )
 
-            # Section: Button to edit
+        # Section: Edit Button
         self.button_container = tk.Frame(
             master=self.container,
             width = 50,
             height = 50,
         )  
 
-        # back button
+        # Section: Back Button
         self.back_button_container = tk.Frame(
             master=self.container,
             width = 10,
@@ -168,7 +168,7 @@ class RefugeeProfileView(BaseView):
             text=tk.StringVar(value=camp_location),
         )
         
-        # main rep name
+        # Main rep name
         self.main_rep_name_label = tk.Label(
             master=self.refugee_details_label_container,
             text="Main Rep Name",
@@ -183,7 +183,7 @@ class RefugeeProfileView(BaseView):
             text=tk.StringVar(value=main_rep_name),
         )
 
-        # main rep age
+        # Main rep age
         self.main_rep_age_label = tk.Label(
             master=self.refugee_details_label_container,
             text="Main Rep Age",
@@ -198,7 +198,7 @@ class RefugeeProfileView(BaseView):
             text=tk.StringVar(value=main_rep_age),
         )
 
-        # Main Representative Home Town
+        # Main Rep Home Town
         self.main_rep_home_town_label = tk.Label(
             master=self.refugee_details_label_container,
             text="Main Rep Home Town",
@@ -291,7 +291,7 @@ class RefugeeProfileView(BaseView):
             text=tk.StringVar(value=is_in_camp_value),
         )
 
-        # edit button
+        # Edit button
         self.edit_button = tk.Button(
             master=self.button_container,
             width=30,
@@ -301,7 +301,7 @@ class RefugeeProfileView(BaseView):
             bg="blue",
         )
 
-        # back button
+        # Back button
         self.back_button = tk.Button(
             master=self.back_button_container,
             command=lambda: self.handle_view_click(camp_id),
@@ -353,22 +353,4 @@ class RefugeeProfileView(BaseView):
         self.edit_button.grid(row=0, column=0,)
         self.back_button.grid(row=0, column=0,)
 
-        
-
     
-
-    # else:
-    #     # Display a message if no data is found
-    #     no_data_label = tk.Label(
-    #         master=self.container,
-    #         text="No information available for this refugee family.",
-    #         font=(14),
-    #         fg="red",
-    #     )
-    #     no_data_label.pack(pady=20)
-
-
-        # link to camp view details with global state
-        # add back button redirecting to campview with glocal state
-        # change padding cos Main representative does not fit
-        # change is in camp to something more readable, and change option 
