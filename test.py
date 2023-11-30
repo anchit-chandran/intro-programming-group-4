@@ -27,6 +27,9 @@ class TestApplication(unittest.TestCase):
                 elif view == "add_edit_camp":
                     self.app.GLOBAL_STATE['plan_id_for_camp'] = 1
                     self.app.GLOBAL_STATE['camp_id'] = 1
+                elif view == "refugee_profile":
+                    self.app.GLOBAL_STATE['refugee_id_to_view'] = 1
+
                 
                 self.app.switch_to_view(view)
             except:
