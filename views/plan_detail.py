@@ -211,25 +211,25 @@ class PlanDetailView(BaseView):
                 column=len(items),
                 padx=5,
             )
-
             tk.Button(
                 master=self.buttons_frame,
-                text="Edit",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_edit_click(items[0]),
-            ).pack(fill="both")
-            tk.Button(
-                master=self.buttons_frame,
-                text="View",
-                width=BUTTON_WIDTH,
+                text="View camp",
+                width=20,
                 command=lambda: self._handle_view_click(items[0]),
             ).pack(fill="both")
             tk.Button(
                 master=self.buttons_frame,
-                text="Resources",
-                width=BUTTON_WIDTH,
+                text="Add/Edit resources",
+                width=20,
                 command=lambda: self._handle_edit_resources_click(items[0]),
             ).pack(fill="both")
+            tk.Button(
+                master=self.buttons_frame,
+                text="Edit other camp details",
+                width=20,
+                command=lambda: self._handle_edit_click(items[0]),
+            ).pack(fill="both")
+
 
     def _handle_edit_resources_click(self, camp_name: str) -> None:
         camp_id = self.get_camp_id_from_name(camp_name)
