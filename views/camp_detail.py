@@ -1,5 +1,5 @@
-"""TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
+import logging
 import tkinter as tk
 import tkinter.ttk as ttk
 from datetime import datetime
@@ -94,6 +94,12 @@ class CampDetailView(BaseView):
         )
         return resources_result
 
+    def handle_back_button(self):
+        current_state = self.master.get_global_state()
+        current_state.pop("camp_id_to_view", None)
+        self.master.set_global_state(current_state)
+        self.master.switch_to_view("plan_detail")
+
     def render_widgets(self) -> None:
         """Renders widgets for view"""
 
@@ -106,13 +112,13 @@ class CampDetailView(BaseView):
         # Create container
         self.container = ttk.Frame(
             master=self,
-            width=config.SCREEN_WIDTH,
+            width=500,
             height=300,
         )
         self.container.pack(
             fill="both",
             padx=30,
-            pady=100,
+            pady=20,
         )
 
         # Header
@@ -126,14 +132,24 @@ class CampDetailView(BaseView):
             column=0,
         )
 
+        # if not volunteer show button
+        if not self.is_volunteer:
+            # back button
+            self.go_back_button = ttk.Button(
+                master=self.header_container,
+                text="GO BACK TO PLAN",
+                command=self.handle_back_button,
+            )
+            self.go_back_button.grid(
+                row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
+            )
+
         self.header = ttk.Label(
             master=self.header_container,
             text=f"Camp Details",
             font=(60),
         )
-        self.header.pack(
-            side="left",
-        )
+        self.header.grid(row=0, column=1, padx=(0, 30), pady=20, sticky="nw")
 
         # ------------------------ Top container------------------------------
 
@@ -151,7 +167,7 @@ class CampDetailView(BaseView):
             width=300,
             height=600,
         )
-        self.info_container.grid(row=0, column=0, padx=30, sticky="nw")
+        self.info_container.grid(row=0, column=1, padx=30, sticky="nw")
 
         # left label
         self.location_label = ttk.Label(
@@ -200,7 +216,7 @@ class CampDetailView(BaseView):
             text="Resources",
             width=300,
         )
-        self.resources_container.grid(row=0, column=1, padx=30, sticky="nw")
+        self.resources_container.grid(row=0, column=2, padx=30, sticky="nw")
 
         self.resources_num_container = ttk.Frame(
             master=self.resources_container,
@@ -242,7 +258,7 @@ class CampDetailView(BaseView):
                 command=self.handle_send_message,
             )
             self.send_message_button.grid(
-                row=0, column=2, padx=30, pady=20, sticky="ne"
+                row=0, column=3, padx=30, pady=20, sticky="ne"
             )
 
         # render tables
@@ -337,7 +353,9 @@ class CampDetailView(BaseView):
             master=self.container,
             width=1000,
         )
-        self.all_refugees_container.grid(row=4, column=0, columnspan=10, pady=10, sticky="w")
+        self.all_refugees_container.grid(
+            row=4, column=0, columnspan=10, pady=10, sticky="w"
+        )
 
         # table title
         self.refugees_header = ttk.Label(
