@@ -16,6 +16,8 @@ class EditResourcesView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        self.new_resources_click = 0 # To keep track of how many times add new resource button is clicked
+    
         
         self.camp_id = self.master.get_global_state().get("camp_id_for_resources")
         if not self.camp_id:
@@ -23,8 +25,34 @@ class EditResourcesView(BaseView):
         
         self.render_widgets()
     
-    def handle_add_resources_click(self) -> None:
-        pass
+    def handle_add_resources_click(self, new_resources_click, camp_resources_length):
+        self.new_resources_click += 1
+        if self.new_resources_click == 1:
+            label_name = tk.Label(
+                    master=self.resources_container,
+                    text="New resource name:",)
+            label_name.grid(
+                    row=camp_resources_length + 1 + new_resources_click,
+                    column=0,)
+            label_amount = tk.Label(
+                    master=self.resources_container,
+                    text="Amount:",)
+            label_amount.grid(
+                    row=camp_resources_length + 1 + new_resources_click,
+                    column=1,)
+        entry_new_resource_name = tk.Entry(
+                master=self.resources_container,
+                width=20,)
+        entry_new_resource_name.grid(
+                row=camp_resources_length + 2 + new_resources_click,
+                column=0,)
+        entry_new_resource_amount = tk.Entry(
+                master=self.resources_container,
+                width=20,)
+        entry_new_resource_amount.grid(
+                row=camp_resources_length + 2 + new_resources_click,
+                column=1,)
+        
     
     def handle_back_click(self):
         self.master.switch_to_view("plan_detail")
@@ -80,7 +108,7 @@ class EditResourcesView(BaseView):
         # Gets resources for camp in form [(resource_name, resource_amount)] via SQL query
         camp_resources = run_query_get_rows(
             f"SELECT name, amount FROM CampResources WHERE camp_id = '{self.camp_id}'")
-        camp_resources_length = len(camp_resources)
+        self.camp_resources_length = len(camp_resources)
         
         # Section: display resources
         self.resources_container = tk.Frame(
@@ -96,32 +124,42 @@ class EditResourcesView(BaseView):
         
         # Display resources
         self.edited_resources = {}
-        for i in range(camp_resources_length):
-            label_resource = tk.Label(
+        if self.camp_resources_length == 0 and self.new_resources_click == 0:
+            label_no_resources = tk.Label(
                 master=self.resources_container,
-                text=camp_resources[i]["name"],)
-            label_resource.grid(
-                row=i,
+                text="No resources found for this camp. Add resources",)
+            label_no_resources.grid(
+                row=0,
                 column=0,
                 sticky="w",
             )
+        else:
+            for i in range(self.camp_resources_length):
+                label_resource = tk.Label(
+                    master=self.resources_container,
+                    text=camp_resources[i]["name"],)
+                label_resource.grid(
+                    row=i,
+                    column=0,
+                    sticky="w",
+                )
 
-            entry_resource = tk.Entry(
-                master=self.resources_container,
-                width=8,
-                textvariable=tk.StringVar(
-                    value=camp_resources[i]["amount"],),)
-            entry_resource.grid(
-                row=i,
-                column=1,
-                sticky="w",)
-            self.edited_resources[camp_resources[i]["name"]]=entry_resource
-            
+                entry_resource = tk.Entry(
+                    master=self.resources_container,
+                    width=8,
+                    textvariable=tk.StringVar(
+                        value=camp_resources[i]["amount"],),)
+                entry_resource.grid(
+                    row=i,
+                    column=1,
+                    sticky="w",)
+                self.edited_resources[camp_resources[i]["name"]]=entry_resource
+                
         # Button to submit edit
         self.submit_edit_button = tk.Button(
             master=self.button_container,
             width=20,
-            text="Submit edit",
+            text="Submit changes",
             command=self.handle_submit_edit_click,
         )
         
@@ -130,7 +168,7 @@ class EditResourcesView(BaseView):
             master=self.button_container,
             width=20,
             text="Add new resource type",
-            command=self.handle_add_resources_click,
+            command=lambda: self.handle_add_resources_click(self.new_resources_click, self.camp_resources_length),
         ) 
                 
         # Button to go back
@@ -151,6 +189,6 @@ class EditResourcesView(BaseView):
         self.back_button.grid(row=0, column=2,)
 
             
-##         resources_length = len(camp_resources)
+##       resources_length = len(camp_resources)
 #        resource_name = [resource["name"] for resource in camp_resources]
 #        resource_amount = [resource["amount"] for resource in camp_resources]
