@@ -18,12 +18,12 @@ class MainApplication(tk.Tk):
         self.GLOBAL_STATE = {}
         self.view_map = {
             "login": LoginView,
-            "plan_detail": PlanDetailView, # Needs plan_name in global state
+            "plan_detail": PlanDetailView,  # Needs plan_name in global state
             "all_plans": AllPlansView,
-            "add_edit_plan": AddEditPlanView, # Needs plan_name_to_edit if edit in global state
-            "add_edit_camp": AddEditCampView, # Needs plan_id_for_camp if adding; camp_id_to_edit if edit
-            "add_edit_user_profile": AddEditUserProfileView, # gets user_id from global state if editing
-            "camp_detail": CampDetailView, # Needs camp_id_to_view in global state
+            "add_edit_plan": AddEditPlanView,  # Needs plan_name_to_edit if edit in global state
+            "add_edit_camp": AddEditCampView,  # Needs plan_id_for_camp if adding; camp_id_to_edit if edit
+            "add_edit_user_profile": AddEditUserProfileView,  # gets user_id from global state if editing
+            "camp_detail": CampDetailView,  # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
             "profile": ProfileView,
@@ -110,7 +110,9 @@ class MainApplication(tk.Tk):
 
     def refresh_view(self) -> None:
         """Reloads the current view"""
-        logging.info(f"Refreshing view: {self.current_view}. Current_state: {self.get_global_state()}")
+        logging.info(
+            f"Refreshing view: {self.current_view}. Current_state: {self.get_global_state()}"
+        )
         self.switch_to_view(self.reverse_view_map[self.current_view.__class__])
 
 
