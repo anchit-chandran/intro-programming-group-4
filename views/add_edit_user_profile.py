@@ -32,7 +32,7 @@ class AddEditUserProfileView(BaseView):
         # Header
         self.header = tk.Label(
             master=self.container,
-            text=f"ADD/EDIT USER PROFILE",
+            text=f"ADD/EDIT USER PROFILE {self.master.get_global_state()['user_id']}",
             font=(60),
         )
         self.header.pack()
