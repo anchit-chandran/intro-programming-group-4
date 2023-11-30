@@ -1,10 +1,15 @@
-"""TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
+import logging
 import tkinter as tk
+from tkinter import messagebox
+import datetime
+import re
 
 # Project imports
-from views.base import BaseView
 from constants import config
+from utilities.db import run_query_get_rows, insert_query_with_values
+from utilities.validators import is_valid_email
+from .base import BaseView
 
 
 class EditResourcesView(BaseView):
@@ -17,6 +22,30 @@ class EditResourcesView(BaseView):
             raise ValueError("camp_id_for_resources not in global state")
         
         self.render_widgets()
+    
+    def handle_add_resources_click(self) -> None:
+        pass
+    
+    def handle_submit_edit_click(self):
+        """Handles submit edit button click
+        Checks if all inputs are integers and updates database"""
+        updated_values = {}
+        for resource, amount in self.edited_resources.items():
+            try:
+                updated_values[resource] = int(amount.get())
+            except ValueError:
+                messagebox.showerror("Error", "Invalid input. Please enter an integer.")
+                break
+        resourse_name_values = list(updated_values.keys())
+        resourse_entry_values = list(updated_values.values())  
+        # In case all values are integers, all values are taken in updated_values 
+        if len(updated_values) == len(self.edited_resources):
+            for i in range(len(updated_values)):
+                insert_query_with_values(query = f"UPDATE CampResources SET amount = ? WHERE camp_id = ? AND name = ?",
+                                values = (resourse_entry_values[i], self.camp_id, resourse_name_values[i],))
+            messagebox.showinfo("Information", "Resources updated successfully.")
+
+
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -39,10 +68,82 @@ class EditResourcesView(BaseView):
 
         self.header = tk.Label(
             master=self.header_container,
-            text=f"TEMPLATE",
+            text=f"Edit resources for Camp {self.camp_id}",
             font=(60),
         )
         self.header.pack(
             side="left",
         )
+        
+        # Gets resources for camp in form [(resource_name, resource_amount)] via SQL query
+        camp_resources = run_query_get_rows(
+            f"SELECT name, amount FROM CampResources WHERE camp_id = '{self.camp_id}'")
+        camp_resources_length = len(camp_resources)
+        
+        # Section: display resources
+        self.resources_container = tk.Frame(
+            master=self.container,
+        )
 
+        # Section: Button to submit edit
+        self.button_container = tk.Frame(
+             master=self.container,
+             width = 50,
+             height = 50,
+         )           
+        
+        # Display resources
+        self.edited_resources = {}
+        for i in range(camp_resources_length):
+            label_resource = tk.Label(
+                master=self.resources_container,
+                text=camp_resources[i]["name"],)
+            label_resource.grid(
+                row=i,
+                column=0,
+                sticky="w",
+            )
+
+            entry_resource = tk.Entry(
+                master=self.resources_container,
+                width=8,
+                textvariable=tk.StringVar(
+                    value=camp_resources[i]["amount"],),)
+            entry_resource.grid(
+                row=i,
+                column=1,
+                sticky="w",)
+            self.edited_resources[camp_resources[i]["name"]]=entry_resource
+            
+        # Button to submit edit
+        self.submit_edit_button = tk.Button(
+            master=self.button_container,
+            width=30,
+            text="Submit edit",
+            fg="white",
+            bg="blue",
+            command=self.handle_submit_edit_click,
+        )
+        
+        # Button to add new type of resource
+        self.add_resource_button = tk.Button(
+            master=self.button_container,
+            width=30,
+            text="Add new resource type",
+            fg="black",
+            bg="grey",
+            command=self.handle_add_resources_click,
+        ) 
+ 
+            
+        #Add to grid
+        self.resources_container.pack(pady=15, fill="both", expand=True, side="top")
+        self.button_container.pack(pady=15, fill="both", expand=True, side="bottom") 
+        
+        self.add_resource_button.grid(row=0, column=0,)
+        self.submit_edit_button.grid(row=0, column=2,)
+
+            
+##         resources_length = len(camp_resources)
+#        resource_name = [resource["name"] for resource in camp_resources]
+#        resource_amount = [resource["amount"] for resource in camp_resources]
