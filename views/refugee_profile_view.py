@@ -353,4 +353,46 @@ class RefugeeProfileView(BaseView):
         self.edit_button.grid(row=0, column=0,)
         self.back_button.grid(row=0, column=0,)
 
+        
+        
+
+        # Add to grid
+        self.refugee_details_label_container.pack(pady=(10, 20))
+        self.button_container.pack(pady=(0, 20))
+        self.back_button_container.pack(pady=(0,20))
+
+        self.refugee_family_id_label.grid(row=0, column=0)
+        self.refugee_family_id_entry.grid(row=0, column=1)
+
+        self.main_rep_name_label.grid(row=1, column=0)
+        self.main_rep_name_entry.grid(row=1, column=1)
+
+        self.main_rep_age_label.grid(row=2, column=0)
+        self.main_rep_age_entry.grid(row=2, column=1)
+
+        self.main_rep_home_town_label.grid(row=3, column=0)
+        self.main_rep_home_town_entry.grid(row=3, column=1)
+
+        self.n_adults_label.grid(row=4, column=0)
+        self.n_adults_entry.grid(row=4, column=1)
+
+        self.n_children_label.grid(row=5, column=0)
+        self.n_children_entry.grid(row=5, column=1)
+
+        self.n_missing_members_label.grid(row=6, column=0)
+        self.n_missing_members_entry.grid(row=6, column=1)
+
+        self.medical_conditions_label.grid(row=7, column=0)
+        self.medical_conditions_entry.grid(row=7, column=1)
+
+        self.is_in_camp_label.grid(row=8, column=0)
+        self.is_in_camp_entry.grid(row=8, column=1)
+
+        self.location_label.grid(row=9, column=0)
+        self.location_entry.grid(row=9, column=1)
+    
+
+        self.edit_button.grid(row=0, column=0,)
+        self.back_button.grid(row=0, column=0,)
+
     
