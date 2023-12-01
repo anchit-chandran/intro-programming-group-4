@@ -4,10 +4,11 @@ import tkinter as tk
 from tkinter import ttk
 
 # Project imports
-from constants import config
+from constants import config, message_priorities
 from utilities.db import run_query_get_rows
 from utilities.formatting import add_border, calculate_max_col_width
 from .base import BaseView
+
 
 
 class MessagesView(BaseView):
@@ -58,12 +59,12 @@ class MessagesView(BaseView):
         self.render_unresolved_messages()
         self.render_resolved_messages()
 
-        self.canvas_unresolved.bind(
-            "<Configure>", self._on_canvas_configure_unresolved_table_container
-        )
-        self.canvas_resolved.bind(
-            "<Configure>", self._on_canvas_configure_resolved_table_container
-        )
+        # self.canvas_unresolved.bind(
+        #     "<Configure>", self._on_canvas_configure_unresolved_table_container
+        # )
+        # self.canvas_resolved.bind(
+        #     "<Configure>", self._on_canvas_configure_resolved_table_container
+        # )
 
     def get_messages(self, is_resolved: bool):
         """Returns messages for this user from db"""
@@ -74,9 +75,9 @@ class MessagesView(BaseView):
                 AND is_resolved = {is_resolved}
                 ORDER BY 
                     CASE
-                        WHEN urgency = 'LOW' THEN 1
-                        WHEN urgency = 'MID' THEN 2
-                        WHEN urgency = 'HIGH' THEN 3
+                        WHEN urgency = '{message_priorities.Priority.LOW.value}' THEN 3
+                        WHEN urgency = '{message_priorities.Priority.MID.value}' THEN 2
+                        WHEN urgency = '{message_priorities.Priority.TOP.value}' THEN 1
                     END
                     ASC, sent_at DESC
                 """
@@ -135,88 +136,42 @@ class MessagesView(BaseView):
         return data_to_render
 
     def render_unresolved_messages(self):
+
         self.unresolved_messages = self.get_messages(is_resolved=False)
 
-        # Get the data as simple list[str], starting with col headers
-        self.header_cols = [
-            "Msg ID",
-            "Received At",
-            "Plan",
-            "Camp",
-            "Sender",
-            "Priority",
-            "Message",
-            "Resolve?",
-        ]
-        self.data_to_render = [self.header_cols]
-
+        # Get the data as simple list[str]
+        
+        self.data_to_render = []
         self.data_to_render.extend(self._get_data_to_render(self.unresolved_messages))
 
-        self.unresolved_messages_container = tk.Frame(
-            master=self.container,
-            width=1400,
-        )
-        self.unresolved_messages_container.pack(fill="both", expand=True)
-
-        # SCROLL BAR - THANK YOU https://www.pythontutorial.net/tkinter/tkinter-scrollbar/
-        # Create a canvas widget
-        self.canvas_unresolved = tk.Canvas(
-            self.unresolved_messages_container,
-            width=1400,
-            height=400,  # clamp height
-        )
-        self.canvas_unresolved.pack(side=tk.LEFT, fill="both", expand=True)
-
-        # Create a scrollbar for the canvas
-        scrollbar = ttk.Scrollbar(
-            self.unresolved_messages_container,
-            orient=tk.VERTICAL,
-            command=self.canvas_unresolved.yview,
-        )
-        scrollbar.pack(
-            side=tk.RIGHT,
-            fill=tk.Y,
-        )
-
-        # Configure the canvas to use the scrollbar
-        self.canvas_unresolved.configure(yscrollcommand=scrollbar.set)
-
-        # Create a frame inside the canvas
-        table_frame = tk.Frame(
-            self.canvas_unresolved,
-        )
-        self.canvas_unresolved.create_window((0, 0), window=table_frame, anchor=tk.NW)
+        logging.debug(f"{self.data_to_render=}")
 
         self.unresolved_table_container = tk.LabelFrame(
-            master=table_frame,
+            master=self.container,
             text="Unresolved Messages",
-            padx=10,
-            pady=10,
-            width=1400,
         )
-        self.unresolved_table_container.pack(
-            padx=10,
-            pady=50,
-            fill="both",
-            expand=True,
-        )
-
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=self.unresolved_table_container,
-                items=row,
-                header=ix == 0,  # True if first row, else False
-                resolved_messages=False,
-            )
+        self.unresolved_table_container.pack()
 
         # No messages, just header
-        if len(self.data_to_render) == 1:
+        if not self.data_to_render:
             no_messages_label = tk.Label(
                 master=self.unresolved_table_container,
                 text="No unresolved messages ✅",
                 font=(60),
             )
             no_messages_label.pack()
+        else:
+            self.header_cols = [
+                "ID",
+                "Received At",
+                "Plan",
+                "Camp",
+                "Sender",
+                "Priority",
+                "Message",
+                "Resolve?",
+            ]
+            self.render_tree_table(header_cols=self.header_cols, data=self.data_to_render, container=self.unresolved_table_container)
 
     def render_resolved_messages(self):
         self.resolved_messages = self.get_messages(is_resolved=True)

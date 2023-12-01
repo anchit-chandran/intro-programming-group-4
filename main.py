@@ -51,7 +51,7 @@ class MainApplication(tk.Tk):
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("all_plans")
+        self.switch_to_view("messages")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
