@@ -31,17 +31,17 @@ class ProfileView(BaseView):
         current_state = self.master.get_global_state()
 
         if current_state.get("volunteer_id_to_edit"):
-            self.volunteer_id = current_state.get("volunteer_id_to_edit")
+            self.volunteer_id = current_state.pop("volunteer_id_to_edit")
             logging.debug(f'Editing volunteer: {self.volunteer_id}')
             self._set_volunteer_instance_data()
             return "edit_volunteer"
         elif current_state.get("volunteer_id_to_view"):
-            self.volunteer_id = current_state.get("volunteer_id_to_view")
+            self.volunteer_id = current_state.pop("volunteer_id_to_view")
             logging.debug(f'Viewing volunteer: {self.volunteer_id}')
             self._set_volunteer_instance_data()
             return "view_volunteer"
         elif current_state.get("add_volunteer"):
-            return "add_volunteer"
+            return current_state.pop("add_volunteer")
         else:
             # viewing self
             return "own_profile"
