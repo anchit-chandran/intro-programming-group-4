@@ -151,11 +151,14 @@ class ProfileView(BaseView):
             text="User ID",
             width=10,
         )
+        
+        # DECIDE WHETHER ENTRIES SHOULD BE DISABLED
+        state = self._should_entries_disable()
 
         self.userID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state="disabled",
+            state=state,
             textvariable=tk.StringVar(value=user_id),
         )
 
@@ -168,7 +171,7 @@ class ProfileView(BaseView):
         self.username_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state="disabled",
+            state=state,
             textvariable=tk.StringVar(value=username),
         )
 
@@ -181,7 +184,7 @@ class ProfileView(BaseView):
         self.campID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=campID),
         )
 
@@ -194,7 +197,7 @@ class ProfileView(BaseView):
         self.status_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=status_profile),
         )
 
@@ -208,7 +211,7 @@ class ProfileView(BaseView):
         self.firstname_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=firstname),
         )
 
@@ -222,7 +225,7 @@ class ProfileView(BaseView):
         self.lastname_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=lastname),
         )
 
@@ -236,7 +239,7 @@ class ProfileView(BaseView):
         self.dob_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=DOB),
         )
 
@@ -250,7 +253,7 @@ class ProfileView(BaseView):
         self.sex_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=sex),
         )
 
@@ -264,7 +267,7 @@ class ProfileView(BaseView):
         self.phone_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=phone),
         )
 
@@ -278,7 +281,7 @@ class ProfileView(BaseView):
         self.other_languages_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=languages),
         )
 
@@ -292,7 +295,7 @@ class ProfileView(BaseView):
         self.other_skills_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=skills),
         )
 
@@ -306,7 +309,7 @@ class ProfileView(BaseView):
         self.emergency_contact_name_entry = tk.Entry(
             master=self.emergency_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=emergency_contact_name),
         )
 
@@ -320,7 +323,7 @@ class ProfileView(BaseView):
         self.emergency_contact_number_entry = tk.Entry(
             master=self.emergency_label_container,
             width=70,
-            state="disabled",
+            state=state,
             text=tk.StringVar(value=emergency_contact_number),
         )
 
@@ -506,6 +509,17 @@ class ProfileView(BaseView):
         else:
             return None, None
 
+    def _should_entries_disable(self) -> str:
+        # Must handle:
+        #     "own_profile"
+        #     "edit_volunteer"
+        #     "view_volunteer"
+        #     "add_volunteer"
+        if self.should_render in ['add_volunteer','edit_volunteer']:
+            return 'normal'
+        else:
+            return 'disabled'
+    
     def _get_user_profile_text(self, user_profile) -> tuple:
         is_active = user_profile.get("is_active")
         if is_active == 1:
