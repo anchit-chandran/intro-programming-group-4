@@ -200,6 +200,7 @@ class BaseView(tk.Frame):
         data: list[list[str]],
         col_widths: list[int] = None,
         tree_name: str = "tree",
+        rowheight:int = None,
     ) -> None:
         """Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
 
@@ -211,8 +212,17 @@ class BaseView(tk.Frame):
             `data` - list of rows, where each row is a list of strings|Any containing values.
             `col_widths` - if specifiying individual col widths, provide list of integers corresponding to each column's width.
             `tree_name` - the name of the View's table attribute. Default is 'tree' so to reference it, you would use `self.tree`. If `tree_name='banana'`, then you would use `self.banana`.
+            `rowheight` - if specifying different row height
         """
-        tree = ttk.Treeview(master=container)
+        # Add row height - thanks https://tkinter-snippets.com/ttk-treeview-change-row-height/
+        
+        if rowheight:
+            style = ttk.Style()
+            style.configure("My.Treeview", rowheight=rowheight)
+        
+            tree = ttk.Treeview(master=container, style="My.Treeview")
+        else:
+            tree = ttk.Treeview(master=container)
 
         # Define cols
         tree["columns"] = header_cols
