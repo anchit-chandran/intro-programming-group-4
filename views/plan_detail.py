@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 from constants import config
@@ -14,7 +15,7 @@ class PlanDetailView(BaseView):
         super().__init__(master)
         self.master = master
 
-        self.plan_id= self.master.get_global_state().get("plan_id_to_view")
+        self.plan_id = self.master.get_global_state().get("plan_id_to_view")
         if not self.plan_id:
             logging.error("No plan id in global state!")
             raise ValueError("No plan id in global state")
@@ -23,7 +24,7 @@ class PlanDetailView(BaseView):
         self.get_plan_details()
 
         self.render_widgets()
-        
+
         self.update()
 
     def render_widgets(self) -> None:
@@ -86,48 +87,84 @@ class PlanDetailView(BaseView):
         self.render_total_resources(
             container=self.total_resources_frame,
         )
-        
-        self.add_camp_frame = tk.Frame(
+
+        self.camps_frame = tk.Frame(
             master=self.container,
         )
-        self.add_camp_frame.grid(
+        self.camps_frame.grid(
             row=2,
             column=0,
             columnspan=2,
-            sticky='e',
         )
-        self.add_camp_button = tk.Button(
-            master=self.add_camp_frame,
-            text="Add Camp",
-            command=lambda: self._handle_add_camp_click(),
-        )
-        self.add_camp_button.pack(side='right')
+
+        self.render_camp_action_buttons(container=self.camps_frame)
 
         self.all_camps_container = tk.Frame(
             master=self.container,
-            width=1200,
-            height=300,
         )
         self.all_camps_container.grid(
             row=3,
             column=0,
-            columnspan=2,
-            pady=40,
         )
         self.render_all_camps(container=self.all_camps_container)
 
-    def _handle_add_camp_click(self) -> None:
-        
+    def render_camp_action_buttons(self, container) -> None:
+        self.add_camp_button = tk.Button(
+            master=container,
+            text="Add Camp",
+            command=lambda: self._handle_add_camp_click(),
+        )
+        self.add_camp_button.pack(side="right", padx=30)
 
-        
+        self.selected_camp_actions_frame = tk.LabelFrame(
+            container, text="Selected Camp Actions"
+        )
+        self.selected_camp_actions_frame.pack(anchor="e", padx=10)
+
+        self.edit_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="Edit Selected Camp",
+            command=lambda: print("edit selected camp"),
+        )
+        self.edit_camp_button.pack(side="left", pady=5, padx=5)
+
+        self.view_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="View Selected Camp",
+            command=lambda: print("view selected camp"),
+        )
+        self.view_camp_button.pack(side="left", pady=5, padx=5)
+
+        self.resources_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="Edit Resources for Selected Camp",
+            command=lambda: print("resources"),
+        )
+        self.resources_camp_button.pack(side="left", pady=5, padx=5)
+
+    def _handle_add_camp_click(self) -> None:
         current_state = self.master.get_global_state()
         current_state["plan_id_for_camp"] = self.plan_id
         self.master.set_global_state(current_state)
-        
+
         self.master.switch_to_view("add_edit_camp")
-    
+
     def render_all_camps(self, container) -> None:
         self.all_camps = self.get_all_camps()
+
+        self.data_to_render = []
+
+        # Get data
+        for camp in self.all_camps:
+            data_to_add = self.get_data_to_render_from_camp(camp)
+            self.data_to_render.append(data_to_add)
+
+        # Get string for resource data
+        for item in self.data_to_render:
+            resources = item[5]
+            new_label = [f"{resource[0]}: {resource[1]}" for resource in resources]
+            label = "\n".join(new_label)
+            item[5] = label
 
         self.header_cols = [
             "Camp",
@@ -136,22 +173,24 @@ class PlanDetailView(BaseView):
             "Volunteers (n)",
             "Refugee Families (n)",
             "Resources",
-            "Actions",
         ]
-        self.data_to_render = [self.header_cols]
-
-        # Get data
-        for camp in self.all_camps:
-            data_to_add = self.get_data_to_render_from_camp(camp)
-            self.data_to_render.append(data_to_add)
-
-        # Render table
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=container,
-                items=row,
-                header=ix == 0,  # True if first row, else False
-            )
+ 
+        self.render_tree_table(
+            header_cols=self.header_cols,
+            data=self.data_to_render,
+            container=container,
+            col_widths=[
+                100,
+                100,
+                100,
+                100,
+                100,
+                100,
+            ],
+            rowheight=75,
+        )
+        
+        
 
     def _render_row(
         self,
