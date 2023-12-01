@@ -95,6 +95,7 @@ class PlanDetailView(BaseView):
             row=2,
             column=0,
             columnspan=2,
+            pady=25,
         )
 
         self.render_camp_action_buttons(container=self.camps_frame)
@@ -105,6 +106,7 @@ class PlanDetailView(BaseView):
         self.all_camps_container.grid(
             row=3,
             column=0,
+            pady=5
         )
         self.render_all_camps(container=self.all_camps_container)
 
@@ -164,6 +166,8 @@ class PlanDetailView(BaseView):
             resources = item[5]
             new_label = [f"{resource[0]}: {resource[1]}" for resource in resources]
             label = "\n".join(new_label)
+            if not label:
+                label = 'No resources'
             item[5] = label
 
         self.header_cols = [
@@ -174,6 +178,8 @@ class PlanDetailView(BaseView):
             "Refugee Families (n)",
             "Resources",
         ]
+        
+        # TODO: dynamically choose Rowheight mostly determined by n resources, each separated by \n
  
         self.render_tree_table(
             header_cols=self.header_cols,
@@ -190,85 +196,6 @@ class PlanDetailView(BaseView):
             rowheight=75,
         )
         
-        
-
-    def _render_row(
-        self,
-        container: tk.Frame,
-        items: list[str],
-        column_width=15,
-        header=False,
-    ) -> None:
-        self.row_container = tk.Frame(
-            master=container,
-        )
-        self.row_container.pack()
-
-        for ix, label in enumerate(items):
-            self.cell_frame = tk.Frame(
-                master=self.row_container,
-                width=200,
-                height=25,
-            )
-            self.cell_frame.grid(
-                row=0,
-                column=ix,
-            )
-            if not header:
-                add_border(self.cell_frame)
-
-            # Extra work to render resource col as it's in the form of [('Food', '100'), ('Water', '200'), ('Medicine', '300')]
-            if ix == 5:
-                column_width += 20  # MAKE RESOURCE COLUMN WIDER
-
-                if not header:
-                    new_label = [f"{resource[0]}: {resource[1]}" for resource in label]
-                    label = "\n".join(new_label)
-
-            # Make action col thinner
-            if ix == 6:
-                column_width -= 25
-
-            self.cell_content = tk.Label(
-                master=self.cell_frame,
-                text=label,
-                width=column_width,
-                height=5 if not header else 1,
-            )
-
-            self.cell_content.pack()
-
-        # Add action buttons
-        if not header:
-            BUTTON_WIDTH = column_width - 20
-
-            self.buttons_frame = tk.Frame(
-                master=self.row_container,
-            )
-            self.buttons_frame.grid(
-                row=0,
-                column=len(items),
-                padx=5,
-            )
-
-            tk.Button(
-                master=self.buttons_frame,
-                text="Edit",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_edit_click(items[0]),
-            ).pack(fill="both")
-            tk.Button(
-                master=self.buttons_frame,
-                text="View",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_view_click(items[0]),
-            ).pack(fill="both")
-            tk.Button(
-                master=self.buttons_frame,
-                text="Resources",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_edit_resources_click(items[0]),
-            ).pack(fill="both")
 
     def _handle_edit_resources_click(self, camp_name: str) -> None:
         camp_id = self.get_camp_id_from_name(camp_name)
