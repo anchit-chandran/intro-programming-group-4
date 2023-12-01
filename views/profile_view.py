@@ -15,6 +15,9 @@ class ProfileView(BaseView):
         self.master = master
         logging.debug(self.master.get_global_state())
         self.should_render = self.decide_what_to_render()
+        # above may set:
+        # self.volunteer_id
+        # self.volunteer_data
 
         self.render_widgets()
         self.master.update()
@@ -32,29 +35,19 @@ class ProfileView(BaseView):
 
         if current_state.get("volunteer_id_to_edit"):
             self.volunteer_id = current_state.pop("volunteer_id_to_edit")
-            logging.debug(f'Editing volunteer: {self.volunteer_id}')
+            logging.debug(f"Editing volunteer: {self.volunteer_id}")
             self._set_volunteer_instance_data()
             return "edit_volunteer"
         elif current_state.get("volunteer_id_to_view"):
             self.volunteer_id = current_state.pop("volunteer_id_to_view")
-            logging.debug(f'Viewing volunteer: {self.volunteer_id}')
+            logging.debug(f"Viewing volunteer: {self.volunteer_id}")
             self._set_volunteer_instance_data()
             return "view_volunteer"
         elif current_state.get("add_volunteer"):
-            return current_state.pop("add_volunteer")
+            return "add_volunteer"
         else:
             # viewing self
             return "own_profile"
-
-    def _set_volunteer_instance_data(self):
-        self.volunteer_data = run_query_get_rows(
-            f"SELECT * FROM User WHERE id = {self.volunteer_id}"
-        )[0]
-
-    # Edit button click
-    def handle_edit_click(self):
-        """Handles edit profile button click"""
-        print("editing with ", self.master.get_global_state())
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -90,52 +83,36 @@ class ProfileView(BaseView):
         )
 
         # User profile variables
-        userID = self.master.get_global_state().get("user_id")
-        username = self.master.get_global_state().get("username")
-        user_profile = run_query_get_rows(f"SELECT * FROM User WHERE id = '{userID}'")[
-            0
-        ]
-        is_active = user_profile.get("is_active")
-        if is_active == 1:
-            status_profile = "Active"
-        elif is_active == 0:
-            status_profile = "Deactivated"
-        firstname = user_profile.get("first_name")
-        if firstname is None:
-            firstname = "No information provided"
-        lastname = user_profile.get("last_name")
-        if lastname is None:
-            lastname = "No information provided"
-        sex = user_profile.get("sex")
-        if sex is None:
-            sex = "No information provided"
-        elif sex == "F":
-            sex = "Female"
-        elif sex == "M":
-            sex = "Male"
-        phone = user_profile.get("phone_number")
-        if phone is None:
-            phone = "No information provided"
-        languages = user_profile.get("languages_spoken")
-        if languages is None:
-            languages = "No information provided"
-        skills = user_profile.get("skills")
-        if skills is None:
-            skills = "No information provided"
-        emergency_contact_name = user_profile.get("emergency_contact_name")
-        if emergency_contact_name is None:
-            emergency_contact_name = "No information provided"
-        emergency_contact_number = user_profile.get("emergency_contact_number")
-        if emergency_contact_number is None:
-            emergency_contact_number = "No information provided"
-        campID = user_profile.get("camp_id")
-        if campID is None:
-            campID = "-"
-        DOB = user_profile.get("dob")
-        if DOB is None:
-            DOB = "No information provided"
-        else:
-            DOB, DOB_time = DOB.split(" ")
+        status_profile = ""
+        firstname = ""
+        lastname = ""
+        sex = ""
+        phone = ""
+        languages = ""
+        skills = ""
+        emergency_contact_name = ""
+        emergency_contact_number = ""
+        campID = ""
+        DOB = ""
+        user_id, username = self._get_user_id_and_username_for_form()
+        
+        if user_id:
+            user_profile = run_query_get_rows(
+                f"SELECT * FROM User WHERE id = '{user_id}'"
+            )[0]
+            (
+                status_profile,
+                firstname,
+                lastname,
+                sex,
+                phone,
+                languages,
+                skills,
+                emergency_contact_name,
+                emergency_contact_number,
+                campID,
+                DOB,
+            ) = self._get_user_profile_text(user_profile)
 
         # Section : User details (userID, campID, username, status)
         self.user_details_label_container = tk.LabelFrame(
@@ -179,7 +156,7 @@ class ProfileView(BaseView):
             master=self.user_details_label_container,
             width=10,
             state="disabled",
-            textvariable=tk.StringVar(value=userID),
+            textvariable=tk.StringVar(value=user_id),
         )
 
         self.username_label = tk.Label(
@@ -491,6 +468,7 @@ class ProfileView(BaseView):
         #     "view_volunteer"
         #     "add_volunteer"
         current_state = self.master.get_global_state()
+
         if self.should_render == "own_profile":
             return f"Hey, {current_state['username']} 👋"
         elif self.should_render == "edit_volunteer":
@@ -499,3 +477,88 @@ class ProfileView(BaseView):
             return f"Viewing {self.volunteer_data['username']} 👁️"
         elif self.should_render == "add_volunteer":
             return f"Add new volunteer"
+
+    def _set_volunteer_instance_data(self):
+        self.volunteer_data = run_query_get_rows(
+            f"SELECT * FROM User WHERE id = {self.volunteer_id}"
+        )[0]
+
+    # Edit button click
+    def handle_edit_click(self):
+        """Handles edit profile button click"""
+        print("editing with ", self.master.get_global_state())
+
+    def _get_user_id_and_username_for_form(self) -> tuple[int,str]:
+        """Returns user id & username or None if adding"""
+        # Must handle:
+        #     "own_profile"
+        #     "edit_volunteer"
+        #     "view_volunteer"
+        #     "add_volunteer"
+
+        if self.should_render == "own_profile":
+            current_state = self.master.get_global_state()
+            return current_state["user_id"], current_state['username']
+
+        # Everything else will be stored in instance variable, except add_volunteer
+        if getattr(self, "volunteer_id", None):
+            return self.volunteer_id, self.volunteer_data['username']
+        else:
+            return None, None
+
+    def _get_user_profile_text(self, user_profile) -> tuple:
+        is_active = user_profile.get("is_active")
+        if is_active == 1:
+            status_profile = "Active"
+        elif is_active == 0:
+            status_profile = "Deactivated"
+        firstname = user_profile.get("first_name")
+        if firstname is None:
+            firstname = "No information provided"
+        lastname = user_profile.get("last_name")
+        if lastname is None:
+            lastname = "No information provided"
+        sex = user_profile.get("sex")
+        if sex is None:
+            sex = "No information provided"
+        elif sex == "F":
+            sex = "Female"
+        elif sex == "M":
+            sex = "Male"
+        phone = user_profile.get("phone_number")
+        if phone is None:
+            phone = "No information provided"
+        languages = user_profile.get("languages_spoken")
+        if languages is None:
+            languages = "No information provided"
+        skills = user_profile.get("skills")
+        if skills is None:
+            skills = "No information provided"
+        emergency_contact_name = user_profile.get("emergency_contact_name")
+        if emergency_contact_name is None:
+            emergency_contact_name = "No information provided"
+        emergency_contact_number = user_profile.get("emergency_contact_number")
+        if emergency_contact_number is None:
+            emergency_contact_number = "No information provided"
+        campID = user_profile.get("camp_id")
+        if campID is None:
+            campID = "-"
+        DOB = user_profile.get("dob")
+        if DOB is None:
+            DOB = "No information provided"
+        else:
+            DOB, DOB_time = DOB.split(" ")
+
+        return (
+            status_profile,
+            firstname,
+            lastname,
+            sex,
+            phone,
+            languages,
+            skills,
+            emergency_contact_name,
+            emergency_contact_number,
+            campID,
+            DOB,
+        )
