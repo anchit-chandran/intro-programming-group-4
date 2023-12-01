@@ -177,14 +177,19 @@ class AllPlansView(BaseView):
     def get_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM Plan")
 
-    def _handle_view_click(self, plan_name: str):
-        # ADD TO STATE
-        current_state = self.master.get_global_state()
-        current_state["plan_name"] = plan_name
-        self.master.set_global_state(current_state)
+    def _handle_view_click(self):
+        plan_row = self.tree.focus()
+        if plan_row:
+            plan_data = self.tree.item(plan_row, "values")
+            plan_id = plan_data[0]
+            current_global_state = self.master.get_global_state()
+            current_global_state["plan_id_to_view"] = plan_id
+            self.master.set_global_state(current_global_state)
 
-        # Change to view plan view
-        self.master.switch_to_view("plan_detail")
+            self.master.switch_to_view("plan_detail")
+        else:
+            self.render_error_popup_window(message='Please select a plan to view!')
+
 
     def _handle_add_plan_click(self):
         # Clean EDIT PLAN global vars

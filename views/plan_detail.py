@@ -14,10 +14,10 @@ class PlanDetailView(BaseView):
         super().__init__(master)
         self.master = master
 
-        self.plan_name = self.master.get_global_state().get("plan_name")
-        if not self.plan_name:
-            logging.error("No plan name in global state. Returning to all plans")
-            raise ValueError("No plan name in global state")
+        self.plan_id= self.master.get_global_state().get("plan_id_to_view")
+        if not self.plan_id:
+            logging.error("No plan id in global state!")
+            raise ValueError("No plan id in global state")
 
         # Get all plan details
         self.get_plan_details()
@@ -43,7 +43,7 @@ class PlanDetailView(BaseView):
 
         self.header_label = tk.Label(
             master=self.container,
-            text=f"DETAILS FOR {self.plan_name.upper()}",
+            text=f"DETAILS FOR {self.plan_title.upper()}",
             font=(60),
         )
         self.header_label.grid(row=0, column=0, columnspan=2)
@@ -471,11 +471,10 @@ class PlanDetailView(BaseView):
             FROM
                 Plan
             WHERE
-                title = '{self.plan_name}'
+                id = '{self.plan_id}'
         """
         )[0]
 
-        self.plan_id = plan_details["id"]
         self.plan_title = plan_details["title"]
         self.plan_description = plan_details["description"]
         self.plan_location = plan_details["location"]

@@ -18,7 +18,7 @@ class MainApplication(tk.Tk):
         self.GLOBAL_STATE = {}
         self.view_map = {
             "login": LoginView,
-            "plan_detail": PlanDetailView,  # Needs plan_name in global state
+            "plan_detail": PlanDetailView,  # Needs plan_id_to_view in global state
             "all_plans": AllPlansView,
             "add_edit_plan": AddEditPlanView,  # Needs plan_id_to_edit if edit in global state
             "add_edit_camp": AddEditCampView,  # Needs plan_id_for_camp if adding; camp_id_to_edit if edit
