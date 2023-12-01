@@ -138,12 +138,6 @@ class ProfileView(BaseView):
             height=50,
         )
 
-        # Section: Button to edit
-        self.button_container = tk.Frame(
-            master=self.container,
-            width=50,
-            height=50,
-        )
 
         # Set up - labels and entries
         self.userID_label = tk.Label(
@@ -326,21 +320,13 @@ class ProfileView(BaseView):
             state=state,
             text=tk.StringVar(value=emergency_contact_number),
         )
-
-        self.edit_button = tk.Button(
-            master=self.button_container,
-            width=30,
-            text="Edit",
-            fg="white",
-            bg="blue",
-            command=self.handle_edit_click,
-        )
+        
 
         # Add to grid
         self.user_details_label_container.pack(pady=(10, 20))
         self.personal_info_label_container.pack(pady=(10, 20))
         self.emergency_label_container.pack(pady=(10, 20))
-        self.button_container.pack(pady=(0, 20))
+        
 
         self.userID_label.grid(
             row=0,
@@ -458,11 +444,8 @@ class ProfileView(BaseView):
             row=1,
             column=1,
         )
-
-        self.edit_button.grid(
-            row=0,
-            column=0,
-        )
+        
+        self._conditional_render_action_buttons(container=self.container)
 
     def get_header_text(self) -> None:
         # Must handle:
@@ -576,3 +559,27 @@ class ProfileView(BaseView):
             campID,
             DOB,
         )
+
+    def _conditional_render_action_buttons(self, container) -> None:
+         # Must handle:
+        #     "own_profile"
+        #     "edit_volunteer"
+        #     "view_volunteer"
+        #     "add_volunteer"
+        if self.should_render in ['own_profile','view_volunteer']:
+            # Section: Button to edit
+            self.button_container = tk.Frame(
+                master=container,
+                width=50,
+                height=50,
+            )
+            self.button_container.pack(pady=(0, 20))
+            self.edit_button = tk.Button(
+                master=self.button_container,
+                width=30,
+                text="Edit",
+                fg="white",
+                bg="blue",
+                command=self.handle_edit_click,
+            )
+            self.edit_button.grid(row=0, column=0)
