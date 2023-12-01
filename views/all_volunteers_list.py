@@ -20,19 +20,48 @@ class AllVolunteersView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=500,
-            height=300,
+            width=config.SCREEN_WIDTH,
         )
-        self.container.pack(
-            fill="both",
-            padx=30,
-            pady=100,
-        )
+        self.container.pack(pady=10)
 
         # Header
+        self.header_container = tk.Frame(self.container)
+        self.header_container.pack(pady=15, fill="x", expand=True)
+
         self.header = tk.Label(
-            master=self.container,
-            text=f"VOLUNTEERS LIST",
+            master=self.header_container,
+            text=f"ALL VOLUNTEERS",
             font=(60),
         )
-        self.header.pack()
+        self.header.pack(
+            side="left",
+        )
+
+        # selected volunteer buttons
+        self.edit_volunteer_button = tk.Button(
+            master=self.header_container,
+            text="Edit Selected volunteer",
+            command=lambda: print("hello"),
+        )
+        self.edit_volunteer_button.pack(
+            side="right",
+        )
+
+        self.view_volunteer_button = tk.Button(
+            master=self.header_container,
+            text="View Selected volunteer",
+            command=lambda: print("hello"),
+        )
+        self.view_volunteer_button.pack(
+            side="right",
+        )
+        self.add_volunteer_button = tk.Button(
+            master=self.header_container,
+            text="+ Add volunteer",
+            command=lambda: print("hello"),
+        )
+        self.add_volunteer_button.pack(
+            side="right",
+        )
+
+        # self.render_all_volunteers()
