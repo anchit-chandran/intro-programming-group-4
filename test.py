@@ -19,7 +19,9 @@ class TestApplication(unittest.TestCase):
                 
                 # Add global state where required
                 if view == "plan_detail":
-                    self.app.GLOBAL_STATE['plan_name'] = 'Plan 0'
+                    self.app.GLOBAL_STATE['plan_id_to_view'] = 1
+                elif view == 'add_edit_plan':
+                    self.app.GLOBAL_STATE['plan_id_to_edit'] = 1
                 elif view == "camp_detail":
                     self.app.GLOBAL_STATE['camp_id_to_view'] = 1
                 elif view == "edit_resources":

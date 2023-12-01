@@ -46,7 +46,6 @@ class MainApplication(tk.Tk):
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
-                    "plan_name": "Plan 0",
                 }
             )
 
