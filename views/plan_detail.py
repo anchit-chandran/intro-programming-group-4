@@ -103,11 +103,7 @@ class PlanDetailView(BaseView):
         self.all_camps_container = tk.Frame(
             master=self.container,
         )
-        self.all_camps_container.grid(
-            row=3,
-            column=0,
-            pady=5
-        )
+        self.all_camps_container.grid(row=3, column=0, pady=5)
         self.render_all_camps(container=self.all_camps_container)
 
     def render_camp_action_buttons(self, container) -> None:
@@ -126,21 +122,21 @@ class PlanDetailView(BaseView):
         self.edit_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
             text="Edit Selected Camp",
-            command=lambda: print("edit selected camp"),
+            command=lambda: self._handle_selected_camp_actions_click("edit"),
         )
         self.edit_camp_button.pack(side="left", pady=5, padx=5)
 
         self.view_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
             text="View Selected Camp",
-            command=lambda: print("view selected camp"),
+            command=lambda: self._handle_selected_camp_actions_click("view"),
         )
         self.view_camp_button.pack(side="left", pady=5, padx=5)
 
         self.resources_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
             text="Edit Resources for Selected Camp",
-            command=lambda: print("resources"),
+            command=lambda: self._handle_selected_camp_actions_click("resources"),
         )
         self.resources_camp_button.pack(side="left", pady=5, padx=5)
 
@@ -163,14 +159,15 @@ class PlanDetailView(BaseView):
 
         # Get string for resource data
         for item in self.data_to_render:
-            resources = item[5]
+            resources = item[6]
             new_label = [f"{resource[0]}: {resource[1]}" for resource in resources]
             label = "\n".join(new_label)
             if not label:
-                label = 'No resources'
-            item[5] = label
+                label = "No resources"
+            item[6] = label
 
         self.header_cols = [
+            "ID",
             "Camp",
             "Location",
             "Current Capacity (n)",
@@ -178,14 +175,15 @@ class PlanDetailView(BaseView):
             "Refugee Families (n)",
             "Resources",
         ]
-        
+
         # TODO: dynamically choose Rowheight mostly determined by n resources, each separated by \n
- 
+
         self.render_tree_table(
             header_cols=self.header_cols,
             data=self.data_to_render,
             container=container,
             col_widths=[
+                30,
                 100,
                 100,
                 100,
@@ -195,44 +193,38 @@ class PlanDetailView(BaseView):
             ],
             rowheight=75,
         )
-        
 
-    def _handle_edit_resources_click(self, camp_name: str) -> None:
-        camp_id = self.get_camp_id_from_name(camp_name)
+    def _handle_selected_camp_actions_click(self, action: str):
+        camp_row = self.tree.focus()
+        if not camp_row:
+            self.render_error_popup_window(message="Please select a camp first!")
+            return
 
+        # Get selected row data
+        camp_data = self.tree.item(camp_row, "values")
+        camp_id = camp_data[0]
+        if action == "edit":
+            self._handle_edit_click(camp_id=camp_id)
+        elif action == "view":
+            self._handle_view_click(camp_id=camp_id)
+        else:
+            self._handle_edit_resources_click(camp_id=camp_id)
+
+    def _handle_edit_resources_click(self, camp_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["camp_id_for_resources"] = camp_id
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("edit_resources")
 
-    def get_camp_id_from_name(self, camp_name: str) -> int:
-        """Gets plan name from plan id"""
-        camp_id = run_query_get_rows(
-            f"""
-            SELECT
-                id
-            FROM
-                Camp
-            WHERE
-                name = '{camp_name}'
-        """
-        )[0]["id"]
-
-        return camp_id
-
-    def _handle_edit_click(self, camp_name: str) -> None:
-        camp_id = self.get_camp_id_from_name(camp_name)
-
+    def _handle_edit_click(self, camp_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["camp_id_to_edit"] = camp_id
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("add_edit_camp")
 
-    def _handle_view_click(self, camp_name: str) -> None:
-        camp_id = self.get_camp_id_from_name(camp_name)
-
+    def _handle_view_click(self, camp_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["camp_id_to_view"] = camp_id
         self.master.set_global_state(current_state)
@@ -242,6 +234,8 @@ class PlanDetailView(BaseView):
     def get_data_to_render_from_camp(self, camp: dict) -> list:
         """Gets data to render from camp"""
         data_to_render = []
+
+        data_to_render.append(camp["id"])
 
         # Get camp name
         data_to_render.append(camp["name"])
