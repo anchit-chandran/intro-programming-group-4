@@ -26,7 +26,7 @@ class MainApplication(tk.Tk):
             "camp_detail": CampDetailView,  # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
-            "profile": ProfileView,
+            "profile": ProfileView, # needs volunteer_id if viewing another profile
             "new_msg": NewMessageView,
             "edit_resources": EditResourcesView,  # Needs camp_id_for_resources in global state,
             "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add

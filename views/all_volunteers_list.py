@@ -76,6 +76,17 @@ class AllVolunteersView(BaseView):
         volunteer_row = self.tree.focus()
         if not volunteer_row:
             self.render_error_popup_window(message='Please select a volunteer first!')
+            return
+        
+        # Get selected row data
+        volunteer_data = self.tree.item(volunteer_row, "values")
+        user_id = volunteer_data[0]
+        if action=='edit':
+            self._handle_edit_volunteer(user_id=user_id)
+            return
+        elif action=='view':
+            self._handle_view_volunteer(user_id=user_id)
+            return
             
             
     def render_all_volunteers(self) -> None:
@@ -125,3 +136,21 @@ class AllVolunteersView(BaseView):
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("add_edit_user_profile")
+    
+    
+    def _handle_edit_volunteer(self, user_id:int)->None:
+        
+        current_state = self.master.get_global_state()
+        current_state["volunteer_id_to_edit"] = user_id
+        self.master.set_global_state(current_state)
+
+        self.master.switch_to_view("add_edit_user_profile")
+    
+    def _handle_view_volunteer(self, user_id:int)->None:
+        
+        current_state = self.master.get_global_state()
+        current_state["volunteer_id"] = user_id
+        self.master.set_global_state(current_state)
+
+        self.master.switch_to_view("profile")
+        
