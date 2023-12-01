@@ -682,8 +682,74 @@ class AddEditRefugeeView(BaseView):
         )[0].get("name")
         return camp_name
 
-    def _handle_submit():
-        pass
+    def _handle_submit(self):
+        # values from entries
+        refugee_id = self.refugee_id_entry.get()
+        main_rep_name = self.rep_name_entry.get()
+        med_condition = self.med_condition_entry.get()
+        num_adults = self.num_adults_entry.get()
+        num_children = self.num_children_entry.get()
+        hometown = self.rep_hometown_entry.get()
+        rep_age = self.rep_age_entry.get()
+        missing_members = self.num_miss_members_entry.get()
+        status = self.status_entry.get()
+
+        if status == "In camp":
+            status = 1
+        elif status == "Left camp":
+            status = 0
+
+        # form validation
+        self.form_is_valid = True
+
+        errors = {
+            "main_rep_name": [],
+            "med_condition": [],
+            "num_adults": [],
+            "num_children": [],
+            "hometown": [],
+            "rep_age": [],
+            "missing_members": [],
+            "status": [],
+        }
+
+        # empty fields check
+        if not main_rep_name.strip():
+            self.form_is_valid = False
+            errors["main_rep_name"].append("This field is required.")
+        if not med_condition.strip():
+            self.form_is_valid = False
+            errors["med_condition"].append("This field is required.")
+        if not num_adults.strip():
+            self.form_is_valid = False
+            errors["num_adults"].append("This field is required.")
+        if not num_children.strip():
+            self.form_is_valid = False
+            errors["num_children"].append("This field is required.")
+        if not hometown.strip():
+            self.form_is_valid = False
+            errors["hometown"].append("This field is required.")
+        if not rep_age.strip():
+            self.form_is_valid = False
+            errors["rep_age"].append("This field is required.")
+        if not missing_members.strip():
+            self.form_is_valid = False
+            errors["missing_members"].append("This field is required.")
+
+        # data validation
+
+        # error message if from is not valid
+        if not self.form_is_valid:
+            error_msg = ""
+            for field, field_errors in errors.items():
+                if field_errors:
+                    error_msg += self._render_field_label_from_key(field).upper()
+                    for field_error in field_errors:
+                        error_msg += f"\t{field_error}\n"
+                    error_msg += "\n\n"
+            self.render_error_popup_window(message=error_msg)
+
+        return
 
     def _render_delete_confirm_popup_window(self) -> None:
         title = "🚨 Delete Refugee Record"
@@ -702,3 +768,4 @@ class AddEditRefugeeView(BaseView):
         )
 
         self.master.switch_to_view("camp_detail")
+        # get the input values
