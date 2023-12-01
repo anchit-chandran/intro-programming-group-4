@@ -52,7 +52,7 @@ class AllPlansView(BaseView):
         self.add_plan_button.pack(
             side="right",
         )
-        
+
         self.edit_plan_button = tk.Button(
             master=self.header_container,
             text="Edit Selected Plan",
@@ -61,7 +61,7 @@ class AllPlansView(BaseView):
         self.edit_plan_button.pack(
             side="right",
         )
-        
+
         self.view_plan_button = tk.Button(
             master=self.header_container,
             text="View Selected Plan",
@@ -80,6 +80,7 @@ class AllPlansView(BaseView):
         self.data_to_render = []
         for plan in self.all_plans:
             data_to_add = []
+            data_to_add.append(plan["id"])
             data_to_add.append(plan["title"])
             data_to_add.append(plan["location"])
             data_to_add.append(get_date(plan["start_date"]))
@@ -109,8 +110,8 @@ class AllPlansView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
-        logging.debug(f"{self.data_to_render=}")
         self.header_cols = [
+            "ID",
             "Plan",
             "Location",
             "Start Date",
@@ -159,7 +160,7 @@ class AllPlansView(BaseView):
                 text=col_name,
                 anchor=tk.W,
             )
-        
+
         # Insert data rows
         for ix, row in enumerate(data):
             self.tree.insert(
@@ -169,16 +170,12 @@ class AllPlansView(BaseView):
                 text="",
                 values=row,
             )
-            
+
         # Finally pack it
         self.tree.pack()
 
-            
-
     def get_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM Plan")
-
-
 
     def _handle_view_click(self, plan_name: str):
         # ADD TO STATE
@@ -189,7 +186,6 @@ class AllPlansView(BaseView):
         # Change to view plan view
         self.master.switch_to_view("plan_detail")
 
-
     def _handle_add_plan_click(self):
         # Clean EDIT PLAN global vars
         current_state = self.master.get_global_state()
@@ -198,13 +194,18 @@ class AllPlansView(BaseView):
 
         self.master.switch_to_view("add_edit_plan")
 
-    def _handle_edit_click(self, plan_name: str):
-        # Add plan name to global state for edit view
-        current_global_state = self.master.get_global_state()
-        current_global_state["plan_name_to_edit"] = plan_name
-        self.master.set_global_state(current_global_state)
+    def _handle_edit_click(self):
+        plan_row = self.tree.focus()
+        if plan_row:
+            plan_data = self.tree.item(plan_row, "values")
+            plan_id = plan_data[0]
+            current_global_state = self.master.get_global_state()
+            current_global_state["plan_id_to_edit"] = plan_id
+            self.master.set_global_state(current_global_state)
 
-        self.master.switch_to_view("add_edit_plan")
+            self.master.switch_to_view("add_edit_plan")
+        else:
+            self.render_error_popup_window(message='Please select a plan to edit!')
 
     def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
         """Calculates the total number of camps for plan"""
