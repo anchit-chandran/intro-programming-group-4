@@ -4,7 +4,7 @@ import tkinter as tk
 
 # Project imports
 from constants import config
-from utilities.db import run_query_get_rows
+from utilities.db import run_query_get_rows, insert_query_with_values
 from .base import BaseView
 
 
@@ -37,58 +37,84 @@ class AllVolunteersView(BaseView):
             side="left",
             padx=200,
         )
-
-        # selected volunteer buttons
-        self.edit_volunteer_button = tk.Button(
-            master=self.header_container,
-            text="Edit Selected volunteer",
-            command=lambda: self._handle_selected_action_button_click(action='edit'),
-        )
-        self.edit_volunteer_button.pack(
-            side="right",
-        )
-
-        self.view_volunteer_button = tk.Button(
-            master=self.header_container,
-            text="View Selected volunteer",
-            command=lambda: self._handle_selected_action_button_click(action='view'),
-        )
-        self.view_volunteer_button.pack(
-            side="right",
-        )
+        
         self.add_volunteer_button = tk.Button(
             master=self.header_container,
             text="+ Add volunteer",
-            command=lambda: self._handle_selected_action_button_click(action='add'),
+            command=lambda: self._handle_selected_action_button_click(action="add"),
         )
         self.add_volunteer_button.pack(
+            side="left",
+        )
+        
+        self.selected_vol_action_container = tk.LabelFrame(
+            master=self.header_container,
+            text='Selected Volunteer Actions',
+        )
+        self.selected_vol_action_container.pack(side='right', padx=30)
+
+        # selected volunteer buttons
+        self.edit_volunteer_button = tk.Button(
+            master=self.selected_vol_action_container,
+            text="Edit Selected volunteer",
+            command=lambda: self._handle_selected_action_button_click(action="edit"),
+        )
+        self.edit_volunteer_button.pack(
             side="right",
+            padx=10,
+            pady=10,
+        )
+
+        self.view_volunteer_button = tk.Button(
+            master=self.selected_vol_action_container,
+            text="View Selected volunteer",
+            command=lambda: self._handle_selected_action_button_click(action="view"),
+        )
+        self.view_volunteer_button.pack(
+            side="right",
+            padx=10,
+            pady=10,
+        )
+        
+        self.toggle_status_volunteer_button = tk.Button(
+            master=self.selected_vol_action_container,
+            text="Toggle Selected User Status",
+            command=lambda: self._handle_selected_action_button_click(
+                action="toggle_status"
+            ),
+        )
+        self.toggle_status_volunteer_button.pack(
+            side="right",
+            padx=10,
+            pady=10,
         )
 
         self.render_all_volunteers()
 
-    def _handle_selected_action_button_click(self, action:str)->None:
-        if action == 'add':
+    def _handle_selected_action_button_click(self, action: str) -> None:
+        if action == "add":
             self._handle_add_volunteer()
             return
-        
+
         # Other 2 buttons must have selected volunteer
         volunteer_row = self.tree.focus()
         if not volunteer_row:
-            self.render_error_popup_window(message='Please select a volunteer first!')
+            self.render_error_popup_window(message="Please select a volunteer first!")
             return
-        
+
         # Get selected row data
         volunteer_data = self.tree.item(volunteer_row, "values")
         user_id = volunteer_data[0]
-        if action=='edit':
+        if action == "edit":
             self._handle_edit_volunteer(user_id=user_id)
             return
-        elif action=='view':
+        elif action == "view":
             self._handle_view_volunteer(user_id=user_id)
             return
-            
-            
+        elif action == "toggle_status":
+            self._handle_toggle_status_volunteer(user_id=user_id)
+            return
+
     def render_all_volunteers(self) -> None:
         all_volunteers = self.get_all_volunteers_plans()
         self.data_to_render = self.get_data_for_rendering_table(all_volunteers)
@@ -121,7 +147,8 @@ class AllVolunteersView(BaseView):
             data_to_add = []
             data_to_add.append(volunteer["id"])
             data_to_add.append(volunteer["username"])
-            data_to_add.append(volunteer["is_active"])
+            is_active = "ACTIVE" if volunteer["is_active"] else "INACTIVE"
+            data_to_add.append(is_active)
             data_to_add.append(volunteer["camp_id"])
             data_to_render.append(data_to_add)
         return data_to_render
@@ -129,28 +156,32 @@ class AllVolunteersView(BaseView):
     def get_all_volunteers_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM User WHERE is_admin=0")
 
-    def _handle_add_volunteer(self)->None:
-        
+    def _handle_add_volunteer(self) -> None:
         current_state = self.master.get_global_state()
         current_state["add_volunteer"] = True
         self.master.set_global_state(current_state)
 
-        self.master.switch_to_view("add_edit_user_profile")
-    
-    
-    def _handle_edit_volunteer(self, user_id:int)->None:
-        
+        self.master.switch_to_view("profile")
+
+    def _handle_edit_volunteer(self, user_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["volunteer_id_to_edit"] = user_id
         self.master.set_global_state(current_state)
 
-        self.master.switch_to_view("add_edit_user_profile")
-    
-    def _handle_view_volunteer(self, user_id:int)->None:
-        
+        self.master.switch_to_view("profile")
+
+    def _handle_view_volunteer(self, user_id: int) -> None:
         current_state = self.master.get_global_state()
-        current_state["volunteer_id"] = user_id
+        current_state["volunteer_id_to_view"] = user_id
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("profile")
-        
+
+    def _handle_toggle_status_volunteer(self, user_id: int) -> None:
+        run_query_get_rows(
+            query=f"""UPDATE User
+                           SET is_active = NOT is_active
+                           WHERE id = {user_id}
+                           """
+        )
+        self.master.switch_to_view("all_volunteers")
