@@ -53,9 +53,6 @@ class BaseView(tk.Frame):
     def _handle_profile(self) -> None:
         self.master.switch_to_view("profile")
 
-    def _handle_refugee_profile_click(self) -> None:
-        self.master.switch_to_view("refugee_profile") 
-
     def _handle_messages(self) -> None:
         self.master.switch_to_view("messages")
 
