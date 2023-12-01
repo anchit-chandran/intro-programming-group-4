@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 from constants import config
@@ -42,7 +43,7 @@ class AllPlansView(BaseView):
             side="left",
         )
 
-        # Add plan button
+        # Add plan buttons
         self.add_plan_button = tk.Button(
             master=self.header_container,
             text="+ Add Plan",
@@ -52,25 +53,34 @@ class AllPlansView(BaseView):
             side="right",
         )
 
+        self.edit_plan_button = tk.Button(
+            master=self.header_container,
+            text="Edit Selected Plan",
+            command=self._handle_edit_click,
+        )
+        self.edit_plan_button.pack(
+            side="right",
+        )
+
+        self.view_plan_button = tk.Button(
+            master=self.header_container,
+            text="View Selected Plan",
+            command=self._handle_view_click,
+        )
+        self.view_plan_button.pack(
+            side="right",
+        )
+
         self.render_all_plans()
 
     def render_all_plans(self) -> None:
         self.all_plans = self.get_plans()
 
-        # Get the data as simple list[str], starting with col headers
-        self.header_cols = [
-            "Plan",
-            "Location",
-            "Start Date",
-            "End Date",
-            "Camps (n)",
-            "Volunteers (n)",
-            "Refugee Familes (n)",
-            "Edit",
-        ]
-        self.data_to_render = [self.header_cols]
+        # Get the data as simple list[str]
+        self.data_to_render = []
         for plan in self.all_plans:
             data_to_add = []
+            data_to_add.append(plan["id"])
             data_to_add.append(plan["title"])
             data_to_add.append(plan["location"])
             data_to_add.append(get_date(plan["start_date"]))
@@ -100,128 +110,107 @@ class AllPlansView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
+        self.header_cols = [
+            "ID",
+            "Plan",
+            "Location",
+            "Start Date",
+            "End Date",
+            "Camps (n)",
+            "Volunteers (n)",
+            "Refugee Familes (n)",
+        ]
+
         self.all_plans_container = tk.Frame(
             master=self.container,
         )
         self.all_plans_container.pack()
 
-        self.table_container = tk.Frame(
-            master=self.all_plans_container,
+        self._render_tree_table(
+            header_cols=self.header_cols,
+            data=self.data_to_render,
+            container=self.all_plans_container,
         )
-        self.table_container.pack()
 
-        # Find the max col width
-        self.max_col_width = calculate_max_col_width(self.data_to_render)
+    def _render_tree_table(
+        self, header_cols: list, data: list[list[str]], container
+    ) -> None:
+        # Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
+        self.tree = ttk.Treeview(master=self.all_plans_container)
 
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=self.table_container,
-                items=row,
-                column_width=self.max_col_width,
-                header=ix == 0,  # True if first row, else False
+        # Define cols
+        self.tree["columns"] = header_cols
+
+        # Form columns
+        # Start with Tree phantom column
+        DEFAULT_COL_WIDTH = 120
+        MIN_COL_WIDTH = 100
+        self.tree.column("#0", width=0, minwidth=0)
+
+        # Register cols
+        for col_name in header_cols:
+            # Register cols
+            self.tree.column(
+                col_name, anchor=tk.W, width=DEFAULT_COL_WIDTH, minwidth=MIN_COL_WIDTH
             )
+
+            # Create headers
+            self.tree.heading(
+                col_name,
+                text=col_name,
+                anchor=tk.W,
+            )
+
+        # Insert data rows
+        for ix, row in enumerate(data):
+            self.tree.insert(
+                parent="",
+                index="end",
+                iid=ix,
+                text="",
+                values=row,
+            )
+
+        # Finally pack it
+        self.tree.pack()
 
     def get_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM Plan")
 
-    def _render_row(
-        self,
-        container: tk.Frame,
-        items: list[str],
-        column_width=15,
-        header=False,
-    ) -> None:
-        self.row_container = tk.Frame(
-            master=container,
-        )
-        self.row_container.pack()
+    def _handle_view_click(self):
+        plan_row = self.tree.focus()
+        if plan_row:
+            plan_data = self.tree.item(plan_row, "values")
+            plan_id = plan_data[0]
+            current_global_state = self.master.get_global_state()
+            current_global_state["plan_id_to_view"] = plan_id
+            self.master.set_global_state(current_global_state)
 
-        # Add more space for col width
-        column_width += 10
+            self.master.switch_to_view("plan_detail")
+        else:
+            self.render_error_popup_window(message='Please select a plan to view!')
 
-        for ix, label in enumerate(items):
-            self.cell_frame = tk.Frame(
-                master=self.row_container,
-                width=200,
-                height=25,
-            )
-            self.cell_frame.grid(
-                row=0,
-                column=ix,
-            )
-            add_border(self.cell_frame)
-
-            # Get color
-            if label == "Ongoing":
-                fg = "green"
-            else:
-                fg = None
-
-            self.cell_content = tk.Label(
-                master=self.cell_frame,
-                text=label,
-                width=column_width,
-                fg=fg,
-            )
-
-            self.cell_content.pack(
-                fill="both",
-                expand=True,
-            )
-
-            if not header:
-                self.cell_content.bind("<Enter>", self._handle_mouse_hover_enter)
-                self.cell_content.bind("<Leave>", self._handle_mouse_hover_exit)
-
-        # Add action buttons
-        if not header:
-            BUTTON_WIDTH = (column_width - 6)//2
-            tk.Button(
-                master=self.row_container,
-                text="Edit",
-                command=lambda: self._handle_edit_click(items[0]),
-                width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items))
-            tk.Button(
-                master=self.row_container,
-                text="View",
-                command=lambda: self._handle_view_click(items[0]),
-                width=BUTTON_WIDTH
-            ).grid(row=0, column=len(items)+1)
-
-    def _handle_view_click(self, plan_name: str):
-        
-        # ADD TO STATE
-        current_state = self.master.get_global_state()
-        current_state["plan_name"] = plan_name
-        self.master.set_global_state(current_state)
-        
-        # Change to view plan view
-        self.master.switch_to_view("plan_detail")
-        
-    
-    def _handle_mouse_hover_enter(self, event):
-        event.widget.config(background=config.LIGHTGREY)
-
-    def _handle_mouse_hover_exit(self, event):
-        event.widget.config(background=self.master.cget("bg"))
 
     def _handle_add_plan_click(self):
-        
         # Clean EDIT PLAN global vars
         current_state = self.master.get_global_state()
         current_state.pop("plan_name_to_edit", None)
         self.master.set_global_state(current_state)
-        
-        self.master.switch_to_view("add_edit_plan")
-
-    def _handle_edit_click(self, plan_name: str):
-        # Add plan name to global state for edit view
-        current_global_state = self.master.get_global_state()
-        current_global_state["plan_name_to_edit"] = plan_name
-        self.master.set_global_state(current_global_state)
 
         self.master.switch_to_view("add_edit_plan")
+
+    def _handle_edit_click(self):
+        plan_row = self.tree.focus()
+        if plan_row:
+            plan_data = self.tree.item(plan_row, "values")
+            plan_id = plan_data[0]
+            current_global_state = self.master.get_global_state()
+            current_global_state["plan_id_to_edit"] = plan_id
+            self.master.set_global_state(current_global_state)
+
+            self.master.switch_to_view("add_edit_plan")
+        else:
+            self.render_error_popup_window(message='Please select a plan to edit!')
 
     def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
         """Calculates the total number of camps for plan"""
