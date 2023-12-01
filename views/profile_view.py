@@ -576,10 +576,7 @@ class ProfileView(BaseView):
             self.button_container.pack(pady=(0, 20))
             self.edit_button = tk.Button(
                 master=self.button_container,
-                width=30,
                 text="Edit",
-                fg="white",
-                bg="blue",
                 command=self.handle_edit_click,
             )
             self.edit_button.grid(row=0, column=0)
