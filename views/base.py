@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 from utilities.db import run_query_get_rows
@@ -190,3 +191,52 @@ class BaseView(tk.Frame):
         """
         if len(entry_text.get()) > 0:
             entry_text.set(entry_text.get()[:char_limit])
+    
+    def render_tree_table(
+        self, header_cols: list, data: list[list[str]], container
+    ) -> None:
+        """Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
+        
+        This helper method renders a given table.
+        
+        Parameters
+            `header_cols` - list of column headers. Must be same len as `data` items.
+            `data` - list of rows, where each row is a list of strings|Any containing values.
+        """
+        self.tree = ttk.Treeview(master=self.container)
+
+        # Define cols
+        self.tree["columns"] = header_cols
+
+        # Form columns
+        # Start with Tree phantom column
+        DEFAULT_COL_WIDTH = 120
+        MIN_COL_WIDTH = 100
+        self.tree.column("#0", width=0, minwidth=0)
+
+        # Register cols
+        for col_name in header_cols:
+            # Register cols
+            self.tree.column(
+                col_name, anchor=tk.W, width=DEFAULT_COL_WIDTH, minwidth=MIN_COL_WIDTH
+            )
+
+            # Create headers
+            self.tree.heading(
+                col_name,
+                text=col_name,
+                anchor=tk.W,
+            )
+
+        # Insert data rows
+        for ix, row in enumerate(data):
+            self.tree.insert(
+                parent="",
+                index="end",
+                iid=ix,
+                text="",
+                values=row,
+            )
+
+        # Finally pack it
+        self.tree.pack()

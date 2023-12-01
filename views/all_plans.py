@@ -126,54 +126,13 @@ class AllPlansView(BaseView):
         )
         self.all_plans_container.pack()
 
-        self._render_tree_table(
+        self.render_tree_table(
             header_cols=self.header_cols,
             data=self.data_to_render,
             container=self.all_plans_container,
         )
 
-    def _render_tree_table(
-        self, header_cols: list, data: list[list[str]], container
-    ) -> None:
-        # Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
-        self.tree = ttk.Treeview(master=self.all_plans_container)
-
-        # Define cols
-        self.tree["columns"] = header_cols
-
-        # Form columns
-        # Start with Tree phantom column
-        DEFAULT_COL_WIDTH = 120
-        MIN_COL_WIDTH = 100
-        self.tree.column("#0", width=0, minwidth=0)
-
-        # Register cols
-        for col_name in header_cols:
-            # Register cols
-            self.tree.column(
-                col_name, anchor=tk.W, width=DEFAULT_COL_WIDTH, minwidth=MIN_COL_WIDTH
-            )
-
-            # Create headers
-            self.tree.heading(
-                col_name,
-                text=col_name,
-                anchor=tk.W,
-            )
-
-        # Insert data rows
-        for ix, row in enumerate(data):
-            self.tree.insert(
-                parent="",
-                index="end",
-                iid=ix,
-                text="",
-                values=row,
-            )
-
-        # Finally pack it
-        self.tree.pack()
-
+    
     def get_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM Plan")
 
