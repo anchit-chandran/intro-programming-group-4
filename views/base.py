@@ -113,17 +113,6 @@ class BaseView(tk.Frame):
                 sticky="w",
             )
 
-        # Add Refugee Profile button
-        self.refugee_profile_button = tk.Button(
-            master=self.nav_container,
-            text="Refugee Profile",
-            command=self._handle_refugee_profile_click,
-        )
-        self.refugee_profile_button.grid(
-            row=0,
-            column=4,
-            sticky="w",
-        )
 
 
         self.profile_button = tk.Button(

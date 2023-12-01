@@ -1,4 +1,4 @@
-# Python imports
+# Python imports)
 import logging
 import tkinter as tk
 
@@ -13,6 +13,21 @@ class RefugeeProfileView(BaseView):
         self.master = master
         self.render_widgets()
         self.master.update()
+
+    def handle_view_click(self, camp_id: int):
+        """navigates to camp detail view"""
+        current_global_state = self.master.get_global_state()
+        current_global_state["camp_id_to_view"] = camp_id
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("camp_detail")
+
+    def handle_edit_click(self, refugee_id: int):
+        """Navigates to edit refugee from view"""
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_edit"] = refugee_id
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("add_edit_refugee")
+ 
 
     def render_widgets(self) -> None:
         """Renders widgets for refugee profile view"""
@@ -46,258 +61,314 @@ class RefugeeProfileView(BaseView):
             pady=10,
         )
 
-       
+       # User profile variables
+        # Assuming you have a way to identify the refugee, for example, the refugee ID
+        refugee_family_id = self.master.get_global_state().get("refugee_id_to_view")  
+        refugee_family_data = run_query_get_rows(f"SELECT * FROM RefugeeFamily WHERE id = '{refugee_family_id}'")[0]
 
-        # Assuming you have a way to identify the refugee family, for example, the family ID
-        refugee_family_id = 1  # Replace with the actual family ID
+        main_rep_name = refugee_family_data.get("main_rep_name")
+        if main_rep_name is None:
+            main_rep_name = "No information provided"
+
+        medical_conditions = refugee_family_data.get("medical_conditions")
+        if medical_conditions is None:
+            medical_conditions = "No information provided"
+
+        n_adults = refugee_family_data.get("n_adults")
+        if n_adults is None:
+            n_adults = "No information provided"
+
+        n_children = refugee_family_data.get("n_children")
+        if n_children is None:
+            n_children = "No information provided"
+
+        main_rep_home_town = refugee_family_data.get("main_rep_home_town")
+        if main_rep_home_town is None:
+            main_rep_home_town = "No information provided"
+
+        main_rep_age = refugee_family_data.get("main_rep_age")
+        if main_rep_age is None:
+            main_rep_age = "No information provided"
+
+        main_rep_sex = refugee_family_data.get("main_rep_sex")
+        if main_rep_sex is None:
+            main_rep_sex = "No information provided"
+        elif main_rep_sex == "F":
+            main_rep_sex = "Female"
+        elif main_rep_sex == "M":
+            main_rep_sex = "Male"
+
+        n_missing_members = refugee_family_data.get("n_missing_members")
+        if n_missing_members is None:
+            n_missing_members = "No information provided"
+
+        is_in_camp = refugee_family_data.get("is_in_camp")
+        if is_in_camp == 1:
+            is_in_camp_value = "YES"
+        elif is_in_camp == 0:
+            is_in_camp_value = "NO"
+
+        # Assuming you have a way to identify the camp, for example, the camp ID
+        camp_id = refugee_family_data.get("camp_id")
+        camp_data = run_query_get_rows(f"SELECT * FROM Camp WHERE id = '{camp_id}'")[0]
+        camp_location = camp_data.get("location")
+        if camp_location is None:
+            camp_location = "No information provided"
         
-        # Fetch data from the database based on the family ID
-        refugee_family_data = run_query_get_rows(
-            f"SELECT * FROM RefugeeFamily WHERE id = {refugee_family_id}"
+
+        # Section: Display refugee family details
+        self.refugee_details_label_container = tk.LabelFrame(
+            master=self.container,
+            text="Refugee Family Details",
+            width=500,
+            height=300,
         )
 
-        if refugee_family_data:
-            refugee_family_data = refugee_family_data[0]
+            # Section: Button to edit
+        self.button_container = tk.Frame(
+            master=self.container,
+            width = 50,
+            height = 50,
+        )  
 
-            # Extract relevant information from the fetched data
-            main_rep_name = refugee_family_data.get("main_rep_name", "No information provided")
-            medical_conditions = refugee_family_data.get("medical_conditions", "No information provided")
-            n_adults = refugee_family_data.get("n_adults", "No information provided")
-            n_children = refugee_family_data.get("n_children", "No information provided")
-            main_rep_home_town = refugee_family_data.get("main_rep_home_town", "No information provided")
-            main_rep_age = refugee_family_data.get("main_rep_age", "No information provided")
-            main_rep_sex = refugee_family_data.get("main_rep_sex", "No information provided")
-            n_missing_members = refugee_family_data.get("n_missing_members", "No information provided")
-            is_in_camp = refugee_family_data.get("is_in_camp", "No information provided")
+        # back button
+        self.back_button_container = tk.Frame(
+            master=self.container,
+            width = 10,
+            height = 50,
+        )
 
+        # Set up - labels and entries:
 
+        self.refugee_family_id_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text=f"Refugee Family ID:",
+            width=20,
+            anchor="w",
+        )
 
-             # Camp Details Frame (newly added)
-            self.camp_details_label_container = tk.LabelFrame(
-                master=self.container,
-                text="Camp Details",
-                width=400,
-                height=50,
-            )
+        self.refugee_family_id_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=refugee_family_id),
+        )
 
-             # Fetch camp details based on the camp ID from refugee family data
-            camp_id = refugee_family_data.get("camp_id", None)
-            camp_data = run_query_get_rows(
-                f"SELECT * FROM Camp WHERE id = {camp_id}"
-            )
+        self.location_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Camp Location",
+            width=20,
+            anchor="w",
+        )
 
-        if camp_data:
-            camp_data = camp_data[0]
+        self.location_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=camp_location),
+        )
+        
+        # main rep name
+        self.main_rep_name_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Main Rep Name",
+            width=20,
+            anchor="w",
+        )
 
-            # Extract relevant information from the fetched camp data
-            refugee_family_id_label = tk.Label(
-                master=self.camp_details_label_container,
-                text=f"Refugee Family ID: {refugee_family_id}",
-                width=20,
-                anchor="w",
-            )
+        self.main_rep_name_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=main_rep_name),
+        )
 
-            camp_id_label = tk.Label(
-                master=self.camp_details_label_container,
-                text=f"Camp ID: {camp_id}",
-                width=10,
-                anchor="w",
-            )
+        # main rep age
+        self.main_rep_age_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Main Rep Age",
+            width=20,
+            anchor="w",
+        )
 
-            location_label = tk.Label(
-                master=self.camp_details_label_container,
-                text=f"Location: {camp_data.get('location', 'No information provided')}",
-                width=20,
-                anchor="w",
-            )
+        self.main_rep_age_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=main_rep_age),
+        )
 
-            # Section: Display refugee family details
-            self.refugee_details_label_container = tk.LabelFrame(
-                master=self.container,
-                text="Refugee Family Details",
-                width=400,
-                height=300,
-            )
+        # Main Representative Home Town
+        self.main_rep_home_town_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Main Rep Home Town",
+            width=20,
+            anchor="w",
+        )
 
-             # Section: Button to edit
-            self.button_container = tk.Frame(
-                master=self.container,
-                width = 50,
-                height = 50,
-            )  
+        self.main_rep_home_town_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=main_rep_home_town),
+        )
 
-            # Set up - labels and entries:
-            # main rep name
-            self.main_rep_name_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Main Representative Name",
-                width=20,
-                anchor="w",
-            )
+        # Number of Adults
+        self.n_adults_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="No. of Adults",
+            width=20,
+            anchor="w",
+        )
 
-            self.main_rep_name_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=main_rep_name),
-            )
+        self.n_adults_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=n_adults),
+        )
 
-            # main rep age
-            self.main_rep_age_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Main Representative Age",
-                width=20,
-                anchor="w",
-            )
+        # Number of Children
+        self.n_children_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="No. of Children",
+            width=20,
+            anchor="w",
+        )
 
-            self.main_rep_age_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=main_rep_age),
-            )
+        self.n_children_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=n_children),
+        )
 
-            # Main Representative Home Town
-            self.main_rep_home_town_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Main Representative Home Town",
-                width=20,
-                anchor="w",
-            )
+        # Number of Missing Members
+        self.n_missing_members_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="No. of Missing Members",
+            width=20,
+            anchor="w",
+        )
 
-            self.main_rep_home_town_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=main_rep_home_town),
-            )
+        self.n_missing_members_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=n_missing_members),
+        )
 
-            # Number of Adults
-            self.n_adults_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Number of Adults",
-                width=20,
-                anchor="w",
-            )
+        # Medical Conditions
+        self.medical_conditions_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Medical Conditions",
+            width=20,
+            anchor="w",
+        )
 
-            self.n_adults_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=n_adults),
-            )
+        self.medical_conditions_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=medical_conditions),
+        )
 
-            # Number of Children
-            self.n_children_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Number of Children",
-                width=20,
-                anchor="w",
-            )
+        # Is in Camp
+        self.is_in_camp_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Residing in Camp",
+            width=20,
+            anchor="w",
+        )
 
-            self.n_children_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=n_children),
-            )
+        # Assuming 1 means 'YES' and 0 means 'NO'
+        is_in_camp_value = "YES" if is_in_camp == 1 else "NO"
 
-            # Number of Missing Members
-            self.n_missing_members_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Number of Missing Members",
-                width=20,
-                anchor="w",
-            )
+        self.is_in_camp_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=is_in_camp_value),
+        )
 
-            self.n_missing_members_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=n_missing_members),
-            )
+        # edit button
+        self.edit_button = tk.Button(
+            master=self.button_container,
+            width=30,
+            text="Edit",
+            command=lambda: self.handle_edit_click(refugee_family_data.get("id")),
+            fg="white",
+            bg="blue",
+        )
 
-            # Medical Conditions
-            self.medical_conditions_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Medical Conditions",
-                width=20,
-                anchor="w",
-            )
+        # back button
+        self.back_button = tk.Button(
+            master=self.back_button_container,
+            command=lambda: self.handle_view_click(camp_id),
+            width=10,
+            text="BACK",
+            fg="white",
+            bg="black",
+        )
 
-            self.medical_conditions_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=medical_conditions),
-            )
+        
+        
 
-            # Is in Camp
-            self.is_in_camp_label = tk.Label(
-                master=self.refugee_details_label_container,
-                text="Is in Camp",
-                width=20,
-                anchor="w",
-            )
+        # Add to grid
+        self.refugee_details_label_container.pack(pady=(10, 20))
+        self.button_container.pack(pady=(0, 20))
+        self.back_button_container.pack(pady=(0,20))
 
-            self.is_in_camp_entry = tk.Entry(
-                master=self.refugee_details_label_container,
-                width=70,
-                state="disabled",
-                text=tk.StringVar(value=is_in_camp),
-            )
+        self.refugee_family_id_label.grid(row=0, column=0)
+        self.refugee_family_id_entry.grid(row=0, column=1)
 
-            self.edit_button = tk.Button(
-                master=self.button_container,
-                width=30,
-                text="Edit",
-                fg="white",
-                bg="blue",
-            )
+        self.main_rep_name_label.grid(row=1, column=0)
+        self.main_rep_name_entry.grid(row=1, column=1)
 
-            # Add to grid
-            self.camp_details_label_container.pack(pady=(10, 20))
-            self.refugee_details_label_container.pack(pady=(10, 20))
-            self.button_container.pack(pady=(0, 20))
+        self.main_rep_age_label.grid(row=2, column=0)
+        self.main_rep_age_entry.grid(row=2, column=1)
 
-            self.main_rep_name_label.grid(row=0, column=0)
-            self.main_rep_name_entry.grid(row=0, column=1)
+        self.main_rep_home_town_label.grid(row=3, column=0)
+        self.main_rep_home_town_entry.grid(row=3, column=1)
 
-            self.main_rep_age_label.grid(row=1, column=0)
-            self.main_rep_age_entry.grid(row=1, column=1)
+        self.n_adults_label.grid(row=4, column=0)
+        self.n_adults_entry.grid(row=4, column=1)
 
-            self.main_rep_home_town_label.grid(row=2, column=0)
-            self.main_rep_home_town_entry.grid(row=2, column=1)
+        self.n_children_label.grid(row=5, column=0)
+        self.n_children_entry.grid(row=5, column=1)
 
-            self.n_adults_label.grid(row=3, column=0)
-            self.n_adults_entry.grid(row=3, column=1)
+        self.n_missing_members_label.grid(row=6, column=0)
+        self.n_missing_members_entry.grid(row=6, column=1)
 
-            self.n_children_label.grid(row=4, column=0)
-            self.n_children_entry.grid(row=4, column=1)
+        self.medical_conditions_label.grid(row=7, column=0)
+        self.medical_conditions_entry.grid(row=7, column=1)
 
-            self.n_missing_members_label.grid(row=5, column=0)
-            self.n_missing_members_entry.grid(row=5, column=1)
+        self.is_in_camp_label.grid(row=8, column=0)
+        self.is_in_camp_entry.grid(row=8, column=1)
 
-            self.medical_conditions_label.grid(row=6, column=0)
-            self.medical_conditions_entry.grid(row=6, column=1)
+        self.location_label.grid(row=9, column=0)
+        self.location_entry.grid(row=9, column=1)
+    
 
-            self.is_in_camp_label.grid(row=7, column=0)
-            self.is_in_camp_entry.grid(row=7, column=1)
-
-            self.edit_button.grid(row=0, column=0,)
-
-            refugee_family_id_label.grid(row=0, column=0)
-            camp_id_label.grid(row=0, column=1)
-            location_label.grid(row=0, column=2)
+        self.edit_button.grid(row=0, column=0,)
+        self.back_button.grid(row=0, column=0,)
 
         
 
-        else:
-            # Display a message if no data is found
-            no_data_label = tk.Label(
-                master=self.container,
-                text="No information available for this refugee family.",
-                font=(14),
-                fg="red",
-            )
-            no_data_label.pack(pady=20)
+    
+
+    # else:
+    #     # Display a message if no data is found
+    #     no_data_label = tk.Label(
+    #         master=self.container,
+    #         text="No information available for this refugee family.",
+    #         font=(14),
+    #         fg="red",
+    #     )
+    #     no_data_label.pack(pady=20)
+
+
+        # link to camp view details with global state
+        # add back button redirecting to campview with glocal state
+        # change padding cos Main representative does not fit
+        # change is in camp to something more readable, and change option 
