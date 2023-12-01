@@ -10,7 +10,6 @@ from utilities.formatting import add_border, calculate_max_col_width
 from .base import BaseView
 
 
-
 class MessagesView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
@@ -56,15 +55,111 @@ class MessagesView(BaseView):
         )
         self.new_msg_btn.grid(row=0, column=10, padx=10, pady=10, sticky="e")
 
-        self.render_unresolved_messages()
-        self.render_resolved_messages()
+        # Unresolved messages
+        self.render_unresolved_messages(
+            is_resolved=False, tree_name="unresolved_tree", container=self.container
+        )
 
-        # self.canvas_unresolved.bind(
-        #     "<Configure>", self._on_canvas_configure_unresolved_table_container
-        # )
-        # self.canvas_resolved.bind(
-        #     "<Configure>", self._on_canvas_configure_resolved_table_container
-        # )
+        # Unresolved messages
+        self.render_resolved_messages(
+            is_resolved=True, tree_name="resolved_tree", container=self.container
+        )
+
+    def render_unresolved_messages(self, is_resolved: bool, tree_name: str, container):
+        self.unresolved_container = tk.LabelFrame(
+            master=container,
+            text="Unresolved Messages",
+        )
+        self.unresolved_container.pack(padx=10, pady=10)
+
+        self.unresolved_table_container = tk.Frame(
+            master=self.unresolved_container, padx=10, pady=10
+        )
+        self.unresolved_table_container.grid(row=0, column=0)
+        self.render_messages(
+            is_resolved=is_resolved,
+            tree_name=tree_name,
+            container=self.unresolved_table_container,
+        )
+
+        self.resolve_selected_button = tk.Button(
+            master=self.unresolved_container,
+            text="Resolve Selected",
+            padx=10,
+            command=lambda: self._handle_resolve_undo_click(resolve_message=True),
+        )
+        self.resolve_selected_button.grid(
+            row=0, column=1, sticky=tk.N, padx=10, pady=10
+        )
+
+    def render_resolved_messages(self, is_resolved: bool, tree_name: str, container):
+        self.resolved_container = tk.LabelFrame(
+            master=container,
+            text="Resolved Messages",
+        )
+        self.resolved_container.pack(padx=10, pady=10)
+
+        self.resolved_table_container = tk.Frame(
+            master=self.resolved_container, padx=10, pady=10
+        )
+        self.resolved_table_container.grid(row=0, column=0)
+        self.render_messages(
+            is_resolved=is_resolved,
+            tree_name=tree_name,
+            container=self.resolved_table_container,
+        )
+
+        self.resolve_selected_button = tk.Button(
+            master=self.resolved_container,
+            text="Unresolve Selected",
+            padx=10,
+            command=lambda: self._handle_resolve_undo_click(resolve_message=False),
+        )
+        self.resolve_selected_button.grid(
+            row=0, column=1, sticky=tk.N, padx=10, pady=10
+        )
+
+    def render_messages(self, is_resolved: bool, tree_name: str, container):
+        messages = self.get_messages(is_resolved=is_resolved)
+
+        # Get the data as simple list[str]
+
+        self.data_to_render = []
+        self.data_to_render.extend(self._get_data_to_render(messages))
+
+        # No messages, just header
+        if not self.data_to_render:
+            no_messages_label = tk.Label(
+                master=container,
+                text="No unresolved messages ✅",
+                font=(60),
+            )
+            no_messages_label.pack()
+        else:
+            self.header_cols = [
+                "ID",
+                "Received At",
+                "Plan",
+                "Camp",
+                "Sender",
+                "Priority",
+                "Message",
+            ]
+            self.render_tree_table(
+                header_cols=self.header_cols,
+                data=self.data_to_render,
+                container=container,
+                tree_name=tree_name,
+                col_widths=[
+                    25,
+                    100,
+                    100,
+                    100,
+                    70,
+                    60,
+                    250,
+                ],
+            )
 
     def get_messages(self, is_resolved: bool):
         """Returns messages for this user from db"""
@@ -135,184 +230,33 @@ class MessagesView(BaseView):
             data_to_render.append(data_to_add)
         return data_to_render
 
-    def render_unresolved_messages(self):
-
-        self.unresolved_messages = self.get_messages(is_resolved=False)
-
-        # Get the data as simple list[str]
-        
-        self.data_to_render = []
-        self.data_to_render.extend(self._get_data_to_render(self.unresolved_messages))
-
-        logging.debug(f"{self.data_to_render=}")
-
-        self.unresolved_table_container = tk.LabelFrame(
-            master=self.container,
-            text="Unresolved Messages",
-        )
-        self.unresolved_table_container.pack()
-
-        # No messages, just header
-        if not self.data_to_render:
-            no_messages_label = tk.Label(
-                master=self.unresolved_table_container,
-                text="No unresolved messages ✅",
-                font=(60),
-            )
-            no_messages_label.pack()
-        else:
-            self.header_cols = [
-                "ID",
-                "Received At",
-                "Plan",
-                "Camp",
-                "Sender",
-                "Priority",
-                "Message",
-                "Resolve?",
-            ]
-            self.render_tree_table(header_cols=self.header_cols, data=self.data_to_render, container=self.unresolved_table_container)
-
-    def render_resolved_messages(self):
-        self.resolved_messages = self.get_messages(is_resolved=True)
-
-        # Get the data as simple list[str], starting with col headers
-        self.header_cols = [
-            "Msg ID",
-            "Received At",
-            "Plan",
-            "Camp",
-            "Sender",
-            "Priority",
-            "Message",
-            "Undo?",
-        ]
-        self.data_to_render = [self.header_cols]
-
-        self.data_to_render.extend(self._get_data_to_render(self.resolved_messages))
-
-        self.resolved_messages_container = tk.Frame(
-            master=self.container,
-            # width=500,
-            pady=50,
-        )
-        self.resolved_messages_container.pack(fill="both", expand=True)
-
-        # SCROLL BAR - THANK YOU https://www.pythontutorial.net/tkinter/tkinter-scrollbar/
-        # Create a canvas widget
-        self.canvas_resolved = tk.Canvas(
-            self.resolved_messages_container,
-            # width=1400,
-        )
-        self.canvas_resolved.pack(
-            side=tk.LEFT,
-            fill=tk.BOTH,
-            expand=True,
-        )
-
-        # Create a scrollbar for the canvas
-        scrollbar = ttk.Scrollbar(
-            self.resolved_messages_container,
-            orient=tk.VERTICAL,
-            command=self.canvas_resolved.yview,
-        )
-        scrollbar.pack(side=tk.RIGHT, fill="y")
-
-        # Configure the canvas to use the scrollbar
-        self.canvas_resolved.configure(yscrollcommand=scrollbar.set)
-
-        # Create a frame inside the canvas
-        table_frame = tk.Frame(self.canvas_resolved)
-        self.canvas_resolved.create_window((0, 0), window=table_frame, anchor=tk.NW)
-
-        self.table_container = tk.LabelFrame(
-            master=table_frame,
-            text="Resolved Messages",
-            padx=10,
-            pady=10,
-            width=1500,
-        )
-        self.table_container.pack(expand=True)
-
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=self.table_container,
-                items=row,
-                header=ix == 0,  # True if first row, else False
-                resolved_messages=True,
-            )
-
-        # No messages, just header
-        if len(self.data_to_render) == 1:
-            no_messages_label = tk.Label(
-                master=self.table_container,
-                text="No resolved messages",
-                font=(60),
-            )
-            no_messages_label.pack()
-
-    # Bind the canvas to update the scroll region
-    def _on_canvas_configure_unresolved_table_container(self, event):
-        self.canvas_unresolved.configure(
-            scrollregion=self.canvas_unresolved.bbox("all")
-        )
-
-    def _on_canvas_configure_resolved_table_container(self, event):
-        self.canvas_resolved.configure(scrollregion=self.canvas_resolved.bbox("all"))
-
-    def _render_row(
-        self,
-        container: tk.Frame,
-        items: list[str],
-        column_width=18,
-        header=False,
-        resolved_messages=True,
-    ) -> None:
-        self.row_container = tk.Frame(
-            master=container,
-        )
-        self.row_container.pack()
-
-        for ix, label in enumerate(items):
-            self.cell_frame = tk.Frame(
-                master=self.row_container,
-                width=200,
-                height=25,
-            )
-            self.cell_frame.grid(
-                row=0,
-                column=ix,
-            )
-            if not header:
-                add_border(self.cell_frame)
-
-            self.cell_content = tk.Label(
-                master=self.cell_frame,
-                text=label,
-                width=column_width if ix != 6 else 55,
-                justify="left",
-            )
-
-            self.cell_content.pack(
-                anchor="e",
-                fill="both",
-                expand=True,
-            )
-
-        # Add action buttons
-        if not header:
-            tk.Button(
-                master=self.row_container,
-                text="Undo" if resolved_messages else "Resolve",
-                width=column_width,
-                command=lambda: self._handle_resolve_undo_click(message_id=items[0]),
-            ).grid(row=0, column=len(items))
-
-    def _handle_resolve_undo_click(self, message_id: int) -> None:
+    def _handle_resolve_undo_click(self, resolve_message: bool) -> None:
         """Handles resolve / undo button click"""
 
+        try:
+            if resolve_message:
+                tree = self.unresolved_tree
+                message_row = tree.focus()
+                if not message_row:
+                    self.render_error_popup_window(
+                        message="Select a message to resolve first!"
+                    )
+                    return
+            else:
+                tree = self.resolved_tree
+                message_row = tree.focus()
+                if not message_row:
+                    self.render_error_popup_window(
+                        message="Select a message to unresolve first!"
+                    )
+                    return
+
+            message_id = tree.item(message_row, "values")[0]
+        except AttributeError as e:
+            self.render_error_popup_window(message="No messages!")
+            return
+
         # Update db
-        logging.debug(f"Resolving / undoing message {message_id}")
         run_query_get_rows(
             f"""UPDATE Messages
                 SET is_resolved = 

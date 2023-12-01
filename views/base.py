@@ -198,6 +198,7 @@ class BaseView(tk.Frame):
         container,
         header_cols: list,
         data: list[list[str]],
+        col_widths: list[int] = None,
         tree_name: str = "tree",
     ) -> None:
         """Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
@@ -208,9 +209,10 @@ class BaseView(tk.Frame):
             `container` - the master container to place the table inside
             `header_cols` - list of column headers. Must be same len as `data` items.
             `data` - list of rows, where each row is a list of strings|Any containing values.
+            `col_widths` - if specifiying individual col widths, provide list of integers corresponding to each column's width.
             `tree_name` - the name of the View's table attribute. Default is 'tree' so to reference it, you would use `self.tree`. If `tree_name='banana'`, then you would use `self.banana`.
         """
-        tree = ttk.Treeview(master=self.container)
+        tree = ttk.Treeview(master=container)
 
         # Define cols
         tree["columns"] = header_cols
@@ -222,11 +224,22 @@ class BaseView(tk.Frame):
         tree.column("#0", width=0, minwidth=0)
 
         # Register cols
-        for col_name in header_cols:
+        for ix, col_name in enumerate(header_cols):
             # Register cols
-            tree.column(
-                col_name, anchor=tk.W, width=DEFAULT_COL_WIDTH, minwidth=MIN_COL_WIDTH
-            )
+
+            # Default widths
+            if col_widths is None:
+                tree.column(
+                    col_name,
+                    anchor=tk.W,
+                    width=DEFAULT_COL_WIDTH,
+                    minwidth=MIN_COL_WIDTH,
+                )
+            else:
+                # Custom widths
+                tree.column(
+                    col_name, anchor=tk.W, width=col_widths[ix], minwidth=col_widths[ix]
+                )
 
             # Create headers
             tree.heading(
