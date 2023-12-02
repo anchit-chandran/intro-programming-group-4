@@ -67,6 +67,7 @@ class MainApplication(tk.Tk):
         # Initial attributes
         self.title(config.TITLE)
         self.geometry(config.SIZE)
+        self.iconbitmap(config.LOGOICO)
 
         # DB Setup
         setup_db(reset_database=True)
