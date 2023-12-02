@@ -64,6 +64,7 @@ user_data = [
         "emergency_contact_name": "Andrew",
         "emergency_contact_number": "+447986756453",
         "camp_id": 2,
+        
     },
     {
         "username": "deactivatedVolunteer",
