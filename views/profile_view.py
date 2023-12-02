@@ -218,7 +218,6 @@ class ProfileView(BaseView):
             width=10,
         )
 
-
         self.status_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
@@ -232,12 +231,19 @@ class ProfileView(BaseView):
             width=20,
             anchor="w",
         )
-
+        firstname_text = tk.StringVar(value=firstname)
+        # Set char length limit
+        firstname_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=firstname_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.firstname_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=firstname),
+            text=firstname_text,
         )
 
         self.lastname_label = tk.Label(
@@ -247,11 +253,19 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
+        # Set char length limit
+        lastname_text = tk.StringVar(value=lastname)
+        lastname_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=lastname_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.lastname_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=lastname),
+            text=lastname_text,
         )
 
         self.dob_label = tk.Label(
@@ -260,12 +274,17 @@ class ProfileView(BaseView):
             width=20,
             anchor="w",
         )
-
+        # Set char length limit
+        dob_text = tk.StringVar(value=DOB)
+        dob_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(entry_text=dob_text, char_limit=10),
+        )
         self.dob_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=DOB),
+            text=dob_text,
         )
 
         self.sex_label = tk.Label(
@@ -289,11 +308,19 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
+        # Set char length limit
+        phone_text = tk.StringVar(value=phone)
+        phone_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=phone_text, char_limit=15
+            ),
+        )
         self.phone_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=phone),
+            text=phone_text,
         )
 
         self.other_languages_label = tk.Label(
@@ -303,11 +330,19 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
+        # Set char length limit
+        languages_text = tk.StringVar(value=languages)
+        languages_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=languages_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.other_languages_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=languages),
+            text=languages_text,
         )
 
         self.other_skills_label = tk.Label(
@@ -317,11 +352,19 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
+        # Set char length limit
+        skills_text = tk.StringVar(value=skills)
+        skills_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=skills_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.other_skills_entry = tk.Entry(
             master=self.personal_info_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=skills),
+            text=skills_text,
         )
 
         self.emergency_contact_name_label = tk.Label(
@@ -331,11 +374,19 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
+        # Set char length limit
+        emergency_contact_name_text = tk.StringVar(value=emergency_contact_name)
+        emergency_contact_name_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=emergency_contact_name_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.emergency_contact_name_entry = tk.Entry(
             master=self.emergency_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=emergency_contact_name),
+            text=emergency_contact_name_text,
         )
 
         self.emergency_contact_number_label = tk.Label(
@@ -345,11 +396,19 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
+        # Set char length limit
+        emergency_contact_number_text = tk.StringVar(value=emergency_contact_number)
+        emergency_contact_number_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=emergency_contact_number_text, char_limit=15
+            ),
+        )
         self.emergency_contact_number_entry = tk.Entry(
             master=self.emergency_label_container,
             width=70,
             state=state,
-            text=tk.StringVar(value=emergency_contact_number),
+            text=emergency_contact_number_text,
         )
 
         # Add to grid
@@ -686,8 +745,6 @@ class ProfileView(BaseView):
         if not self._check_all_inputs_have_values(inputs_to_check=all_values):
             self._handle_invalid_form()
             return
-        
-        
 
     def _render_error_msg_text(self) -> str:
         """Gets a formatted error message string from self.form_errors"""
