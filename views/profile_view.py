@@ -2,6 +2,7 @@
 import logging
 import tkinter as tk
 from tkinter import ttk
+from datetime import date
 
 # Project imports
 from constants import config
@@ -153,12 +154,12 @@ class ProfileView(BaseView):
 
         # DECIDE WHETHER ENTRIES SHOULD BE DISABLED
         state = self._should_entries_disable()
-        new_user_id = run_query_get_rows(f"SELECT MAX(id) FROM User")[0]['MAX(id)']+1
+        new_user_id = run_query_get_rows(f"SELECT MAX(id) FROM User")[0]["MAX(id)"] + 1
         user_id_text = tk.StringVar(value=user_id or new_user_id)
         self.userID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state="disabled", 
+            state="disabled",
             textvariable=user_id_text,
         )
 
@@ -173,15 +174,13 @@ class ProfileView(BaseView):
         username_text.trace(
             "w",
             lambda *args: self.set_character_limit(
-                entry_text=username_text, char_limit=self.MAX_CHAR_LEN
+                entry_text=username_text, char_limit=15
             ),
         )
         self.username_entry = tk.Entry(
             master=self.user_details_label_container,
-            width=10,
-            state=state
-            if not getattr(self, "volunteer_editing_self", None)
-            else "disabled",  # volunteers can't edit this
+            width=20,
+            state="disabled" if not self.should_render == "add_volunteer" else "normal",
             textvariable=username_text,
         )
 
@@ -747,7 +746,7 @@ class ProfileView(BaseView):
             self.dob_month_entry.get(),
             self.dob_day_entry.get(),
         )
-        dob_input = f'{dob_year_input}-{dob_month_input}-{dob_day_input}'
+        dob_input = f"{dob_year_input}-{dob_month_input}-{dob_day_input}"
         sex_input = self.sex_entry.get()
         phone_input = self.phone_entry.get()
         other_languages_input = self.other_languages_entry.get()
@@ -788,24 +787,61 @@ class ProfileView(BaseView):
         if not self._check_all_inputs_have_values(inputs_to_check=all_values):
             self._handle_invalid_form()
             return
-        
+
         # SPECIFIC VALIDATION
-        # user_id_input
-        
+
         # username_input
-        # camp_id_input
-        # status_input
-        # firstname_input
-        # lastname_input
+        # if editing, username will always be valid
+        if self.should_render != 'edit_volunteer':
+            if not self._is_username_available(username=username_input):
+                self.form_errors["username_input"].append("Username not available")
+                self.form_is_valid = False
+
+        # camp_id_input TODO
+
         # dob_input
+        if not self._is_dob_valid(dob=dob_input):
+            self.form_errors["dob_input"].append("Invalid date of birth")
+            self.form_is_valid = False
+        else:
+            # Can assume this is a valid date
+            if not self._is_dob_in_past(dob=dob_input):
+                self.form_errors["dob_input"].append("Date of birth must be in past!")
+                self.form_is_valid = False
+        
         # sex_input
         # phone_input
         # other_languages_input
         # other_skills_input
         # emergency_contact_name_input
-        emergency_contact_number_input
-        
-        logging.debug(all_values)
+        # emergency_contact_number_input
+
+        logging.debug(all_values, self.form_errors)
+        if not self.form_is_valid:
+            self._handle_invalid_form()
+            return
+
+    def _is_dob_valid(self, dob: str):
+        """dob in YYYY-MM-DD format"""
+        try:
+            year, month, day = dob.split("-")
+            date(year=int(year), month=int(month), day=int(day))
+        except Exception as e:
+            logging.debug(f"Invalid DoB: {e}")
+            return False
+        return True
+
+    def _is_dob_in_past(self, dob: str):
+        """dob in YYYY-MM-DD format"""
+        year, month, day = dob.split("-")
+        year, month, day = int(year), int(month), int(day)
+
+        dob = date(year=year, month=month, day=day)
+
+        return dob < date.today()
+
+    def _is_username_available(self, username: str) -> bool:
+        return not run_query_get_rows(f"SELECT * FROM User WHERE username='{username}'")
 
     def _render_error_msg_text(self) -> str:
         """Gets a formatted error message string from self.form_errors"""
@@ -823,7 +859,6 @@ class ProfileView(BaseView):
         self.render_error_popup_window(title="Invalid Form", message=error_string)
 
     def _render_field_label_from_field_key(self, field_key: str) -> str:
-        
         key_to_label_map = {
             "user_id_input": "User ID",
             "username_input": "Username",
@@ -847,9 +882,9 @@ class ProfileView(BaseView):
         valid = True
         for ix, inp in enumerate(inputs_to_check):
             inp_stripped = inp.strip()
-            if ix == 6: 
-                inp_stripped = inp_stripped.replace('-','') # dob
-                
+            if ix == 6:
+                inp_stripped = inp_stripped.replace("-", "")  # dob
+
             if not inp_stripped:
                 all_field_names = self._get_all_field_names()
                 self.form_errors[all_field_names[ix]].append("Field must have a value!")
