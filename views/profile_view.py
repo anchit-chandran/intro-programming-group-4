@@ -13,7 +13,8 @@ class ProfileView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        logging.debug(self.master.get_global_state())
+        self.MAX_CHAR_LEN = 30
+        self.MAX_CHAR_LEN_IDs = 3
         self.should_render = self.decide_what_to_render()
         # above may set:
         # self.volunteer_id
@@ -141,50 +142,74 @@ class ProfileView(BaseView):
         # Set up - labels and entries
         self.userID_label = tk.Label(
             master=self.user_details_label_container,
-            text="User ID",
+            text="User ID*",
             width=10,
         )
 
         # DECIDE WHETHER ENTRIES SHOULD BE DISABLED
         state = self._should_entries_disable()
 
+        user_id_text = tk.StringVar(value=user_id)
+        # Set char length limit
+        user_id_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=user_id_text, char_limit=self.MAX_CHAR_LEN_IDs
+            ),
+        )
         self.userID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
             state=state
             if not getattr(self, "volunteer_editing_self", None)
             else "disabled",  # volunteers can't edit this,
-            textvariable=tk.StringVar(value=user_id),
+            textvariable=user_id_text,
         )
 
         self.username_label = tk.Label(
             master=self.user_details_label_container,
-            text="Username",
+            text=f"Username*",
             width=10,
         )
 
+        username_text = tk.StringVar(value=username)
+        # Set char length limit
+        username_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=username_text, char_limit=self.MAX_CHAR_LEN
+            ),
+        )
         self.username_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
             state=state
             if not getattr(self, "volunteer_editing_self", None)
             else "disabled",  # volunteers can't edit this
-            textvariable=tk.StringVar(value=username),
+            textvariable=username_text,
         )
 
         self.campID_label = tk.Label(
             master=self.user_details_label_container,
-            text="Camp ID",
+            text="Camp ID*",
             width=10,
         )
 
+        camp_id_text = tk.StringVar(value=campID)
+        # Set char length limit
+        camp_id_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=camp_id_text, char_limit=self.MAX_CHAR_LEN_IDs
+            ),
+        )
         self.campID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
             state=state
             if not getattr(self, "volunteer_editing_self", None)
             else "disabled",  # volunteers can't edit this
-            text=tk.StringVar(value=campID),
+            text=camp_id_text,
         )
 
         self.status_label = tk.Label(
@@ -193,12 +218,11 @@ class ProfileView(BaseView):
             width=10,
         )
 
+
         self.status_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state
-            if not getattr(self, "volunteer_editing_self", None)
-            else "disabled",  # volunteers can't edit this
+            state="disabled",
             text=tk.StringVar(value=status_profile),
         )
 
@@ -526,17 +550,11 @@ class ProfileView(BaseView):
             return "disabled"
 
     def _get_user_profile_text(self, user_profile) -> tuple:
-        is_active = user_profile.get("is_active")
-        if is_active == 1:
-            status_profile = "Active"
-        elif is_active == 0:
-            status_profile = "Deactivated"
-        firstname = user_profile.get("first_name")
-        if firstname is None:
-            firstname = "No information provided"
-        lastname = user_profile.get("last_name")
-        if lastname is None:
-            lastname = "No information provided"
+        is_active = config.ACTIVE if user_profile.get("is_active") else config.INACTIVE
+
+        firstname = user_profile.get("first_name") or "No information provided"
+        lastname = user_profile.get("last_name") or "No information provided"
+
         sex = user_profile.get("sex")
         if sex is None:
             sex = "No information provided"
@@ -569,7 +587,7 @@ class ProfileView(BaseView):
             DOB, DOB_time = DOB.split(" ")
 
         return (
-            status_profile,
+            is_active,
             firstname,
             lastname,
             sex,

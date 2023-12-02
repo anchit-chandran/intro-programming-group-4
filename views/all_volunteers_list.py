@@ -147,7 +147,7 @@ class AllVolunteersView(BaseView):
             data_to_add = []
             data_to_add.append(volunteer["id"])
             data_to_add.append(volunteer["username"])
-            is_active = "ACTIVE" if volunteer["is_active"] else "INACTIVE"
+            is_active = config.ACTIVE if volunteer["is_active"] else config.INACTIVE
             data_to_add.append(is_active)
             data_to_add.append(volunteer["camp_id"])
             data_to_render.append(data_to_add)

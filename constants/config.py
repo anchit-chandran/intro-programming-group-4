@@ -9,3 +9,6 @@ DATABASE_NAME = 'db'
 # COLORS
 LIGHTGREY = '#969393'
 
+# USER STATUS
+ACTIVE = 'Active'
+INACTIVE = 'Deactivated'
