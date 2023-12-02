@@ -15,7 +15,7 @@ user_data = [
         "skills": None,
         "emergency_contact_name": "Andrew",
         "emergency_contact_number": "+447986756453",
-        "camp_id": None,
+        "camp_id": 1,
     },
     {
         "username": "volunteer1",

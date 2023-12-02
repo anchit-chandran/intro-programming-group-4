@@ -3,6 +3,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 from datetime import date
+import re
 
 # Project imports
 from constants import config
@@ -236,7 +237,9 @@ class ProfileView(BaseView):
             self.camp_entry["values"] = self.get_all_camp_labels()
 
             dropdown_idx = 0
+            logging.debug(campID)
             if campID:
+                logging.debug(f"Getting idx for {campID=}")
                 dropdown_idx = self._find_dropdown_idx_for_camp_id(camp_id=campID)
 
             self.camp_entry.current(dropdown_idx)
@@ -633,7 +636,7 @@ class ProfileView(BaseView):
 
         label_to_find = f"CampID: {camp_data['id']} (PlanID: {camp_data['plan_id']})"
 
-        return labels.index(label_to_find) + 1
+        return labels.index(label_to_find)
 
     def get_all_camp_labels(self) -> list[str]:
         """Returns all camp labels in form ['Camp `ID` (PlanID: `id`)', ...,]"""
@@ -751,8 +754,6 @@ class ProfileView(BaseView):
         if emergency_contact_number is None:
             emergency_contact_number = "No information provided"
         campID = user_profile.get("camp_id")
-        if campID is None:
-            campID = "-"
 
         dob_year, dob_month, dob_day = user_profile.get("dob").split("-")
 
@@ -890,14 +891,19 @@ class ProfileView(BaseView):
         # VALID FORM
         self._handle_valid_form(all_values=all_values)
 
+    def _get_camp_id_from_label(self, label: str) -> int:
+        """Returns camp id int from label, which is in format 'CampID: 2 (PlanID: 1)'"""
+        camp_id_str = re.search(pattern=r"(?<=CampID: )\d+", string=label).group(0)
+        return int(camp_id_str)
+
     def _handle_valid_form(self, all_values: list[str]) -> None:
         """Inserts values, change screen"""
         logging.debug(f"Inserting {all_values}")
         username = all_values[1]
-        camp_id = all_values[2]
+        camp_id = self._get_camp_id_from_label(all_values[2])
         status = all_values[3]
-        firstname = all_values[4]
-        lastname = all_values[5]
+        firstname = all_values[4].capitalize()
+        lastname = all_values[5].capitalize()
         dob = all_values[6]
         sex = all_values[7]
         phone = all_values[8]
@@ -906,8 +912,10 @@ class ProfileView(BaseView):
         emergency_contact_name = all_values[11]
         emergency_contact_number = all_values[12]
 
-        insert_query_with_values(
-            query="""INSERT INTO User 
+        if self._is_username_available(username=username):
+            logging.debug("Adding new user")
+            insert_query_with_values(
+                query="""INSERT INTO User 
                   (
                         username,
                         password,
@@ -940,23 +948,58 @@ class ProfileView(BaseView):
                         :camp_id
                   );
                   """,
-            values={
-                "username": username,
-                "password": "",
-                "dob": dob,
-                "sex": sex,
-                "phone_number": phone,
-                "is_active": status,
-                "is_admin": 0,
-                "first_name": firstname,
-                "last_name": lastname,
-                "languages_spoken": other_languages,
-                "skills": other_skills,
-                "emergency_contact_name": emergency_contact_name,
-                "emergency_contact_number": emergency_contact_number,
-                "camp_id": camp_id,
-            },
-        )
+                values={
+                    "username": username,
+                    "password": "",
+                    "dob": dob,
+                    "sex": sex,
+                    "phone_number": phone,
+                    "is_active": status,
+                    "is_admin": 0,
+                    "first_name": firstname,
+                    "last_name": lastname,
+                    "languages_spoken": other_languages,
+                    "skills": other_skills,
+                    "emergency_contact_name": emergency_contact_name,
+                    "emergency_contact_number": emergency_contact_number,
+                    "camp_id": camp_id,
+                },
+            )
+        else:
+            logging.debug("Updating user")
+            insert_query_with_values(
+                query=f"""
+                                     UPDATE User
+                                     SET
+                                        username = :username,
+                                        dob = :dob,
+                                        sex = :sex,
+                                        phone_number = :phone_number,
+                                        first_name = :first_name,
+                                        last_name = :last_name,
+                                        languages_spoken = :languages_spoken,
+                                        skills = :skills,
+                                        emergency_contact_name = :emergency_contact_name,
+                                        emergency_contact_number = :emergency_contact_number,
+                                        camp_id= :camp_id
+                                    WHERE
+                                        username='{username}'
+                                     """,
+                values={
+                    "username": username,
+                    "dob": dob,
+                    "sex": sex,
+                    "phone_number": phone,
+                    "first_name": firstname,
+                    "last_name": lastname,
+                    "languages_spoken": other_languages,
+                    "skills": other_skills,
+                    "emergency_contact_name": emergency_contact_name,
+                    "emergency_contact_number": emergency_contact_number,
+                    "camp_id" : camp_id,
+                },
+            )
+
         logging.debug(f"Success!")
 
         self.master.switch_to_view("all_volunteers")
