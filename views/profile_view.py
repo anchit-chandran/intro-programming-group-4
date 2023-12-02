@@ -472,7 +472,21 @@ class ProfileView(BaseView):
     # Edit button click
     def handle_edit_click(self):
         """Handles edit profile button click"""
-        print("editing with ", self.master.get_global_state())
+        # Must handle:
+        #     "own_profile" -> user_id
+        #     "view_volunteer" -> volunteer_id_to_view
+
+        current_state = self.master.get_global_state()
+        
+        if self.should_render == "view_volunteer":
+            user_id = self.volunteer_id
+        else:
+            user_id = current_state['user_id']
+            
+        current_state["volunteer_id_to_edit"] = user_id
+        self.master.set_global_state(current_state)  
+
+        self.master.switch_to_view("profile")
 
     def _get_user_id_and_username_for_form(self) -> tuple[int,str]:
         """Returns user id & username or None if adding"""
@@ -499,6 +513,9 @@ class ProfileView(BaseView):
         #     "view_volunteer"
         #     "add_volunteer"
         if self.should_render in ['add_volunteer','edit_volunteer']:
+            # Volunteer editing own profile should not be able to change User Details
+            if self.should_render == "edit_volunteer" and not self._check_is_admin():
+                self.volunteer_editing_self = True
             return 'normal'
         else:
             return 'disabled'
@@ -580,3 +597,37 @@ class ProfileView(BaseView):
                 command=self.handle_edit_click,
             )
             self.edit_button.grid(row=0, column=0)
+        
+        elif self.should_render in ["edit_volunteer","add_volunteer"]:
+            self.button_container = tk.Frame(
+                master=container,
+                width=50,
+                height=50,
+            )
+            self.button_container.pack(pady=(0, 20))
+            submit_button_text = "Update" if self.should_render == "edit_volunteer" else "Add"
+            self.edit_button = tk.Button(
+                master=self.button_container,
+                text=submit_button_text,
+                command=self.handle_edit_add_button_click,
+            )
+            self.edit_button.grid(row=0, column=0)
+    
+    def handle_edit_add_button_click(self):
+        user_id_input = self.userID_entry.get()
+        username_input = self.username_entry.get()
+        camp_id_input = self.campID_entry.get()
+        status_input = self.status_entry.get()
+        firstname_input = self.firstname_entry.get()
+        lastname_input = self.lastname_entry.get()
+        dob_input = self.dob_entry.get()
+        sex_input = self.sex_entry.get()
+        phone_input = self.phone_entry.get()
+        other_languages_input = self.other_languages_entry.get()
+        other_skills_input = self.other_skills_entry.get()
+        emergency_contact_name_input = self.emergency_contact_name_entry.get()
+        emergency_contact_number_input = self.emergency_contact_number_entry.get()
+        
+    def _check_is_admin(self)->bool:
+        """Return true if admin"""
+        return bool(self.master.get_global_state()['is_admin'])
