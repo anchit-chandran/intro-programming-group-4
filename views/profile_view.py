@@ -36,11 +36,16 @@ class ProfileView(BaseView):
 
         """
         current_state = self.master.get_global_state()
-
+        self.instructions_text = 'This is the Profile View.'
         if current_state.get("volunteer_id_to_edit"):
             self.volunteer_id = current_state.pop("volunteer_id_to_edit")
             logging.debug(f"Editing volunteer: {self.volunteer_id}")
             self._set_volunteer_instance_data()
+            
+            self.instructions_text = "This is the Profile Editing View.\n\nDate of birth must be a valid date, before today (babies should not be volunteers!)."
+            
+            if self._check_is_admin(): self.instructions_text += "\n\nAdmin can assign the Camp using the dropdown."
+            
             return "edit_volunteer"
         elif current_state.get("volunteer_id_to_view"):
             self.volunteer_id = current_state.pop("volunteer_id_to_view")
@@ -48,6 +53,7 @@ class ProfileView(BaseView):
             self._set_volunteer_instance_data()
             return "view_volunteer"
         elif current_state.get("add_volunteer"):
+            self.instructions_text = "This is the Volunteer Creation View.\n\nPlease note the following when adding a new volunteer:\n\n\t- Username: this must be unique. The indicator on the right will dynamically update and show ✅ if the username is available.\n\n\t- Password: must be >= 8 chars, and contain at least 1 from each of: capital letters, lowercase letters, digits. This CANNOT be changed later!\n\n\t- Date of Birth: must be a valid date before today (babies should not be volunteers!)"
             return "add_volunteer"
         else:
             # viewing self
@@ -65,6 +71,23 @@ class ProfileView(BaseView):
         self.container.pack(
             fill="both",
         )
+        
+         # Instructions label
+        self.instructions_container = tk.LabelFrame(
+            master=self.container,
+            text="Instructions",
+        )
+        self.instructions_container.pack()
+        
+        
+        
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text=self.instructions_text,
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # Header
         self.header_container = tk.Frame(
@@ -675,7 +698,7 @@ class ProfileView(BaseView):
         """Dynamically updates username avail label if username available"""
         username_input = username_entry.get()
 
-        if self._is_username_available(username=username_input):
+        if self._is_username_available(username=username_input) and username_input:
             self.username_valid_stringvar.set("✅")
         else:
             self.username_valid_stringvar.set("❌")
@@ -1144,7 +1167,7 @@ class ProfileView(BaseView):
         found_capital = re.findall(match_capital, password)
         found_lowercase = re.findall(match_lowercase, password)
         found_digit = re.findall(match_digit, password)
-        longer_than_8 = len(password) > 8
+        longer_than_8 = len(password) >= 8
         pass_valid_checks = [found_capital, found_lowercase, found_digit, longer_than_8]
 
         if all(pass_valid_checks):
