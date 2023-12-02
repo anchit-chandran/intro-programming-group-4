@@ -12,7 +12,7 @@ from utilities.db import setup_db, run_query_get_rows
 class MainApplication(tk.Tk):
     def __init__(self, testing: bool = False):
         super().__init__()
-
+        self.testing = testing
         # Initial setup
         self._initial_setup()
         self.GLOBAL_STATE = {}
@@ -68,7 +68,7 @@ class MainApplication(tk.Tk):
         # Initial attributes
         self.title(config.TITLE)
         self.geometry(config.SIZE)
-        self.iconbitmap(config.LOGOICO)
+        if not self.testing: self.iconbitmap(config.LOGOICO) # doesnt run on github actions
 
         # DB Setup
         setup_db(reset_database=True)
