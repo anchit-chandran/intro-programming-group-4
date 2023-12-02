@@ -51,6 +51,17 @@ class BaseView(tk.Frame):
         self.master.switch_to_view("camp_detail")
 
     def _handle_profile(self) -> None:
+        # Because this view conditionally renders things, we must ensure the state is clean
+
+        current_state = self.master.get_global_state()
+        self.master.set_global_state(
+            {
+                "user_id": current_state["user_id"],
+                "username": current_state["username"],
+                "is_admin": current_state["is_admin"],
+            }
+        )
+
         self.master.switch_to_view("profile")
 
     def _handle_messages(self) -> None:
@@ -109,8 +120,6 @@ class BaseView(tk.Frame):
                 column=3,
                 sticky="w",
             )
-
-
 
         self.profile_button = tk.Button(
             master=self.nav_container,
@@ -202,7 +211,7 @@ class BaseView(tk.Frame):
         data: list[list[str]],
         col_widths: list[int] = None,
         tree_name: str = "tree",
-        rowheight:int = None,
+        rowheight: int = None,
     ) -> None:
         """Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
 
@@ -217,11 +226,11 @@ class BaseView(tk.Frame):
             `rowheight` - if specifying different row height
         """
         # Add row height - thanks https://tkinter-snippets.com/ttk-treeview-change-row-height/
-        
+
         if rowheight:
             style = ttk.Style()
             style.configure("My.Treeview", rowheight=rowheight)
-        
+
             tree = ttk.Treeview(master=container, style="My.Treeview")
         else:
             tree = ttk.Treeview(master=container)
