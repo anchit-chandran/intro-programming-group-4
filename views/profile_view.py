@@ -181,7 +181,9 @@ class ProfileView(BaseView):
         self.campID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state if not getattr(self, "volunteer_editing_self", None) else 'disabled', # volunteers can't edit this
+            state=state
+            if not getattr(self, "volunteer_editing_self", None)
+            else "disabled",  # volunteers can't edit this
             text=tk.StringVar(value=campID),
         )
 
@@ -194,7 +196,9 @@ class ProfileView(BaseView):
         self.status_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state if not getattr(self, "volunteer_editing_self", None) else 'disabled', # volunteers can't edit this
+            state=state
+            if not getattr(self, "volunteer_editing_self", None)
+            else "disabled",  # volunteers can't edit this
             text=tk.StringVar(value=status_profile),
         )
 
@@ -242,7 +246,7 @@ class ProfileView(BaseView):
 
         self.sex_label = tk.Label(
             master=self.personal_info_label_container,
-            text="Gender",
+            text="Sex",
             width=20,
             anchor="w",
         )
@@ -609,12 +613,12 @@ class ProfileView(BaseView):
             submit_button_text = (
                 "Update" if self.should_render == "edit_volunteer" else "Add"
             )
-            self.edit_button = tk.Button(
+            self.edit_add_button = tk.Button(
                 master=self.button_container,
                 text=submit_button_text,
                 command=self.handle_edit_add_button_click,
             )
-            self.edit_button.grid(row=0, column=0)
+            self.edit_add_button.grid(row=0, column=0)
 
     def handle_edit_add_button_click(self):
         user_id_input = self.userID_entry.get()
@@ -631,6 +635,105 @@ class ProfileView(BaseView):
         emergency_contact_name_input = self.emergency_contact_name_entry.get()
         emergency_contact_number_input = self.emergency_contact_number_entry.get()
 
+        # Group vals for ease of validation
+        user_detail_values = [
+            user_id_input,
+            username_input,
+            camp_id_input,
+            status_input,
+        ]
+        personal_information_values = [
+            firstname_input,
+            lastname_input,
+            dob_input,
+            sex_input,
+            phone_input,
+            other_languages_input,
+            other_skills_input,
+            emergency_contact_name_input,
+            emergency_contact_number_input,
+        ]
+
+        all_values = []
+        all_values.extend(user_detail_values)
+        all_values.extend(personal_information_values)
+
+        # Error vars
+        self.form_errors = {
+            f"{field_name}": [] for field_name in self._get_all_field_names()
+        }
+        self.form_is_valid = True
+
+        # Mandatory fields
+        if not self._check_all_inputs_have_values(inputs_to_check=all_values):
+            self._handle_invalid_form()
+            return
+        
+        
+
+    def _render_error_msg_text(self) -> str:
+        """Gets a formatted error message string from self.form_errors"""
+        error_str = ""
+        for field, field_errors in self.form_errors.items():
+            if field_errors:
+                error_str += self._render_field_label_from_field_key(field)
+                for field_error in field_errors:
+                    error_str += f"\n\t{field_error}\n"
+                error_str += "\n\n"
+        return error_str
+
+    def _handle_invalid_form(self) -> None:
+        error_string = self._render_error_msg_text()
+        self.render_error_popup_window(title="Invalid Form", message=error_string)
+
+    def _render_field_label_from_field_key(self, field_key: str) -> str:
+        key_to_label_map = {
+            "user_id_input": "User ID",
+            "username_input": "Username",
+            "camp_id_input": "Camp ID",
+            "status_input": "Status",
+            "firstname_input": "First Name",
+            "lastname_input": "Last Name",
+            "dob_input": "Date of Birth",
+            "sex_input": "Sex",
+            "phone_input": "Phone Number",
+            "other_languages_input": "Other Languages",
+            "other_skills_input": "Other Skills",
+            "emergency_contact_name_input": "Emergency Contact Name",
+            "emergency_contact_number_input": "Emergency Contact Number",
+        }
+
+        return key_to_label_map[field_key]
+
+    def _check_all_inputs_have_values(self, inputs_to_check: list[str]) -> bool:
+        """Returns True if every inputs_to_check has a value"""
+        valid = True
+        for ix, inp in enumerate(inputs_to_check):
+            inp_stripped = inp.strip()
+            if not inp_stripped:
+                all_field_names = self._get_all_field_names()
+                self.form_errors[all_field_names[ix]].append("Field must have a value!")
+                valid = False
+                self.form_is_valid = False
+        return valid
+
     def _check_is_admin(self) -> bool:
         """Return true if admin"""
         return bool(self.master.get_global_state()["is_admin"])
+
+    def _get_all_field_names(self) -> list[str]:
+        return [
+            "user_id_input",
+            "username_input",
+            "camp_id_input",
+            "status_input",
+            "firstname_input",
+            "lastname_input",
+            "dob_input",
+            "sex_input",
+            "phone_input",
+            "other_languages_input",
+            "other_skills_input",
+            "emergency_contact_name_input",
+            "emergency_contact_number_input",
+        ]
