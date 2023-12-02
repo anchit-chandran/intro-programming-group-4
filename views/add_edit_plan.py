@@ -56,8 +56,22 @@ class AddEditPlanView(BaseView):
             font=(20),
         )
         self.header.pack(
-            side="left",
+            side="top",
         )
+        
+        # Instructions label
+        self.instructions_container = tk.LabelFrame(
+            master=self.header_container,
+            text="Instructions",
+        )
+        self.instructions_container.pack(side='bottom')
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="All fields are mandatory.\n\nStart Date must be a valid date, and in the future.\n\nCentral email must be a valid email in the general format: example@domain.com.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # FORM
         self.form_container = tk.Frame(

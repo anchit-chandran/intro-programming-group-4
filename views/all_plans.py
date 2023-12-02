@@ -38,7 +38,7 @@ class AllPlansView(BaseView):
         self.instructions_container.pack()
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.",
+            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.\n\nNOTE: Refugee Family count excludes those registered but not currently in the camp.",
             anchor="w",
             justify="left",
         )
@@ -221,7 +221,7 @@ class AllPlansView(BaseView):
         )
 
         n_refugees = run_query_get_rows(
-            f"SELECT COUNT(*) AS n_volunteers FROM RefugeeFamily WHERE camp_id IN {camp_ids}"
-        )[0].get("n_volunteers")
+            f"SELECT COUNT(*) AS n_families FROM RefugeeFamily WHERE camp_id IN {camp_ids} AND is_in_camp = 1"
+        )[0].get("n_families")
 
         return n_refugees
