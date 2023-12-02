@@ -44,16 +44,34 @@ class MessagesView(BaseView):
         )
         self.header.grid(
             row=0,
-            column=5,
+            column=0,
             pady=10,
         )
+
+        # Instructions label
+        self.instructions_container = tk.LabelFrame(
+            master=self.header_container,
+            text="Instructions",
+        )
+        self.instructions_container.grid(
+            row=1,
+            column=0,
+            sticky="w",
+        )
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="Below you can see your messages, separated by resolved and unresolved.\n\nYou can resolve / unresolve messages by selecting the message and pressing the appropriate button.\n\nNOTE: messages are sorted first by  Priority (highest priority at the top), then by most recently received.\n\n---Sending messages---\nYou can send message by clicking the 'New Message' button.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         self.new_msg_btn = tk.Button(
             master=self.header_container,
             text="New Message",
             command=self._handle_new_msg_click,
         )
-        self.new_msg_btn.grid(row=0, column=10, padx=10, pady=10, sticky="e")
+        self.new_msg_btn.grid(row=3, column=10, padx=10, pady=10, sticky="e")
 
         # Unresolved messages
         self.render_unresolved_messages(
