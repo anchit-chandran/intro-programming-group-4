@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import date
 
 user_data = [
     {
         "username": "admin",
         "password": "111",
-        "dob": datetime(1997, 10, 18),
+        "dob": date(1997, 10, 18),
         "sex": "M",
         "phone_number": "07777777777",
         "is_active": 1,
@@ -20,7 +20,7 @@ user_data = [
     {
         "username": "volunteer1",
         "password": "111",
-        "dob": datetime(1997, 10, 18),
+        "dob": date(1997, 10, 18),
         "sex": "Other",
         "phone_number": "07777777777",
         "is_active": 1,
@@ -36,7 +36,7 @@ user_data = [
     {
         "username": "volunteer2",
         "password": "111",
-        "dob": datetime(1997, 10, 18),
+        "dob": date(1997, 10, 18),
         "sex": "F",
         "phone_number": "07777777777",
         "is_active": 1,
@@ -52,7 +52,7 @@ user_data = [
     {
         "username": "volunteer3",
         "password": "111",
-        "dob": datetime(1997, 10, 18),
+        "dob": date(1997, 10, 18),
         "sex": "F",
         "phone_number": "07777777777",
         "is_active": 1,

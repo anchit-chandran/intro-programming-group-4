@@ -85,7 +85,7 @@ class ProfileView(BaseView):
         )
 
         # User profile variables
-        status_profile = ""
+        status_profile = "Active"
         firstname = ""
         lastname = ""
         sex = ""
@@ -95,9 +95,11 @@ class ProfileView(BaseView):
         emergency_contact_name = ""
         emergency_contact_number = ""
         campID = ""
-        DOB = ""
-        user_id, username = self._get_user_id_and_username_for_form()
+        dob_year = ""
+        dob_month = ""
+        dob_day = ""
 
+        user_id, username = self._get_user_id_and_username_for_form()
         if user_id:
             user_profile = run_query_get_rows(
                 f"SELECT * FROM User WHERE id = '{user_id}'"
@@ -113,7 +115,9 @@ class ProfileView(BaseView):
                 emergency_contact_name,
                 emergency_contact_number,
                 campID,
-                DOB,
+                dob_year,
+                dob_month,
+                dob_day,
             ) = self._get_user_profile_text(user_profile)
 
         # Section : User details (userID, campID, username, status)
@@ -269,24 +273,64 @@ class ProfileView(BaseView):
             text=lastname_text,
         )
 
+        self.dob_container = tk.Frame(
+            master=self.personal_info_label_container,
+        )
+
         self.dob_label = tk.Label(
             master=self.personal_info_label_container,
-            text="Date of birth",
+            text="Date of Birth",
             width=20,
             anchor="w",
         )
+
         # Set char length limit
-        dob_text = tk.StringVar(value=DOB)
-        dob_text.trace(
+        dob_year_text = tk.StringVar(value=dob_year or "YYYY")
+        dob_year_text.trace(
             "w",
-            lambda *args: self.set_character_limit(entry_text=dob_text, char_limit=10),
+            lambda *args: self.set_character_limit(
+                entry_text=dob_year_text, char_limit=4
+            ),
         )
-        self.dob_entry = tk.Entry(
-            master=self.personal_info_label_container,
-            width=70,
+        self.dob_year_entry = tk.Entry(
+            master=self.dob_container,
+            width=10,
+            text=dob_year_text,
             state=state,
-            text=dob_text,
         )
+        self.dob_year_entry.pack(anchor="w", side="left")
+
+        # Set char length limit
+        dob_month_text = tk.StringVar(value=dob_month or "MM")
+        dob_month_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=dob_month_text, char_limit=2
+            ),
+        )
+        self.dob_month_entry = tk.Entry(
+            master=self.dob_container,
+            width=5,
+            text=dob_month_text,
+            state=state,
+        )
+        self.dob_month_entry.pack(anchor="w", side="left", padx=5)
+
+        # Set char length limit
+        dob_day_text = tk.StringVar(value=dob_day or "DD")
+        dob_day_text.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=dob_day_text, char_limit=2
+            ),
+        )
+        self.dob_day_entry = tk.Entry(
+            master=self.dob_container,
+            width=5,
+            text=dob_day_text,
+            state=state,
+        )
+        self.dob_day_entry.pack(anchor="w", side="left", padx=5)
 
         self.sex_label = tk.Label(
             master=self.personal_info_label_container,
@@ -295,7 +339,6 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
-        
         if self.should_render in ["view_volunteer", "own_profile"]:
             sex_text = tk.StringVar(value=sex)
             self.sex_entry = tk.Entry(
@@ -308,12 +351,14 @@ class ProfileView(BaseView):
             self.sex_entry = ttk.Combobox(
                 master=self.personal_info_label_container,
                 width=6,
-                state='readonly',
+                state="readonly",
             )
             self.sex_entry["values"] = config.SEX_VALUES
-            if sex == '':
+            if sex == "":
                 sex = None
-            self.sex_entry.current(config.SEX_VALUES.index(sex) if sex else 1) # If no sex, val will be None
+            self.sex_entry.current(
+                config.SEX_VALUES.index(sex) if sex else 1
+            )  # If no sex, val will be None
 
         self.phone_label = tk.Label(
             master=self.personal_info_label_container,
@@ -488,20 +533,13 @@ class ProfileView(BaseView):
             row=2,
             column=0,
         )
-        self.dob_entry.grid(
-            row=2,
-            column=1,
-        )
+        self.dob_container.grid(row=2, column=1, sticky="w")
 
         self.sex_label.grid(
             row=3,
             column=0,
         )
-        self.sex_entry.grid(
-            row=3,
-            column=1,
-            sticky='w'
-        )
+        self.sex_entry.grid(row=3, column=1, sticky="w")
 
         self.phone_label.grid(
             row=4,
@@ -630,7 +668,7 @@ class ProfileView(BaseView):
         lastname = user_profile.get("last_name") or "No information provided"
 
         sex = user_profile.get("sex") or None
-        
+
         phone = user_profile.get("phone_number")
         if phone is None:
             phone = "No information provided"
@@ -649,11 +687,8 @@ class ProfileView(BaseView):
         campID = user_profile.get("camp_id")
         if campID is None:
             campID = "-"
-        DOB = user_profile.get("dob")
-        if DOB is None:
-            DOB = "No information provided"
-        else:
-            DOB, DOB_time = DOB.split(" ")
+
+        dob_year, dob_month, dob_day = user_profile.get("dob").split("-")
 
         return (
             is_active,
@@ -666,7 +701,9 @@ class ProfileView(BaseView):
             emergency_contact_name,
             emergency_contact_number,
             campID,
-            DOB,
+            dob_year,
+            dob_month,
+            dob_day,
         )
 
     def _conditional_render_action_buttons(self, container) -> None:
@@ -714,7 +751,12 @@ class ProfileView(BaseView):
         status_input = self.status_entry.get()
         firstname_input = self.firstname_entry.get()
         lastname_input = self.lastname_entry.get()
-        dob_input = self.dob_entry.get()
+        dob_year_input, dob_month_input, dob_day_input = (
+            self.dob_year_entry.get(),
+            self.dob_month_entry.get(),
+            self.dob_day_entry.get(),
+        )
+        dob_input = f'{dob_year_input}-{dob_month_input}-{dob_day_input}'
         sex_input = self.sex_entry.get()
         phone_input = self.phone_entry.get()
         other_languages_input = self.other_languages_entry.get()
@@ -774,6 +816,7 @@ class ProfileView(BaseView):
         self.render_error_popup_window(title="Invalid Form", message=error_string)
 
     def _render_field_label_from_field_key(self, field_key: str) -> str:
+        
         key_to_label_map = {
             "user_id_input": "User ID",
             "username_input": "Username",
@@ -797,6 +840,9 @@ class ProfileView(BaseView):
         valid = True
         for ix, inp in enumerate(inputs_to_check):
             inp_stripped = inp.strip()
+            if ix == 6: 
+                inp_stripped = inp_stripped.replace('-','') # dob
+                
             if not inp_stripped:
                 all_field_names = self._get_all_field_names()
                 self.form_errors[all_field_names[ix]].append("Field must have a value!")

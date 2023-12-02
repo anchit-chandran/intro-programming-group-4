@@ -45,12 +45,13 @@ class MainApplication(tk.Tk):
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
+                    'add_volunteer' : True,
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("all_volunteers")
+        self.switch_to_view("profile")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"

@@ -63,7 +63,7 @@ class CampDetailView(BaseView):
     def get_age(self, dob_str):
         """calculates volunteers age"""
         current_date = datetime.now()
-        dob = datetime.strptime(dob_str, "%Y-%m-%d %H:%M:%S")
+        dob = datetime.strptime(dob_str, "%Y-%m-%d")
         age = (
             current_date.year
             - dob.year
