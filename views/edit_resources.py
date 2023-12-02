@@ -26,6 +26,10 @@ class EditResourcesView(BaseView):
     def handle_add_resources_click(self) -> None:
         pass
     
+    def handle_back_click(self):
+        self.master.switch_to_view("plan_detail")
+    
+    
     def handle_submit_edit_click(self):
         """Handles submit edit button click
         Checks if all inputs are integers and updates database"""
@@ -44,8 +48,6 @@ class EditResourcesView(BaseView):
                 insert_query_with_values(query = f"UPDATE CampResources SET amount = ? WHERE camp_id = ? AND name = ?",
                                 values = (resourse_entry_values[i], self.camp_id, resourse_name_values[i],))
             messagebox.showinfo("Information", "Resources updated successfully.")
-
-
 
     def render_widgets(self) -> None:
         """Renders widgets for view"""
@@ -118,21 +120,25 @@ class EditResourcesView(BaseView):
         # Button to submit edit
         self.submit_edit_button = tk.Button(
             master=self.button_container,
-            width=30,
+            width=20,
             text="Submit edit",
-            fg="white",
-            bg="blue",
             command=self.handle_submit_edit_click,
         )
         
         # Button to add new type of resource
         self.add_resource_button = tk.Button(
             master=self.button_container,
-            width=30,
+            width=20,
             text="Add new resource type",
-            fg="black",
-            bg="grey",
             command=self.handle_add_resources_click,
+        ) 
+                
+        # Button to go back
+        self.back_button = tk.Button(
+            master=self.button_container,
+            width=20,
+            text="Back",
+            command=self.handle_back_click,
         ) 
  
             
@@ -141,7 +147,8 @@ class EditResourcesView(BaseView):
         self.button_container.pack(pady=15, fill="both", expand=True, side="bottom") 
         
         self.add_resource_button.grid(row=0, column=0,)
-        self.submit_edit_button.grid(row=0, column=2,)
+        self.submit_edit_button.grid(row=0, column=1,)
+        self.back_button.grid(row=0, column=2,)
 
             
 ##         resources_length = len(camp_resources)
