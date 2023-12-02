@@ -96,7 +96,7 @@ class ProfileView(BaseView):
         skills = ""
         emergency_contact_name = ""
         emergency_contact_number = ""
-        campID = ""
+        camp_label = ""
         dob_year = ""
         dob_month = ""
         dob_day = ""
@@ -116,13 +116,14 @@ class ProfileView(BaseView):
                 skills,
                 emergency_contact_name,
                 emergency_contact_number,
-                campID,
+                camp_label,
                 dob_year,
                 dob_month,
                 dob_day,
             ) = self._get_user_profile_text(user_profile)
 
-        # Section : User details (userID, campID, username, status)
+        
+        # Section : User details (userID, camp_label, username, status)
         self.user_details_label_container = tk.LabelFrame(
             master=self.container,
             text="User Details*",
@@ -210,21 +211,14 @@ class ProfileView(BaseView):
                 textvariable=username_text,
             )
 
-        self.campID_label = tk.Label(
+        self.camp_label = tk.Label(
             master=self.user_details_label_container,
             text="Camp",
             width=10,
         )
 
-        camp_id_text = tk.StringVar(value=campID)
-        # Set char length limit
-        camp_id_text.trace(
-            "w",
-            lambda *args: self.set_character_limit(
-                entry_text=camp_id_text, char_limit=self.MAX_CHAR_LEN_IDs
-            ),
-        )
-
+        camp_label_text = tk.StringVar(value=camp_label)
+        
         # Add volunteer / admin editing volunteer
         if self.should_render in ["add_volunteer", "edit_volunteer"] and not getattr(
             self, "volunteer_editing_self", None
@@ -237,10 +231,10 @@ class ProfileView(BaseView):
             self.camp_entry["values"] = self.get_all_camp_labels()
 
             dropdown_idx = 0
-            logging.debug(campID)
-            if campID:
-                logging.debug(f"Getting idx for {campID=}")
-                dropdown_idx = self._find_dropdown_idx_for_camp_id(camp_id=campID)
+
+            if camp_label:
+                camp_id = self._get_camp_id_from_label(camp_label)
+                dropdown_idx = self._find_dropdown_idx_for_camp_id(camp_id=camp_id)
 
             self.camp_entry.current(dropdown_idx)
 
@@ -248,11 +242,11 @@ class ProfileView(BaseView):
         else:
             self.camp_entry = tk.Entry(
                 master=self.user_details_label_container,
-                width=10,
+                width=20,
                 state=state
                 if not getattr(self, "volunteer_editing_self", None)
                 else "disabled",  # volunteers can't edit this
-                text=camp_id_text,
+                text=camp_label_text,
             )
 
         self.status_label = tk.Label(
@@ -267,6 +261,24 @@ class ProfileView(BaseView):
             state="disabled",
             text=tk.StringVar(value=status_profile),
         )
+
+        if self.should_render == "add_volunteer":
+            self.password_label = tk.Label(
+                master=self.user_details_label_container, width=10, text="Password"
+            )
+            password_text = tk.StringVar()
+            # Set char length limit
+            password_text.trace(
+                "w",
+                lambda *args: self.set_character_limit(
+                    entry_text=password_text, char_limit=20
+                ),
+            )
+            self.password_entry = tk.Entry(
+                master=self.user_details_label_container,
+                width=20,
+                textvariable=password_text,
+            )
 
         self.firstname_label = tk.Label(
             master=self.personal_info_label_container,
@@ -531,7 +543,7 @@ class ProfileView(BaseView):
             column=3,
         )
 
-        self.campID_label.grid(
+        self.camp_label.grid(
             row=0,
             column=5,
         )
@@ -548,6 +560,17 @@ class ProfileView(BaseView):
             row=0,
             column=8,
         )
+
+        if self.should_render == "add_volunteer":
+            self.password_label.grid(
+                row=1,
+                column=2,
+            )
+            self.password_entry.grid(
+                row=1,
+                column=3,
+                pady=5,
+            )
 
         self.firstname_label.grid(
             row=0,
@@ -753,7 +776,10 @@ class ProfileView(BaseView):
         emergency_contact_number = user_profile.get("emergency_contact_number")
         if emergency_contact_number is None:
             emergency_contact_number = "No information provided"
+        
         campID = user_profile.get("camp_id")
+        camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp WHERE id={campID}")[0]
+        camp_label = f"CampID: {camp_data['id']} (PlanID: {camp_data['plan_id']})"
 
         dob_year, dob_month, dob_day = user_profile.get("dob").split("-")
 
@@ -767,7 +793,7 @@ class ProfileView(BaseView):
             skills,
             emergency_contact_name,
             emergency_contact_number,
-            campID,
+            camp_label,
             dob_year,
             dob_month,
             dob_day,
@@ -814,6 +840,9 @@ class ProfileView(BaseView):
     def handle_edit_add_button_click(self):
         user_id_input = self.userID_entry.get()
         username_input = self.username_entry.get()
+        password_input = None
+        if self.should_render == "add_volunteer":
+            password_input = self.password_entry.get()
         camp_id_input = self.camp_entry.get()
         status_input = self.status_entry.get()
         firstname_input = self.firstname_entry.get()
@@ -838,6 +867,7 @@ class ProfileView(BaseView):
             camp_id_input,
             status_input,
         ]
+
         personal_information_values = [
             firstname_input,
             lastname_input,
@@ -853,6 +883,8 @@ class ProfileView(BaseView):
         all_values = []
         all_values.extend(user_detail_values)
         all_values.extend(personal_information_values)
+        if password_input:
+            all_values.append(password_input)
 
         # Error vars
         self.form_errors = {
@@ -872,7 +904,13 @@ class ProfileView(BaseView):
                 self.form_errors["username_input"].append("Username not available")
                 self.form_is_valid = False
 
-        # camp_id_input TODO
+        # password_input
+        if self.should_render == 'add_volunteer':
+            if not self._is_password_valid(password=password_input):
+                self.form_errors["password_input"].append(
+                    "Password not strong enough! Must be:\n\t1) >8 chars\n\t2) Have >= 1 capital letter\n\t3) Have >=1 lowercase letter\n\t4) Have >=1 digit"
+                )
+                self.form_is_valid = False
 
         # dob_input
         if not self._is_dob_valid(dob=dob_input):
@@ -911,7 +949,9 @@ class ProfileView(BaseView):
         other_skills = all_values[10]
         emergency_contact_name = all_values[11]
         emergency_contact_number = all_values[12]
-
+        if self.should_render == 'add_volunteer':
+            password = all_values[13]
+        
         if self._is_username_available(username=username):
             logging.debug("Adding new user")
             insert_query_with_values(
@@ -950,7 +990,7 @@ class ProfileView(BaseView):
                   """,
                 values={
                     "username": username,
-                    "password": "",
+                    "password": password,
                     "dob": dob,
                     "sex": sex,
                     "phone_number": phone,
@@ -996,13 +1036,19 @@ class ProfileView(BaseView):
                     "skills": other_skills,
                     "emergency_contact_name": emergency_contact_name,
                     "emergency_contact_number": emergency_contact_number,
-                    "camp_id" : camp_id,
+                    "camp_id": camp_id,
                 },
             )
 
         logging.debug(f"Success!")
-
-        self.master.switch_to_view("all_volunteers")
+        
+        if self._check_is_admin():
+            next_view = 'all_volunteers'
+        else:
+            next_view = 'profile'
+        
+        self.master.switch_to_view(next_view)
+            
 
     def _is_dob_valid(self, dob: str):
         """dob in YYYY-MM-DD format"""
@@ -1010,7 +1056,6 @@ class ProfileView(BaseView):
             year, month, day = dob.split("-")
             date(year=int(year), month=int(month), day=int(day))
         except Exception as e:
-            logging.debug(f"Invalid DoB: {e}")
             return False
         return True
 
@@ -1048,6 +1093,7 @@ class ProfileView(BaseView):
     def _render_field_label_from_field_key(self, field_key: str) -> str:
         key_to_label_map = {
             "user_id_input": "User ID",
+            "password_input": "Password",
             "username_input": "Username",
             "camp_id_input": "Camp ID",
             "status_input": "Status",
@@ -1071,9 +1117,9 @@ class ProfileView(BaseView):
             inp_stripped = inp.strip()
             if ix == 6:
                 inp_stripped = inp_stripped.replace("-", "")  # dob
-
             if not inp_stripped:
                 all_field_names = self._get_all_field_names()
+
                 self.form_errors[all_field_names[ix]].append("Field must have a value!")
                 valid = False
                 self.form_is_valid = False
@@ -1083,8 +1129,31 @@ class ProfileView(BaseView):
         """Return true if admin"""
         return bool(self.master.get_global_state()["is_admin"])
 
+    def _is_password_valid(self, password: str) -> bool:
+        """Password checks include:
+
+        - at least 8 chars
+        - At least 1 capital
+        - At least 1 lowercase
+        - At least 1 number
+        """
+        match_capital = r"[A-Z]"
+        match_lowercase = r"[a-z]"
+        match_digit = r"\d"
+
+        found_capital = re.findall(match_capital, password)
+        found_lowercase = re.findall(match_lowercase, password)
+        found_digit = re.findall(match_digit, password)
+        longer_than_8 = len(password) > 8
+        pass_valid_checks = [found_capital, found_lowercase, found_digit, longer_than_8]
+
+        if all(pass_valid_checks):
+            return True
+
+        return False
+
     def _get_all_field_names(self) -> list[str]:
-        return [
+        base_fields = [
             "user_id_input",
             "username_input",
             "camp_entry_input",
@@ -1099,3 +1168,6 @@ class ProfileView(BaseView):
             "emergency_contact_name_input",
             "emergency_contact_number_input",
         ]
+        if self.should_render == "add_volunteer":
+            base_fields.append("password_input")
+        return base_fields
