@@ -211,7 +211,7 @@ class ProfileView(BaseView):
 
         self.campID_label = tk.Label(
             master=self.user_details_label_container,
-            text="Camp ID",
+            text="Camp",
             width=10,
         )
 
@@ -223,14 +223,34 @@ class ProfileView(BaseView):
                 entry_text=camp_id_text, char_limit=self.MAX_CHAR_LEN_IDs
             ),
         )
-        self.campID_entry = tk.Entry(
-            master=self.user_details_label_container,
-            width=10,
-            state=state
-            if not getattr(self, "volunteer_editing_self", None)
-            else "disabled",  # volunteers can't edit this
-            text=camp_id_text,
-        )
+
+        # Add volunteer / admin editing volunteer
+        if self.should_render in ["add_volunteer", "edit_volunteer"] and not getattr(
+            self, "volunteer_editing_self", None
+        ):
+            self.camp_entry = ttk.Combobox(
+                master=self.user_details_label_container,
+                width=25,
+                state="readonly",
+            )
+            self.camp_entry["values"] = self.get_all_camp_labels()
+
+            dropdown_idx = 0
+            if campID:
+                dropdown_idx = self._find_dropdown_idx_for_camp_id(camp_id=campID)
+
+            self.camp_entry.current(dropdown_idx)
+
+        # all other views
+        else:
+            self.camp_entry = tk.Entry(
+                master=self.user_details_label_container,
+                width=10,
+                state=state
+                if not getattr(self, "volunteer_editing_self", None)
+                else "disabled",  # volunteers can't edit this
+                text=camp_id_text,
+            )
 
         self.status_label = tk.Label(
             master=self.user_details_label_container,
@@ -512,7 +532,7 @@ class ProfileView(BaseView):
             row=0,
             column=5,
         )
-        self.campID_entry.grid(
+        self.camp_entry.grid(
             row=0,
             column=6,
         )
@@ -603,14 +623,36 @@ class ProfileView(BaseView):
 
         self._conditional_render_action_buttons(container=self.container)
 
-    def on_username_change(self,username_entry, index, mode)->None:
+    def _find_dropdown_idx_for_camp_id(self, camp_id) -> int:
+        """Finds dropdown idx for camps"""
+
+        labels = self.get_all_camp_labels()
+        camp_data = run_query_get_rows(
+            f"SELECT id, plan_id FROM Camp WHERE id={camp_id}"
+        )[0]
+
+        label_to_find = f"CampID: {camp_data['id']} (PlanID: {camp_data['plan_id']})"
+
+        return labels.index(label_to_find) + 1
+
+    def get_all_camp_labels(self) -> list[str]:
+        """Returns all camp labels in form ['Camp `ID` (PlanID: `id`)', ...,]"""
+        camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp")
+
+        labels = []
+        for camp in camp_data:
+            labels.append(f"CampID: {camp['id']} (PlanID: {camp['plan_id']})")
+
+        return labels
+
+    def on_username_change(self, username_entry, index, mode) -> None:
         """Dynamically updates username avail label if username available"""
         username_input = username_entry.get()
-        
+
         if self._is_username_available(username=username_input):
-            self.username_valid_stringvar.set('✅')
+            self.username_valid_stringvar.set("✅")
         else:
-            self.username_valid_stringvar.set('❌')
+            self.username_valid_stringvar.set("❌")
 
     def get_header_text(self) -> None:
         # Must handle:
@@ -771,7 +813,7 @@ class ProfileView(BaseView):
     def handle_edit_add_button_click(self):
         user_id_input = self.userID_entry.get()
         username_input = self.username_entry.get()
-        camp_id_input = self.campID_entry.get()
+        camp_id_input = self.camp_entry.get()
         status_input = self.status_entry.get()
         firstname_input = self.firstname_entry.get()
         lastname_input = self.lastname_entry.get()
@@ -1002,7 +1044,7 @@ class ProfileView(BaseView):
         return [
             "user_id_input",
             "username_input",
-            "camp_id_input",
+            "camp_entry_input",
             "status_input",
             "firstname_input",
             "lastname_input",
