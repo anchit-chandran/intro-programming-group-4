@@ -95,7 +95,7 @@ class ProfileView(BaseView):
         campID = ""
         DOB = ""
         user_id, username = self._get_user_id_and_username_for_form()
-        
+
         if user_id:
             user_profile = run_query_get_rows(
                 f"SELECT * FROM User WHERE id = '{user_id}'"
@@ -138,21 +138,22 @@ class ProfileView(BaseView):
             height=50,
         )
 
-
         # Set up - labels and entries
         self.userID_label = tk.Label(
             master=self.user_details_label_container,
             text="User ID",
             width=10,
         )
-        
+
         # DECIDE WHETHER ENTRIES SHOULD BE DISABLED
         state = self._should_entries_disable()
 
         self.userID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state,
+            state=state
+            if not getattr(self, "volunteer_editing_self", None)
+            else "disabled",  # volunteers can't edit this,
             textvariable=tk.StringVar(value=user_id),
         )
 
@@ -165,7 +166,9 @@ class ProfileView(BaseView):
         self.username_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state,
+            state=state
+            if not getattr(self, "volunteer_editing_self", None)
+            else "disabled",  # volunteers can't edit this
             textvariable=tk.StringVar(value=username),
         )
 
@@ -178,7 +181,7 @@ class ProfileView(BaseView):
         self.campID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state,
+            state=state if not getattr(self, "volunteer_editing_self", None) else 'disabled', # volunteers can't edit this
             text=tk.StringVar(value=campID),
         )
 
@@ -191,7 +194,7 @@ class ProfileView(BaseView):
         self.status_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state,
+            state=state if not getattr(self, "volunteer_editing_self", None) else 'disabled', # volunteers can't edit this
             text=tk.StringVar(value=status_profile),
         )
 
@@ -320,13 +323,11 @@ class ProfileView(BaseView):
             state=state,
             text=tk.StringVar(value=emergency_contact_number),
         )
-        
 
         # Add to grid
         self.user_details_label_container.pack(pady=(10, 20))
         self.personal_info_label_container.pack(pady=(10, 20))
         self.emergency_label_container.pack(pady=(10, 20))
-        
 
         self.userID_label.grid(
             row=0,
@@ -444,7 +445,7 @@ class ProfileView(BaseView):
             row=1,
             column=1,
         )
-        
+
         self._conditional_render_action_buttons(container=self.container)
 
     def get_header_text(self) -> None:
@@ -477,18 +478,18 @@ class ProfileView(BaseView):
         #     "view_volunteer" -> volunteer_id_to_view
 
         current_state = self.master.get_global_state()
-        
+
         if self.should_render == "view_volunteer":
             user_id = self.volunteer_id
         else:
-            user_id = current_state['user_id']
-            
+            user_id = current_state["user_id"]
+
         current_state["volunteer_id_to_edit"] = user_id
-        self.master.set_global_state(current_state)  
+        self.master.set_global_state(current_state)
 
         self.master.switch_to_view("profile")
 
-    def _get_user_id_and_username_for_form(self) -> tuple[int,str]:
+    def _get_user_id_and_username_for_form(self) -> tuple[int, str]:
         """Returns user id & username or None if adding"""
         # Must handle:
         #     "own_profile"
@@ -498,11 +499,11 @@ class ProfileView(BaseView):
 
         if self.should_render == "own_profile":
             current_state = self.master.get_global_state()
-            return current_state["user_id"], current_state['username']
+            return current_state["user_id"], current_state["username"]
 
         # Everything else will be stored in instance variable, except add_volunteer
         if getattr(self, "volunteer_id", None):
-            return self.volunteer_id, self.volunteer_data['username']
+            return self.volunteer_id, self.volunteer_data["username"]
         else:
             return None, None
 
@@ -512,14 +513,14 @@ class ProfileView(BaseView):
         #     "edit_volunteer"
         #     "view_volunteer"
         #     "add_volunteer"
-        if self.should_render in ['add_volunteer','edit_volunteer']:
+        if self.should_render in ["add_volunteer", "edit_volunteer"]:
             # Volunteer editing own profile should not be able to change User Details
             if self.should_render == "edit_volunteer" and not self._check_is_admin():
                 self.volunteer_editing_self = True
-            return 'normal'
+            return "normal"
         else:
-            return 'disabled'
-    
+            return "disabled"
+
     def _get_user_profile_text(self, user_profile) -> tuple:
         is_active = user_profile.get("is_active")
         if is_active == 1:
@@ -578,12 +579,12 @@ class ProfileView(BaseView):
         )
 
     def _conditional_render_action_buttons(self, container) -> None:
-         # Must handle:
+        # Must handle:
         #     "own_profile"
         #     "edit_volunteer"
         #     "view_volunteer"
         #     "add_volunteer"
-        if self.should_render in ['own_profile','view_volunteer']:
+        if self.should_render in ["own_profile", "view_volunteer"]:
             # Section: Button to edit
             self.button_container = tk.Frame(
                 master=container,
@@ -597,22 +598,24 @@ class ProfileView(BaseView):
                 command=self.handle_edit_click,
             )
             self.edit_button.grid(row=0, column=0)
-        
-        elif self.should_render in ["edit_volunteer","add_volunteer"]:
+
+        elif self.should_render in ["edit_volunteer", "add_volunteer"]:
             self.button_container = tk.Frame(
                 master=container,
                 width=50,
                 height=50,
             )
             self.button_container.pack(pady=(0, 20))
-            submit_button_text = "Update" if self.should_render == "edit_volunteer" else "Add"
+            submit_button_text = (
+                "Update" if self.should_render == "edit_volunteer" else "Add"
+            )
             self.edit_button = tk.Button(
                 master=self.button_container,
                 text=submit_button_text,
                 command=self.handle_edit_add_button_click,
             )
             self.edit_button.grid(row=0, column=0)
-    
+
     def handle_edit_add_button_click(self):
         user_id_input = self.userID_entry.get()
         username_input = self.username_entry.get()
@@ -627,7 +630,7 @@ class ProfileView(BaseView):
         other_skills_input = self.other_skills_entry.get()
         emergency_contact_name_input = self.emergency_contact_name_entry.get()
         emergency_contact_number_input = self.emergency_contact_number_entry.get()
-        
-    def _check_is_admin(self)->bool:
+
+    def _check_is_admin(self) -> bool:
         """Return true if admin"""
-        return bool(self.master.get_global_state()['is_admin'])
+        return bool(self.master.get_global_state()["is_admin"])
