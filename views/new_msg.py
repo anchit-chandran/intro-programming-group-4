@@ -36,6 +36,20 @@ class NewMessageView(BaseView):
             padx=30,
             pady=100,
         )
+        
+        # Instructions label
+        self.instructions_container = tk.LabelFrame(
+            master=self.container,
+            text="Instructions",
+        )
+        self.instructions_container.pack()
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="Please select to whom you would like to send the message and the urgency.\n\nMessages should be succinct, at most 40 characters.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         self.main_container = tk.LabelFrame(
             self.container, text="New Message", width=500, height=100
