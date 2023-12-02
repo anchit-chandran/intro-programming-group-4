@@ -123,7 +123,7 @@ class ProfileView(BaseView):
         # Section : User details (userID, campID, username, status)
         self.user_details_label_container = tk.LabelFrame(
             master=self.container,
-            text="User Details",
+            text="User Details*",
             width=400,
             height=50,
         )
@@ -131,7 +131,7 @@ class ProfileView(BaseView):
         # Section: Personal info (firstname, lastname, DOB, sex, phone...)
         self.personal_info_label_container = tk.LabelFrame(
             master=self.container,
-            text="Personal information",
+            text="Personal information*",
             width=400,
             height=100,
         )
@@ -139,7 +139,7 @@ class ProfileView(BaseView):
         # Section: Emergency contact
         self.emergency_label_container = tk.LabelFrame(
             master=self.container,
-            text="Emergency contact",
+            text="Emergency contact*",
             width=400,
             height=50,
         )
@@ -147,33 +147,24 @@ class ProfileView(BaseView):
         # Set up - labels and entries
         self.userID_label = tk.Label(
             master=self.user_details_label_container,
-            text="User ID*",
+            text="User ID",
             width=10,
         )
 
         # DECIDE WHETHER ENTRIES SHOULD BE DISABLED
         state = self._should_entries_disable()
-
-        user_id_text = tk.StringVar(value=user_id)
-        # Set char length limit
-        user_id_text.trace(
-            "w",
-            lambda *args: self.set_character_limit(
-                entry_text=user_id_text, char_limit=self.MAX_CHAR_LEN_IDs
-            ),
-        )
+        new_user_id = run_query_get_rows(f"SELECT MAX(id) FROM User")[0]['MAX(id)']+1
+        user_id_text = tk.StringVar(value=user_id or new_user_id)
         self.userID_entry = tk.Entry(
             master=self.user_details_label_container,
             width=10,
-            state=state
-            if not getattr(self, "volunteer_editing_self", None)
-            else "disabled",  # volunteers can't edit this,
+            state="disabled", 
             textvariable=user_id_text,
         )
 
         self.username_label = tk.Label(
             master=self.user_details_label_container,
-            text=f"Username*",
+            text=f"Username",
             width=10,
         )
 
@@ -196,7 +187,7 @@ class ProfileView(BaseView):
 
         self.campID_label = tk.Label(
             master=self.user_details_label_container,
-            text="Camp ID*",
+            text="Camp ID",
             width=10,
         )
 
@@ -797,7 +788,23 @@ class ProfileView(BaseView):
         if not self._check_all_inputs_have_values(inputs_to_check=all_values):
             self._handle_invalid_form()
             return
-
+        
+        # SPECIFIC VALIDATION
+        # user_id_input
+        
+        # username_input
+        # camp_id_input
+        # status_input
+        # firstname_input
+        # lastname_input
+        # dob_input
+        # sex_input
+        # phone_input
+        # other_languages_input
+        # other_skills_input
+        # emergency_contact_name_input
+        emergency_contact_number_input
+        
         logging.debug(all_values)
 
     def _render_error_msg_text(self) -> str:
