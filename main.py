@@ -28,6 +28,7 @@ class MainApplication(tk.Tk):
             "profile": ProfileView,  # gets user_id from global state if editing self, volunteer_id_to_edit if editing volunteer, add_volunteer if adding volunteer, volunteer_id_to_view if viewing volunteer
             "new_msg": NewMessageView,
             "edit_resources": EditResourcesView,  # Needs camp_id_for_resources in global state,
+            "new_resource": NewResourceView,  # Needs camp_id_for_resources in global state,
             "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add
             "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
