@@ -29,6 +29,20 @@ class AllPlansView(BaseView):
         self.container.pack(
             pady=10,
         )
+        
+        # Instructions label
+        self.instructions_container = tk.LabelFrame(
+            master=self.container,
+            text="Instructions",
+        )
+        self.instructions_container.pack()
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # Header
         self.header_container = tk.Frame(self.container)
