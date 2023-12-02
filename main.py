@@ -22,11 +22,10 @@ class MainApplication(tk.Tk):
             "all_plans": AllPlansView,
             "add_edit_plan": AddEditPlanView,  # Needs plan_id_to_edit if edit in global state
             "add_edit_camp": AddEditCampView,  # Needs plan_id_for_camp if adding; camp_id_to_edit if edit
-            "add_edit_user_profile": AddEditUserProfileView,  # gets user_id from global state if editing
             "camp_detail": CampDetailView,  # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
-            "profile": ProfileView,
+            "profile": ProfileView,  # gets user_id from global state if editing self, volunteer_id_to_edit if editing volunteer, add_volunteer if adding volunteer, volunteer_id_to_view if viewing volunteer
             "new_msg": NewMessageView,
             "edit_resources": EditResourcesView,  # Needs camp_id_for_resources in global state,
             "new_resource": NewResourceView,  # Needs camp_id_for_resources in global state,
@@ -44,16 +43,15 @@ class MainApplication(tk.Tk):
         if self.DEBUG:
             self.set_global_state(
                 {
-                    "user_id": 1,
-                    "username": "admin",
-                    "is_admin": 1,
-                    'plan_id_to_view' : 1,
+                    "user_id": 2,
+                    "username": "volunteer1",
+                    "is_admin": 0,
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("plan_detail")
+        self.switch_to_view("profile")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -70,6 +68,7 @@ class MainApplication(tk.Tk):
         # Initial attributes
         self.title(config.TITLE)
         self.geometry(config.SIZE)
+        self.iconbitmap(config.LOGOICO)
 
         # DB Setup
         setup_db(reset_database=True)
