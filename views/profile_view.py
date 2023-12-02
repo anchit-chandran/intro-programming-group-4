@@ -6,7 +6,7 @@ from datetime import date
 
 # Project imports
 from constants import config
-from utilities.db import run_query_get_rows
+from utilities.db import run_query_get_rows, insert_query_with_values
 from views.base import BaseView
 from constants import config
 
@@ -177,12 +177,37 @@ class ProfileView(BaseView):
                 entry_text=username_text, char_limit=15
             ),
         )
-        self.username_entry = tk.Entry(
-            master=self.user_details_label_container,
-            width=20,
-            state="disabled" if not self.should_render == "add_volunteer" else "normal",
-            textvariable=username_text,
-        )
+
+        if self.should_render == "add_volunteer":
+            self.username_entry = tk.Entry(
+                master=self.user_details_label_container,
+                width=20,
+                state="normal",
+                textvariable=username_text,
+            )
+            username_text.trace_add(
+                "write",
+                lambda name, index, mode: self.on_username_change(
+                    self.username_entry, index, mode
+                ),
+            )
+            self.username_valid_stringvar = tk.StringVar(value="⌚")
+            self.username_valid_label = tk.Label(
+                master=self.user_details_label_container,
+                textvariable=self.username_valid_stringvar,
+                state="disabled",
+            )
+            self.username_valid_label.grid(
+                row=0,
+                column=4,
+            )
+        else:
+            self.username_entry = tk.Entry(
+                master=self.user_details_label_container,
+                width=20,
+                state="disabled",
+                textvariable=username_text,
+            )
 
         self.campID_label = tk.Label(
             master=self.user_details_label_container,
@@ -485,20 +510,20 @@ class ProfileView(BaseView):
 
         self.campID_label.grid(
             row=0,
-            column=4,
+            column=5,
         )
         self.campID_entry.grid(
             row=0,
-            column=5,
+            column=6,
         )
 
         self.status_label.grid(
             row=0,
-            column=6,
+            column=7,
         )
         self.status_entry.grid(
             row=0,
-            column=7,
+            column=8,
         )
 
         self.firstname_label.grid(
@@ -577,6 +602,15 @@ class ProfileView(BaseView):
         )
 
         self._conditional_render_action_buttons(container=self.container)
+
+    def on_username_change(self,username_entry, index, mode)->None:
+        """Dynamically updates username avail label if username available"""
+        username_input = username_entry.get()
+        
+        if self._is_username_available(username=username_input):
+            self.username_valid_stringvar.set('✅')
+        else:
+            self.username_valid_stringvar.set('❌')
 
     def get_header_text(self) -> None:
         # Must handle:
@@ -784,15 +818,13 @@ class ProfileView(BaseView):
         self.form_is_valid = True
 
         # Mandatory fields
-        if not self._check_all_inputs_have_values(inputs_to_check=all_values):
-            self._handle_invalid_form()
-            return
+        self._check_all_inputs_have_values(inputs_to_check=all_values)
 
         # SPECIFIC VALIDATION
 
         # username_input
         # if editing, username will always be valid
-        if self.should_render != 'edit_volunteer':
+        if self.should_render != "edit_volunteer":
             if not self._is_username_available(username=username_input):
                 self.form_errors["username_input"].append("Username not available")
                 self.form_is_valid = False
@@ -808,18 +840,84 @@ class ProfileView(BaseView):
             if not self._is_dob_in_past(dob=dob_input):
                 self.form_errors["dob_input"].append("Date of birth must be in past!")
                 self.form_is_valid = False
-        
-        # sex_input
-        # phone_input
-        # other_languages_input
-        # other_skills_input
-        # emergency_contact_name_input
-        # emergency_contact_number_input
 
-        logging.debug(all_values, self.form_errors)
         if not self.form_is_valid:
             self._handle_invalid_form()
             return
+
+        # VALID FORM
+        self._handle_valid_form(all_values=all_values)
+
+    def _handle_valid_form(self, all_values: list[str]) -> None:
+        """Inserts values, change screen"""
+        logging.debug(f"Inserting {all_values}")
+        username = all_values[1]
+        camp_id = all_values[2]
+        status = all_values[3]
+        firstname = all_values[4]
+        lastname = all_values[5]
+        dob = all_values[6]
+        sex = all_values[7]
+        phone = all_values[8]
+        other_languages = all_values[9]
+        other_skills = all_values[10]
+        emergency_contact_name = all_values[11]
+        emergency_contact_number = all_values[12]
+
+        insert_query_with_values(
+            query="""INSERT INTO User 
+                  (
+                        username,
+                        password,
+                        dob,
+                        sex,
+                        phone_number,
+                        is_active,
+                        is_admin,
+                        first_name,
+                        last_name,
+                        languages_spoken,
+                        skills,
+                        emergency_contact_name,
+                        emergency_contact_number,
+                        camp_id
+                      ) VALUES (
+                        :username,
+                        :password,
+                        :dob,
+                        :sex,
+                        :phone_number,
+                        :is_active,
+                        :is_admin,
+                        :first_name,
+                        :last_name,
+                        :languages_spoken,
+                        :skills,
+                        :emergency_contact_name,
+                        :emergency_contact_number,
+                        :camp_id
+                  );
+                  """,
+            values={
+                "username": username,
+                "password": "",
+                "dob": dob,
+                "sex": sex,
+                "phone_number": phone,
+                "is_active": status,
+                "is_admin": 0,
+                "first_name": firstname,
+                "last_name": lastname,
+                "languages_spoken": other_languages,
+                "skills": other_skills,
+                "emergency_contact_name": emergency_contact_name,
+                "emergency_contact_number": emergency_contact_number,
+                "camp_id": camp_id,
+            },
+        )
+        logging.debug(f"Success!")
+
+        self.master.switch_to_view("all_volunteers")
 
     def _is_dob_valid(self, dob: str):
         """dob in YYYY-MM-DD format"""
@@ -841,7 +939,11 @@ class ProfileView(BaseView):
         return dob < date.today()
 
     def _is_username_available(self, username: str) -> bool:
-        return not run_query_get_rows(f"SELECT * FROM User WHERE username='{username}'")
+        return not len(
+            run_query_get_rows(
+                f"SELECT * FROM User WHERE username='{username.strip()}'"
+            )
+        )
 
     def _render_error_msg_text(self) -> str:
         """Gets a formatted error message string from self.form_errors"""
