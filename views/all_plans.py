@@ -33,7 +33,7 @@ class AllPlansView(BaseView):
         # Instructions label
         self.instructions_container = tk.LabelFrame(
             master=self.container,
-            text="Instructions",
+            text="Instructions for All Plans View",
         )
         self.instructions_container.pack()
         self.instructions_label = tk.Label(

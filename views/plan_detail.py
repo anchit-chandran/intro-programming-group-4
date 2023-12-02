@@ -33,45 +33,45 @@ class PlanDetailView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=1200,
-            height=300,
         )
         self.container.pack(
             fill="both",
-            padx=10,
-            pady=100,
         )
 
-        self.header_label = tk.Label(
+        # Instructions label
+        self.instructions_container = tk.LabelFrame(
             master=self.container,
-            text=f"DETAILS FOR {self.plan_title.upper()}",
-            font=(60),
+            text="Instructions for Plan Detail View",
         )
-        self.header_label.grid(row=0, column=0, columnspan=2)
+        self.instructions_container.grid(row=0, column=0, sticky="n", padx=10)
+
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # PLAN INFORMATION
         self.info_container = tk.Frame(
             master=self.container,
-            width=1000,
-            height=300,
         )
         self.info_frame = tk.LabelFrame(
             master=self.info_container,
             text="Information",
             padx=10,
-            pady=10,
         )
         self.total_resources_frame = tk.LabelFrame(
             master=self.info_container,
-            text="Primary Resources",
+            text="Total Plan Resources",
             padx=10,
-            pady=10,
         )
 
         # PLAN INFORMATION
         self.info_container.grid(
-            row=1,
-            column=0,
+            row=0,
+            column=1,
         )
         self.info_frame.pack(
             side="left",
@@ -91,19 +91,14 @@ class PlanDetailView(BaseView):
         self.camps_frame = tk.Frame(
             master=self.container,
         )
-        self.camps_frame.grid(
-            row=2,
-            column=0,
-            columnspan=2,
-            pady=25,
-        )
+        self.camps_frame.grid(row=1, column=0, sticky="n")
 
         self.render_camp_action_buttons(container=self.camps_frame)
 
         self.all_camps_container = tk.Frame(
             master=self.container,
         )
-        self.all_camps_container.grid(row=3, column=0, pady=5)
+        self.all_camps_container.grid(row=3, column=0, pady=5, columnspan=2)
         self.render_all_camps(container=self.all_camps_container)
 
     def render_camp_action_buttons(self, container) -> None:
