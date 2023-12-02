@@ -12,3 +12,4 @@ LIGHTGREY = '#969393'
 # USER STATUS
 ACTIVE = 'Active'
 INACTIVE = 'Deactivated'
+SEX_VALUES = ('M','F','Other')

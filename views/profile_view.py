@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 from constants import config
@@ -294,12 +295,25 @@ class ProfileView(BaseView):
             anchor="w",
         )
 
-        self.sex_entry = tk.Entry(
-            master=self.personal_info_label_container,
-            width=70,
-            state=state,
-            text=tk.StringVar(value=sex),
-        )
+        
+        if self.should_render in ["view_volunteer", "own_profile"]:
+            sex_text = tk.StringVar(value=sex)
+            self.sex_entry = tk.Entry(
+                master=self.personal_info_label_container,
+                width=70,
+                state=state,
+                text=sex_text,
+            )
+        else:
+            self.sex_entry = ttk.Combobox(
+                master=self.personal_info_label_container,
+                width=6,
+                state='readonly',
+            )
+            self.sex_entry["values"] = config.SEX_VALUES
+            if sex == '':
+                sex = None
+            self.sex_entry.current(config.SEX_VALUES.index(sex) if sex else 1) # If no sex, val will be None
 
         self.phone_label = tk.Label(
             master=self.personal_info_label_container,
@@ -486,6 +500,7 @@ class ProfileView(BaseView):
         self.sex_entry.grid(
             row=3,
             column=1,
+            sticky='w'
         )
 
         self.phone_label.grid(
@@ -614,13 +629,8 @@ class ProfileView(BaseView):
         firstname = user_profile.get("first_name") or "No information provided"
         lastname = user_profile.get("last_name") or "No information provided"
 
-        sex = user_profile.get("sex")
-        if sex is None:
-            sex = "No information provided"
-        elif sex == "F":
-            sex = "Female"
-        elif sex == "M":
-            sex = "Male"
+        sex = user_profile.get("sex") or None
+        
         phone = user_profile.get("phone_number")
         if phone is None:
             phone = "No information provided"
@@ -745,6 +755,8 @@ class ProfileView(BaseView):
         if not self._check_all_inputs_have_values(inputs_to_check=all_values):
             self._handle_invalid_form()
             return
+
+        logging.debug(all_values)
 
     def _render_error_msg_text(self) -> str:
         """Gets a formatted error message string from self.form_errors"""
