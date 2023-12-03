@@ -287,6 +287,12 @@ class MissingPeopleView(BaseView):
 
         self.search_button.grid(row=20, column=0, columnspan=2)
 
+    def _convert_camp_id_to_label(self, camp_id:int)->str:
+        """Converts Camp id to form '`Name`' (ID:`id`)"""
+        name = run_query_get_rows(f"""SELECT name FROM Camp WHERE id={camp_id}""")[0]['name']
+        
+        return f'{name} (ID:{camp_id})'
+    
     def get_all_camp_labels(self) -> list[str]:
         """Returns all camp labels in form ['Camp `ID` (PlanID: `id`)', ...,]"""
         camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp")
@@ -357,6 +363,10 @@ class MissingPeopleView(BaseView):
         search_results_raw = run_query_get_rows(search_query)
         self.search_results = [list(result.values()) for result in search_results_raw]
         logging.debug(f"RESULTS: {self.search_results}")
+        
+        # Convert campid to label
+        for row in self.search_results:
+            row[-1] = self._convert_camp_id_to_label(row[-1])
 
         # Delete current tree
         for row in self.tree.get_children():
