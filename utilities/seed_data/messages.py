@@ -20,7 +20,7 @@ MESSAGES = [
 
 messages_data = []
 # Add 5 messages for admin
-for i in range(20):
+for i in range(30):
     sent_at = convert_to_sqlite3_datetime(
             datetime.now() - timedelta(minutes=(i * 60))
         )

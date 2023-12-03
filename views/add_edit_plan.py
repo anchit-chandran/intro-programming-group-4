@@ -1,9 +1,9 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import datetime
-import re
 
 # Project imports
 from constants import config
@@ -20,11 +20,11 @@ class AddEditPlanView(BaseView):
         # SET INSTANCE VARIABLES
         self.MAX_CHAR_LEN = 20
 
-        self.edit_plan_name = self.master.GLOBAL_STATE.get("plan_name_to_edit")
-        self.is_edit = bool(self.edit_plan_name)
+        self.edit_plan_id = self.master.GLOBAL_STATE.get("plan_id_to_edit")
+        self.is_edit = bool(self.edit_plan_id)
         if self.is_edit:
             self.edit_plan_details = run_query_get_rows(
-                f"SELECT * FROM Plan WHERE title = '{self.edit_plan_name}'"
+                f"SELECT * FROM Plan WHERE id = {self.edit_plan_id}"
             )[0]
 
         self.render_widgets()
@@ -56,8 +56,22 @@ class AddEditPlanView(BaseView):
             font=(20),
         )
         self.header.pack(
-            side="left",
+            side="top",
         )
+        
+        # Instructions label
+        self.instructions_container = ttk.LabelFrame(
+            master=self.header_container,
+            text="Instructions",
+        )
+        self.instructions_container.pack(side='bottom')
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="All fields are mandatory.\n\nStart Date must be a valid date, and in the future.\n\nCentral email must be a valid email in the general format: example@domain.com.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # FORM
         self.form_container = tk.Frame(
@@ -716,5 +730,5 @@ class AddEditPlanView(BaseView):
                                  """,
             values={"id": self.edit_plan_details["id"]},
         )
-        
-        self.master.switch_to_view('all_plans')
+
+        self.master.switch_to_view("all_plans")

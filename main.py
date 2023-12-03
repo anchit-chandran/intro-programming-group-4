@@ -12,23 +12,23 @@ from utilities.db import setup_db, run_query_get_rows
 class MainApplication(tk.Tk):
     def __init__(self, testing: bool = False):
         super().__init__()
-
+        self.testing = testing
         # Initial setup
         self._initial_setup()
         self.GLOBAL_STATE = {}
         self.view_map = {
             "login": LoginView,
-            "plan_detail": PlanDetailView, # Needs plan_name in global state
+            "plan_detail": PlanDetailView,  # Needs plan_id_to_view in global state
             "all_plans": AllPlansView,
-            "add_edit_plan": AddEditPlanView, # Needs plan_name_to_edit if edit in global state
-            "add_edit_camp": AddEditCampView, # Needs plan_id_for_camp if adding; camp_id_to_edit if edit
-            "add_edit_user_profile": AddEditUserProfileView, # gets user_id from global state if editing
-            "camp_detail": CampDetailView, # Needs camp_id_to_view in global state
+            "add_edit_plan": AddEditPlanView,  # Needs plan_id_to_edit if edit in global state
+            "add_edit_camp": AddEditCampView,  # Needs plan_id_for_camp if adding; camp_id_to_edit if edit
+            "camp_detail": CampDetailView,  # Needs camp_id_to_view in global state
             "all_volunteers": AllVolunteersView,
             "messages": MessagesView,
-            "profile": ProfileView,
+            "profile": ProfileView,  # gets user_id from global state if editing self, volunteer_id_to_edit if editing volunteer, add_volunteer if adding volunteer, volunteer_id_to_view if viewing volunteer
             "new_msg": NewMessageView,
             "edit_resources": EditResourcesView,  # Needs camp_id_for_resources in global state,
+            "new_resource": NewResourceView,  # Needs camp_id_for_resources in global state,
             "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add
             "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
@@ -46,13 +46,14 @@ class MainApplication(tk.Tk):
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
-                    "plan_name": "Plan 0",
+                    'plan_id_to_view':1,
+                    'camp_id_to_view' : 1,
                 }
             )
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("all_plans")
+        self.switch_to_view("camp_detail")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -68,7 +69,9 @@ class MainApplication(tk.Tk):
     def _initial_setup(self) -> None:
         # Initial attributes
         self.title(config.TITLE)
-        self.geometry(config.SIZE)
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}") # thanks https://stackoverflow.com/questions/54296506/how-to-show-minimize-and-maximize-buttons-tkinter
+        if not self.testing: self.iconbitmap(config.LOGOICO) # doesnt run on github actions
+        # self.attributes('-fullscreen', True)
 
         # DB Setup
         setup_db(reset_database=True)
@@ -110,7 +113,9 @@ class MainApplication(tk.Tk):
 
     def refresh_view(self) -> None:
         """Reloads the current view"""
-        logging.info(f"Refreshing view: {self.current_view}. Current_state: {self.get_global_state()}")
+        logging.info(
+            f"Refreshing view: {self.current_view}. Current_state: {self.get_global_state()}"
+        )
         self.switch_to_view(self.reverse_view_map[self.current_view.__class__])
 
 
