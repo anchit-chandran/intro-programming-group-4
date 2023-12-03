@@ -4,8 +4,7 @@
 
 import logging
 import tkinter as tk
-import datetime
-import re
+from tkinter import ttk
 
 # Project imports
 from views.base import BaseView
@@ -56,8 +55,30 @@ class AddEditCampView(BaseView):
             master=self.header_container, text=self.header_text, font=(30)
         )
         self.header.pack(
-            side="left",
+            side="top",
         )
+        
+        # Instructions label
+        self.instructions_container = ttk.LabelFrame(
+            master=self.header_container,
+            text="Instructions",
+        )
+        self.instructions_container.pack(side='bottom')
+        
+        # editing
+        if self.camp_id:
+            text = "You can edit details for this Camp below.\n\nNOTE: max capacity cannot be set to lower than the current capacity."
+        # adding new camp
+        else:
+            text = "You can create a Camp below by filling in all fields and pressing 'Add Camp'."
+
+        self.instructions_label = ttk.Label(
+            master=self.instructions_container,
+            text=text,
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # Making a form within self.container through ttk.Frame
         self.form_container = tk.Frame(
