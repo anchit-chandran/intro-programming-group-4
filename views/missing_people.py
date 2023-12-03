@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 import logging
+import re
 
 # Project imports
 from views.base import BaseView
@@ -28,12 +29,12 @@ class MissingPeopleView(BaseView):
             "medical_conditions",
             "is_in_camp",
             "camp_id",
-            "plan_id",
+
         ]
         # Get empty table for now
         self.search_results = [
-            ["" for _ in range(len(self.all_field_keys) - 1)],
-        ]  # TODO remove -1 once plan sorted
+            ["" for _ in range(len(self.all_field_keys))],
+        ]  
 
         self.render_widgets()
 
@@ -69,7 +70,7 @@ class MissingPeopleView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required.",
+            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.",
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -224,10 +225,14 @@ class MissingPeopleView(BaseView):
             anchor="w",
         )
 
-        self.camp_entry = tk.Entry(
-            master=container,
-            width=70,
-        )
+        # CAMP DROPDOWN
+        self.camp_entry = ttk.Combobox(
+                master=container,
+                width=25,
+                state="readonly",
+            )
+        self.camp_entry["values"] = self.get_all_camp_labels()
+        self.camp_entry.current(0)
 
         self.plan_label = tk.Label(
             master=container,
@@ -278,14 +283,22 @@ class MissingPeopleView(BaseView):
         self.is_in_camp_entry.grid(row=9, column=1)
 
         self.camp_label.grid(row=10, column=0)
-        self.camp_entry.grid(row=10, column=1)
-
-        self.plan_label.grid(row=11, column=0)
-        self.plan_entry.grid(row=11, column=1)
+        self.camp_entry.grid(row=10, column=1, sticky='w')
 
         self.search_button.grid(row=20, column=0, columnspan=2)
 
+    def get_all_camp_labels(self) -> list[str]:
+        """Returns all camp labels in form ['Camp `ID` (PlanID: `id`)', ...,]"""
+        camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp")
+
+        labels = [''] # start with empty label
+        for camp in camp_data:
+            labels.append(f"CampID: {camp['id']} (PlanID: {camp['plan_id']})")
+
+        return labels
+    
     def _render_results_fields(self, container, results: list[list[str]]):
+
         header_cols = [
             "RefugeeFamID",
             "Main Rep Name",
@@ -298,7 +311,6 @@ class MissingPeopleView(BaseView):
             "Medical Conditions",
             "Residing in Camp",
             "Camp",
-            # "Plan",
         ]
 
         self.render_tree_table(
@@ -316,9 +328,8 @@ class MissingPeopleView(BaseView):
 
         for field, val in fields_and_values.items():
             if val:
-                # TODO : actually do this
-                if field == "plan_id":
-                    continue
+                if field == 'camp_id':
+                    val = self._get_camp_id_from_label(val)
                 where_clauses.append(f"{field} LIKE '%{val}%'")
 
         where_joined = "\n AND ".join(where_clauses)
@@ -355,32 +366,41 @@ class MissingPeopleView(BaseView):
             self.tree.insert("", "end", values=result)
 
     def _handle_search_click(self) -> None:
-        refugee_family_id_input = self.refugee_family_id_entry.get()
-        main_rep_name_input = self.main_rep_name_entry.get()
-        main_rep_age_input = self.main_rep_age_entry.get()
-        main_rep_sex_input = self.main_rep_sex_entry.get()
-        main_rep_home_town_input = self.main_rep_home_town_entry.get()
-        n_adults_input = self.n_adults_entry.get()
-        n_children_input = self.n_children_entry.get()
-        n_missing_members_input = self.n_missing_members_entry.get()
-        medical_conditions_input = self.medical_conditions_entry.get()
-        is_in_camp_input = self.is_in_camp_entry.get()
-        camp_input = self.camp_entry.get()
-        plan_input = self.plan_entry.get()
+        try:
+            refugee_family_id_input = self.refugee_family_id_entry.get()
+            main_rep_name_input = self.main_rep_name_entry.get()
+            main_rep_age_input = self.main_rep_age_entry.get()
+            main_rep_sex_input = self.main_rep_sex_entry.get()
+            main_rep_home_town_input = self.main_rep_home_town_entry.get()
+            n_adults_input = self.n_adults_entry.get()
+            n_children_input = self.n_children_entry.get()
+            n_missing_members_input = self.n_missing_members_entry.get()
+            medical_conditions_input = self.medical_conditions_entry.get()
+            is_in_camp_input = self.is_in_camp_entry.get()
+            camp_input = self.camp_entry.get()
+        
+            
 
-        all_field_values = [
-            refugee_family_id_input,
-            main_rep_name_input,
-            main_rep_age_input,
-            main_rep_sex_input,
-            main_rep_home_town_input,
-            n_adults_input,
-            n_children_input,
-            n_missing_members_input,
-            medical_conditions_input,
-            is_in_camp_input,
-            camp_input,
-            plan_input,
-        ]
+            all_field_values = [
+                refugee_family_id_input,
+                main_rep_name_input,
+                main_rep_age_input,
+                main_rep_sex_input,
+                main_rep_home_town_input,
+                n_adults_input,
+                n_children_input,
+                n_missing_members_input,
+                medical_conditions_input,
+                is_in_camp_input,
+                camp_input,
+            ]
 
-        self.perform_search(all_field_values=all_field_values)
+            self.perform_search(all_field_values=all_field_values)
+        except Exception as e:
+            logging.debug(f'Something went wrong: {e}')
+            self.render_error_popup_window(message='Invalid input!')
+
+    def _get_camp_id_from_label(self, label: str) -> int:
+        """Returns camp id int from label, which is in format 'CampID: 2 (PlanID: 1)'"""
+        camp_id_str = re.search(pattern=r"(?<=CampID: )\d+", string=label).group(0)
+        return int(camp_id_str)
