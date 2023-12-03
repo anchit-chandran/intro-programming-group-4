@@ -421,7 +421,7 @@ class CampDetailView(BaseView):
 
     def render_selected_refugee_actions(self, container)->None:
         
-        action_frame = tk.LabelFrame(master=container, text="Selected Refugee amily Actions")
+        action_frame = tk.LabelFrame(master=container, text="Selected Refugee Family Actions")
         action_frame.pack(side='right')
         
         self.view_refugee_button  = ttk.Button(master=action_frame, text='👁️ View', command=lambda: self._handle_selected_refugee_actions_click('view'))
