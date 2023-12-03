@@ -15,7 +15,7 @@ for camp_id in range(1,len(camp_data)+1):
             "main_rep_name" : NAMES[i%len(NAMES)],
             "medical_conditions" : random.choice(MEDICAL_CONDITIONS),
             "n_adults" : random.randint(0,3),
-            "n_children" : random.randint(0,5),
+            "n_children" : i%3,
             "main_rep_home_town" : f"Town {camp_id}-{i}",
             "main_rep_age" : random.randint(18,90),
             "main_rep_sex" : random.randint(0,3),

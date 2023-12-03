@@ -107,6 +107,16 @@ class BaseView(tk.Frame):
                 column=2,
                 sticky="w",
             )
+            self.missing_people_button = tk.Button(
+                master=self.nav_container,
+                text="Search 🔍",
+                command=self._handle_missing_people_click,
+            )
+            self.missing_people_button.grid(
+                row=0,
+                column=3,
+                sticky="w",
+            )
 
         else:
             # volunteer buttons
@@ -191,6 +201,9 @@ class BaseView(tk.Frame):
         )
         self.user_text.pack(padx=5, pady=5)
 
+    def _handle_missing_people_click(self)->None:
+        self.master.switch_to_view('missing_people')
+    
     def set_character_limit(self, entry_text: tk.StringVar, char_limit: int) -> None:
         """Set character limit for entry_text (exclusive)
 
