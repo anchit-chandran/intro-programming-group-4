@@ -91,14 +91,14 @@ class PlanDetailView(BaseView):
         self.camps_frame = tk.Frame(
             master=self.container,
         )
-        self.camps_frame.grid(row=1, column=0, sticky="n")
+        self.camps_frame.grid(row=1, column=1, sticky="e")
 
         self.render_camp_action_buttons(container=self.camps_frame)
 
         self.all_camps_container = tk.Frame(
             master=self.container,
         )
-        self.all_camps_container.grid(row=3, column=0, pady=5, columnspan=2)
+        self.all_camps_container.grid(row=3, column=0, pady=5, columnspan=1)
         self.render_all_camps(container=self.all_camps_container)
 
     def render_camp_action_buttons(self, container) -> None:
@@ -107,19 +107,14 @@ class PlanDetailView(BaseView):
             text="Add Camp",
             command=lambda: self._handle_add_camp_click(),
         )
-        self.add_camp_button.pack(side="right", padx=30)
+        self.add_camp_button.pack(side="left", padx=30)
 
         self.selected_camp_actions_frame = tk.LabelFrame(
             container, text="Selected Camp Actions"
         )
-        self.selected_camp_actions_frame.pack(anchor="e", padx=10)
+        self.selected_camp_actions_frame.pack(anchor="w", padx=10)
 
-        self.edit_camp_button = tk.Button(
-            master=self.selected_camp_actions_frame,
-            text="Edit Selected Camp",
-            command=lambda: self._handle_selected_camp_actions_click("edit"),
-        )
-        self.edit_camp_button.pack(side="left", pady=5, padx=5)
+        
 
         self.view_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
@@ -127,6 +122,13 @@ class PlanDetailView(BaseView):
             command=lambda: self._handle_selected_camp_actions_click("view"),
         )
         self.view_camp_button.pack(side="left", pady=5, padx=5)
+        
+        self.edit_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="Edit Selected Camp",
+            command=lambda: self._handle_selected_camp_actions_click("edit"),
+        )
+        self.edit_camp_button.pack(side="left", pady=5, padx=5)
 
         self.resources_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,

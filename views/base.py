@@ -212,6 +212,8 @@ class BaseView(tk.Frame):
         col_widths: list[int] = None,
         tree_name: str = "tree",
         rowheight: int = None,
+        treeheight:int = None,
+        max_rows:int=10,
     ) -> None:
         """Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
 
@@ -219,21 +221,28 @@ class BaseView(tk.Frame):
 
         Parameters
             `container` - the master container to place the table inside
+            `max_rows` - set the max number of rows
             `header_cols` - list of column headers. Must be same len as `data` items.
             `data` - list of rows, where each row is a list of strings|Any containing values.
             `col_widths` - if specifiying individual col widths, provide list of integers corresponding to each column's width.
             `tree_name` - the name of the View's table attribute. Default is 'tree' so to reference it, you would use `self.tree`. If `tree_name='banana'`, then you would use `self.banana`.
             `rowheight` - if specifying different row height
+            `treeheight` - if specifying number of rows. Defaults to len(data)
         """
         # Add row height - thanks https://tkinter-snippets.com/ttk-treeview-change-row-height/
 
+        extra_config = {
+            'height' : treeheight or min(len(data), max_rows) # set treeheight if given or to min(datarows | max_rows(10))
+        }
+        
+        
         if rowheight:
             style = ttk.Style()
             style.configure("My.Treeview", rowheight=rowheight)
 
-            tree = ttk.Treeview(master=container, style="My.Treeview")
+            tree = ttk.Treeview(master=container, style="My.Treeview", **extra_config)
         else:
-            tree = ttk.Treeview(master=container)
+            tree = ttk.Treeview(master=container, **extra_config)
 
         # Define cols
         tree["columns"] = header_cols
