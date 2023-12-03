@@ -68,8 +68,9 @@ class MainApplication(tk.Tk):
     def _initial_setup(self) -> None:
         # Initial attributes
         self.title(config.TITLE)
-        self.geometry(config.SIZE)
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}") # thanks https://stackoverflow.com/questions/54296506/how-to-show-minimize-and-maximize-buttons-tkinter
         if not self.testing: self.iconbitmap(config.LOGOICO) # doesnt run on github actions
+        # self.attributes('-fullscreen', True)
 
         # DB Setup
         setup_db(reset_database=True)
