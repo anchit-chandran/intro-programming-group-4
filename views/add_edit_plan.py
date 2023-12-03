@@ -60,7 +60,7 @@ class AddEditPlanView(BaseView):
         )
         
         # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.header_container,
             text="Instructions",
         )

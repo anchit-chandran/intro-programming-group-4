@@ -146,7 +146,7 @@ class CampDetailView(BaseView):
         self.header.pack()
 
         # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.header_container,
             text="Instructions for Camp Detail",
         )

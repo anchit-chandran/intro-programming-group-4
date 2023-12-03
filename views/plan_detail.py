@@ -39,7 +39,7 @@ class PlanDetailView(BaseView):
         )
 
         # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.container,
             text="Instructions for Plan Detail View",
         )

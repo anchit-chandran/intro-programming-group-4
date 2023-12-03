@@ -116,7 +116,7 @@ class NewResourceView(BaseView):
             )
         
         # Section: Instructions for view
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
              master=self.container,
              text = "Instructions",
              width = 400,
