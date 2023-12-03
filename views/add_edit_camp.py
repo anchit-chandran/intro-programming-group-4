@@ -426,19 +426,30 @@ class AddEditCampView(BaseView):
             errors["location"].append("This field is required.")
         if not maxCapacity.strip():
             self.form_is_valid = False
-            errors["description"].append("This field is required.")
+            errors["maxCapacity"].append("This field is required.")
+        else:
+            # maxCap has a value -> check it's an integer
+            try:
+                if not maxCapacity.isnumeric():
+                    self.form_is_valid = False
+                    errors["maxCapacity"].append('Invalid input! Must be a positive integer')
+                else:
+                    # Num IS an integer
+                    if int(maxCapacity) < 0: raise Exception
+            except Exception as e:
+                logging.debug(f"Invalid input for maxCapacity")
+                
 
-        # DATA VALIDATION
-
+        # VALIDATE
         if not self.form_is_valid:
             error_msg = ""
             for field, field_errors in errors.items():
                 if field_errors:
                     error_msg += (
-                        "**" + self._render_field_label_from_key(field).upper() + "**\n"
+                        "" + self._render_field_label_from_key(field).upper() + "\n"
                     )
                     for field_error in field_errors:
-                        error_msg += f"{field_error}\n"
+                        error_msg += f"\t{field_error}\n"
                     error_msg += "\n\n"
             self.render_error_popup_window(message=error_msg)
 
