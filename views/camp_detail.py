@@ -112,8 +112,7 @@ class CampDetailView(BaseView):
         # Create container
         self.container = ttk.Frame(
             master=self,
-            width=500,
-            height=300,
+
         )
         self.container.pack(
             fill="both",
@@ -124,8 +123,7 @@ class CampDetailView(BaseView):
         # Header
         self.header_container = ttk.Frame(
             master=self.container,
-            width=500,
-            height=100,
+
         )
         self.header_container.grid(
             row=0,
@@ -269,16 +267,8 @@ class CampDetailView(BaseView):
     def render_camp_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
 
-        # headers list
-        self.header_cols = [
-            "Id",
-            "First Name",
-            "Last Name",
-            "Phone #",
-            "Age",
-            "Languages",
-        ]
-        self.data_to_render = [self.header_cols]
+        
+        self.data_to_render = []
 
         for volunteer in self.all_volunteers:
             data_to_add = []
@@ -310,17 +300,30 @@ class CampDetailView(BaseView):
         self.table_container = ttk.Frame(
             master=self.all_volunteers_container,
         )
-        self.table_container.grid(row=1, column=0)
+        self.table_container.grid(row=1, column=0, columnspan=2)
 
-        # Find the max col width
-        self.max_col_width = 15
-
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
+        # headers list
+        self.header_cols = [
+            "Id",
+            "First Name",
+            "Last Name",
+            "Phone #",
+            "Age",
+            "Languages",
+        ]
+        self.render_tree_table(
+                header_cols=self.header_cols,
+                data=self.data_to_render,
                 container=self.table_container,
-                items=row,
-                column_width=self.max_col_width,
-                header=ix == 0,  # True if first row, else False
+                tree_name="volunteer_tree",
+                col_widths=[
+                    50,
+                    100,
+                    100,
+                    100,
+                    50,
+                    200,
+                ],
             )
 
     # ------------------------ Refugees list ------------------------------
