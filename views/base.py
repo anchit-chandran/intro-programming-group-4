@@ -109,7 +109,7 @@ class BaseView(tk.Frame):
             )
             self.missing_people_button = tk.Button(
                 master=self.nav_container,
-                text="Missing People",
+                text="Search 🔍",
                 command=self._handle_missing_people_click,
             )
             self.missing_people_button.grid(
