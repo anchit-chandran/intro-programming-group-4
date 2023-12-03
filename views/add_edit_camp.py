@@ -67,10 +67,11 @@ class AddEditCampView(BaseView):
         
         # editing
         if self.camp_id:
-            text = "You can edit details for this Camp below.\n\nNOTE: max capacity cannot be set to lower than the current capacity."
+            current_capacity = self.calculate_current_capacity(camp_id=self.camp_id)
+            text = f"You can edit details for this Camp below.\n\nMax Capacity must be a positive integer.\n\nNOTE: max capacity cannot be set to lower than the current capacity, which is currently: {current_capacity}."
         # adding new camp
         else:
-            text = "You can create a Camp below by filling in all fields and pressing 'Add Camp'."
+            text = "You can create a Camp below by filling in all fields and pressing 'Add Camp'.\n\nMax Capacity must be a positive integer."
 
         self.instructions_label = ttk.Label(
             master=self.instructions_container,
@@ -116,6 +117,11 @@ class AddEditCampView(BaseView):
             on_row=5,
         )
 
+    def calculate_current_capacity(self, camp_id:int)->int:
+        current_capacity = run_query_get_rows(f"SELECT COUNT(id) FROM RefugeeFamily WHERE is_in_camp=1 AND camp_id={camp_id}")[0]['COUNT(id)']
+        
+        return int(current_capacity)
+    
     def _render_action_buttons(self, form_container, on_row: int) -> None:
         self.action_buttons_container = tk.Frame(
             master=form_container,
@@ -436,6 +442,12 @@ class AddEditCampView(BaseView):
                 else:
                     # Num IS an integer
                     if int(maxCapacity) < 0: raise Exception
+                    
+                    current_capacity = self.calculate_current_capacity(camp_id=camp_id)
+                    logging.debug(f"Comparing {maxCapacity=} < {current_capacity=}")
+                    if int(maxCapacity) < current_capacity:
+                        self.form_is_valid = False
+                        errors["maxCapacity"].append(f'Invalid input! Cannot be less than current capacity ({current_capacity})')
             except Exception as e:
                 logging.debug(f"Invalid input for maxCapacity")
                 
