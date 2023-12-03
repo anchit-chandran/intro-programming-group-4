@@ -47,7 +47,7 @@ class PlanDetailView(BaseView):
 
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.",
+            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.\n\nNOTE: you can scroll to see more Camps, if there are more.",
             anchor="w",
             justify="left",
         )
@@ -190,7 +190,7 @@ class PlanDetailView(BaseView):
                 120,
             ],
             rowheight=75,
-            max_rows=9,
+            max_rows=4,
         )
 
     def _handle_selected_camp_actions_click(self, action: str):

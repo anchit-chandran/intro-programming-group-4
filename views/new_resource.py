@@ -62,7 +62,7 @@ class NewResourceView(BaseView):
                 for resource in resource_names:
                     if resource_name == resource:
                         messagebox.showerror("Error", "Resource already exists. Please enter a new resource type.")
-                        break
+                        return
                     
                 resource_amount = int(resource_amount)
                 if resource_amount < 0:
@@ -74,7 +74,7 @@ class NewResourceView(BaseView):
                                         values = (resource_name, resource_amount, self.camp_id,))
                     messagebox.showinfo("Information", "Resources updated successfully.")
                     self.master.switch_to_view("edit_resources")
-        except ValueError:
+        except Exception as e:
             messagebox.showerror("Error", "Invalid input. Please enter an integer.")
         
 
