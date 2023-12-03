@@ -14,3 +14,4 @@ from .add_edit_refugee import AddEditRefugeeView
 from .departed_refugees import DepartedRefugeesView
 from .refugee_profile_view import RefugeeProfileView
 from .add_edit_user_profile import AddEditUserProfileView
+from .missing_people import MissingPeopleView
