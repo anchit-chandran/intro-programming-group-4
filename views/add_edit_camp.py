@@ -157,7 +157,7 @@ class AddEditCampView(BaseView):
 
     def handle_cancel_click(self)->None:
         
-        # Clean pstate
+        # Clean state
         self.master.get_global_state().pop("camp_id_to_edit", None)
         
         self.master.switch_to_view('plan_detail')
@@ -405,6 +405,8 @@ class AddEditCampView(BaseView):
         camp_name = self.camp_name_entry.get()
         location = self.location_entry.get()
         maxCapacity = self.maxCapacity_entry.get()
+        
+        logging.debug(f"{plan_id=} {camp_id=} {camp_name=} {location=} {maxCapacity=}")
 
         # Perform form validation
         self.form_is_valid = True
@@ -492,6 +494,9 @@ class AddEditCampView(BaseView):
             logging.info(
                 f"Inserted plan: {plan_id=}, {camp_name=}, {camp_id=}, {location=}, {maxCapacity=}"
             )
+        
+        # Clean state
+        self.master.get_global_state().pop("camp_id_to_edit", None)
         self.master.switch_to_view("plan_detail")
 
     def _render_delete_confirm_popup_window(self) -> None:
