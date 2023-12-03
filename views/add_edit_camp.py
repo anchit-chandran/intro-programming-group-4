@@ -13,27 +13,21 @@ from constants import config
 from utilities.db import (
     run_query_get_rows,
     insert_query_with_values,
-)  # from utilities.db means “from the utilities module, find the db.py file”
+)
 from .base import BaseView
 
 
 class AddEditCampView(BaseView):
-    def __init__(
-        self, master=None
-    ):  # so when the add/edit camp button is pressed, the following under __init__ has to run
+    def __init__(self, master=None):
         super().__init__(master)
-        self.master = master  # self.master is just a variable name
+        self.master = master
 
-        self.camp_id = self.master.get_global_state().get("camp_id_to_edit")
-        self.plan_id_for_camp = self._get_plan_id()
-        self.camp_name_is_edit = bool(self.camp_id)
-        if self.camp_name_is_edit:
+        self.plan_id_for_camp = self.master.get_global_state().get("plan_id_to_view")
+        self.camp_id = self.master.get_global_state().get("camp_id_to_edit", None)
+        if self.camp_id:
             self.edit_camp_details = run_query_get_rows(
                 f"SELECT * FROM Camp WHERE id = '{self.camp_id}'"
-                # select all columns from camp table for this camp name
-            )[
-                0
-            ]  # not sure what [0] is for (?)
+            )[0]
 
         self.render_widgets()
         self.master.update()
@@ -57,7 +51,7 @@ class AddEditCampView(BaseView):
         self.header_container = tk.Frame(self.container)
         self.header_container.pack(pady=5, fill="x", expand=True)
 
-        self.header_text = "Edit Camp" if self.camp_name_is_edit else "Add Camp"
+        self.header_text = "Edit Camp" if self.camp_id else "Add Camp"
         self.header = tk.Label(
             master=self.header_container, text=self.header_text, font=(30)
         )
@@ -112,7 +106,7 @@ class AddEditCampView(BaseView):
 
         self.submit_button = tk.Button(
             master=self.action_buttons_container,
-            text="Add Camp" if not self.camp_name_is_edit else "Update Camp",
+            text="Add Camp" if not self.camp_id else "Update Camp",
             command=self._handle_submit,
             fg="green",
         )
@@ -122,14 +116,14 @@ class AddEditCampView(BaseView):
 
         self.cancel_button = tk.Button(
             master=self.action_buttons_container,
-            text="Back",
-            command=lambda: self.master.switch_to_view("plan_detail"),
+            text="Cancel",
+            command=lambda: self.handle_cancel_click(),
         )
         self.cancel_button.pack(
             side="left",
         )
 
-        if self.camp_name_is_edit:
+        if self.camp_id:
             self.delete_button = tk.Button(
                 master=self.action_buttons_container,
                 text="Delete",
@@ -140,6 +134,13 @@ class AddEditCampView(BaseView):
                 side="left",
             )
 
+    def handle_cancel_click(self)->None:
+        
+        # Clean pstate
+        self.master.get_global_state().pop("camp_id_to_edit", None)
+        
+        self.master.switch_to_view('plan_detail')
+    
     def _render_plan_id(self, form_container, on_row: int) -> None:
         # PLAN ID
         self.plan_id_container = tk.Frame(
@@ -222,7 +223,7 @@ class AddEditCampView(BaseView):
         )
 
         self.camp_id_text = tk.StringVar()
-        if self.camp_name_is_edit:
+        if self.camp_id:
             self.camp_id_text.set(self.edit_camp_details["id"])
         else:  # If adding new camp
             # Get latest camp id (plus 1 because you need this camp id to be increment from the last camp id)
@@ -271,18 +272,16 @@ class AddEditCampView(BaseView):
             fill="x",
         )
 
-        # Whatever the camp name entry is, set that as the name (relate to the table in db.py for camp)
-        # there will later be a _handle_submit function to get the camp name entry (?)
         self.camp_name_text = tk.StringVar()
-        # If editing, change the previously filled name to new name
-        if self.camp_name_is_edit:
+
+        if self.camp_id:
             self.camp_name_text.set(self.edit_camp_details["name"])
 
         # Get camp name entry
         self.camp_name_entry = tk.Entry(
             master=self.camp_name_entry_container,
             width=50,
-            textvariable=self.camp_name_text if self.camp_name_is_edit else None,
+            textvariable=self.camp_name_text if self.camp_id else None,
         )
         self.camp_name_entry.pack()
 
@@ -318,13 +317,13 @@ class AddEditCampView(BaseView):
         )
 
         self.location_text = tk.StringVar()
-        if self.camp_name_is_edit:
+        if self.camp_id:
             self.location_text.set(self.edit_camp_details["location"])
 
         self.location_entry = tk.Entry(
             master=self.location_entry_container,
             width=50,
-            textvariable=self.location_text if self.camp_name_is_edit else None,
+            textvariable=self.location_text if self.camp_id else None,
         )
         self.location_entry.pack()
 
@@ -360,24 +359,15 @@ class AddEditCampView(BaseView):
         )
 
         self.maxCapacity_text = tk.StringVar()
-        if self.camp_name_is_edit:
+        if self.camp_id:
             self.maxCapacity_text.set(self.edit_camp_details["maxCapacity"])
 
         self.maxCapacity_entry = tk.Entry(
             master=self.maxCapacity_entry_container,
             width=50,
-            textvariable=self.maxCapacity_text if self.camp_name_is_edit else None,
+            textvariable=self.maxCapacity_text if self.camp_id else None,
         )
         self.maxCapacity_entry.pack()
-
-    def _get_plan_id(self) -> int:
-        plan_name = self.master.get_global_state().get("plan_name")
-        plan_id = run_query_get_rows(
-            f"""SELECT id AS plan_id_for_camp 
-            FROM Plan 
-            WHERE title='{plan_name}'"""
-        )[0]["plan_id_for_camp"]
-        return plan_id
 
     def _render_field_label_from_key(self, field_key: str) -> str:
         key_name_map = {
@@ -434,20 +424,20 @@ class AddEditCampView(BaseView):
             )
             return
 
-        if self.camp_name_is_edit:
+        if self.camp_id:
             insert_query_with_values(
                 query=f"""UPDATE Camp
                                      SET
-                                        plan_id = :plan_id_for_camp                                        
+                                        plan_id = :plan_id,                                   
                                         name = :name,                                        
                                         location = :location,
-                                        maxCapacity = :maxCapacity,
+                                        maxCapacity = :maxCapacity
                                      WHERE
                                         id = :id
                                      """,
                 values={
+                    "id" : camp_id,
                     "plan_id": plan_id,
-                    "id": camp_id,
                     "name": camp_name,
                     "location": location,
                     "maxCapacity": maxCapacity,
@@ -460,20 +450,19 @@ class AddEditCampView(BaseView):
             insert_query_with_values(
                 query="""INSERT INTO Camp 
                     (
-                        plan_id
+                        plan_id,
                         name,
                         location,
                         maxCapacity
                         ) VALUES (
-                        :plan_id_for_camp, 
+                        :plan_id, 
                         :name, 
                         :location, 
-                        :maxCapacity,
+                        :maxCapacity
                     );
                     """,
                 values={
                     "plan_id": plan_id,
-                    "id": camp_id,
                     "name": camp_name,
                     "location": location,
                     "maxCapacity": maxCapacity,
@@ -482,7 +471,7 @@ class AddEditCampView(BaseView):
             logging.info(
                 f"Inserted plan: {plan_id=}, {camp_name=}, {camp_id=}, {location=}, {maxCapacity=}"
             )
-        self.master.switch_to_view("all_plans")
+        self.master.switch_to_view("plan_detail")
 
     def _render_delete_confirm_popup_window(self) -> None:
         self.error_popup_window = tk.Toplevel(self.master)
