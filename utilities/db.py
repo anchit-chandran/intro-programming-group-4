@@ -305,13 +305,13 @@ def create_and_seed_refugee_family_table() -> None:
         """CREATE TABLE `RefugeeFamily` (
         `id` INTEGER PRIMARY KEY,
         `main_rep_name` TEXT,
-        `medical_conditions` TEXT,
-        `n_adults` INT,
-        `n_children` INT,
-        `main_rep_home_town` TEXT,
         `main_rep_age` INT,
         `main_rep_sex` INT,
+        `main_rep_home_town` TEXT,
+        `n_adults` INT,
+        `n_children` INT,
         `n_missing_members` INT,
+        `medical_conditions` TEXT,
         `is_in_camp` INT Default 1,
         `camp_id` INT,
             FOREIGN KEY (camp_id) REFERENCES Camp (id) 
