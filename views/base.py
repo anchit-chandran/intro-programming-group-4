@@ -212,8 +212,8 @@ class BaseView(tk.Frame):
         col_widths: list[int] = None,
         tree_name: str = "tree",
         rowheight: int = None,
-        treeheight:int = None,
-        max_rows:int=10,
+        treeheight: int = None,
+        max_rows: int = 10,
     ) -> None:
         """Thanks https://www.youtube.com/watch?v=YTqDYmfccQU
 
@@ -232,17 +232,21 @@ class BaseView(tk.Frame):
         # Add row height - thanks https://tkinter-snippets.com/ttk-treeview-change-row-height/
 
         extra_config = {
-            'height' : treeheight or min(len(data), max_rows) # set treeheight if given or to min(datarows | max_rows(10))
+            "height": treeheight
+            or min(
+                len(data), max_rows
+            )  # set treeheight if given or to min(datarows | max_rows(10))
         }
-        
-        
-        if rowheight:
-            style = ttk.Style()
-            style.configure("My.Treeview", rowheight=rowheight)
 
-            tree = ttk.Treeview(master=container, style="My.Treeview", **extra_config)
-        else:
-            tree = ttk.Treeview(master=container, **extra_config)
+        style = ttk.Style()
+        style.theme_use('default')
+        style.configure("Treeview")
+        style.map("Treeview", background=[("selected", "green")])
+
+        if rowheight:
+            style.configure("Treeview", rowheight=rowheight)
+            
+        tree = ttk.Treeview(master=container, style="Treeview", **extra_config)
 
         # Define cols
         tree["columns"] = header_cols

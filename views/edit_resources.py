@@ -1,14 +1,10 @@
 # Python imports
-import logging
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
-import datetime
-import re
 
 # Project imports
-from constants import config
 from utilities.db import run_query_get_rows, insert_query_with_values
-from utilities.validators import is_valid_email
 from .base import BaseView
 
 
@@ -110,7 +106,7 @@ class EditResourcesView(BaseView):
             )
         
         # Section: Instructions for view
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
              master=self.container,
              text = "Instructions",
              width = 400,

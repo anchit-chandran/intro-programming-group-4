@@ -1,6 +1,7 @@
 """TEMPLATE FILE FOR MAKING NEW VIEW"""
 # Python imports
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import logging
 import datetime
@@ -38,7 +39,7 @@ class NewMessageView(BaseView):
         )
         
         # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.container,
             text="Instructions",
         )

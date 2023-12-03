@@ -110,7 +110,7 @@ class CampDetailView(BaseView):
         camp_resources = self.get_camp_resources()
 
         # Create container
-        self.container = ttk.Frame(
+        self.container = tk.Frame(
             master=self,
         )
         self.container.pack(
@@ -120,7 +120,7 @@ class CampDetailView(BaseView):
         )
 
         # Header
-        self.header_container = ttk.Frame(
+        self.header_container = tk.Frame(
             master=self.container,
         )
         self.header_container.grid(
@@ -146,7 +146,7 @@ class CampDetailView(BaseView):
         self.header.pack()
 
         # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.header_container,
             text="Instructions for Camp Detail",
         )
@@ -162,7 +162,7 @@ class CampDetailView(BaseView):
 
         # ------------------------ Top container------------------------------
 
-        self.top_container = ttk.Frame(
+        self.top_container = tk.Frame(
             master=self.container,
             width=700,
             height=600,
@@ -227,7 +227,7 @@ class CampDetailView(BaseView):
         )
         self.resources_container.grid(row=0, column=2, padx=30, sticky="nw")
 
-        self.resources_num_container = ttk.Frame(
+        self.resources_num_container = tk.Frame(
             master=self.resources_container,
             width=300,
             height=700,
@@ -294,7 +294,7 @@ class CampDetailView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
-        self.all_volunteers_container = ttk.Frame(
+        self.all_volunteers_container = tk.Frame(
             master=self.container,
         )
         self.all_volunteers_container.grid(row=3, column=0, sticky="w")
@@ -307,7 +307,7 @@ class CampDetailView(BaseView):
         self.volunteers_header.grid(row=0, column=0, pady=5, sticky="w")
 
         # table
-        self.table_container = ttk.Frame(
+        self.table_container = tk.Frame(
             master=self.all_volunteers_container,
         )
         self.table_container.grid(row=1, column=0, columnspan=2)
@@ -334,6 +334,7 @@ class CampDetailView(BaseView):
                 50,
                 200,
             ],
+            
         )
 
     # ------------------------ Refugees list ------------------------------
@@ -353,7 +354,7 @@ class CampDetailView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
-        self.all_refugees_container = ttk.Frame(
+        self.all_refugees_container = tk.Frame(
             master=self.container,
             width=1000,
         )
@@ -391,7 +392,7 @@ class CampDetailView(BaseView):
         self.add_refugee_button.pack(side="right")
 
         # table
-        table_container = ttk.Frame(
+        table_container = tk.Frame(
             master=self.all_refugees_container,
         )
         table_container.grid(row=1, column=0)
@@ -420,6 +421,7 @@ class CampDetailView(BaseView):
                 150,
                 150,
             ],
+            rowheight=20,
         )
 
     def render_selected_refugee_actions(self, container) -> None:

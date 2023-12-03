@@ -1,9 +1,9 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import datetime
-import re
 
 # Project imports
 from constants import config
@@ -60,7 +60,7 @@ class AddEditPlanView(BaseView):
         )
         
         # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.header_container,
             text="Instructions",
         )

@@ -73,7 +73,7 @@ class ProfileView(BaseView):
         )
         
          # Instructions label
-        self.instructions_container = tk.LabelFrame(
+        self.instructions_container = ttk.LabelFrame(
             master=self.container,
             text="Instructions",
         )
