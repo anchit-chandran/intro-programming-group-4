@@ -9,10 +9,10 @@ MEDICAL_CONDITIONS = ["Asthma", "Diabetes", "Atherosclerosis", "Lung Cancer", "H
 # for each camp
 for camp_id in range(1,len(camp_data)+1):
     
-    # make 10 families
-    for i in range(10):
+    # make 30 families
+    for i in range(15):
         new_refugee_family = {
-            "main_rep_name" : NAMES[i],
+            "main_rep_name" : NAMES[i%len(NAMES)],
             "medical_conditions" : random.choice(MEDICAL_CONDITIONS),
             "n_adults" : random.randint(0,3),
             "n_children" : random.randint(0,5),

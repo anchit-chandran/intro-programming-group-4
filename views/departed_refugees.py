@@ -83,7 +83,6 @@ class DepartedRefugeesView(BaseView):
         self.go_back_button.grid(row=0, column=0, padx=(0, 30), pady=20, sticky="ne")
 
         camp_name = self.get_camp_name()
-        print(camp_name)
 
         self.header = ttk.Label(
             master=self.header_container,
