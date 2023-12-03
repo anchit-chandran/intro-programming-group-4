@@ -2,16 +2,39 @@
 # Python imports
 import tkinter as tk
 from tkinter import ttk
+import logging
 
 # Project imports
 from views.base import BaseView
 from constants import config
+from utilities.db import run_query_get_rows
 
 
 class MissingPeopleView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+
+        # Initialise any vars
+        self.all_field_keys = [
+            "id",
+            "main_rep_name",
+            "main_rep_age",
+            "main_rep_sex",
+            "main_rep_home_town",
+            "n_adults",
+            "n_children",
+            "n_missing_members",
+            "medical_conditions",
+            "is_in_camp",
+            "camp_id",
+            "plan_id",
+        ]
+        # Get empty table for now
+        self.search_results = [
+            ["" for _ in range(len(self.all_field_keys) - 1)],
+        ]  # TODO remove -1 once plan sorted
+
         self.render_widgets()
 
     def render_widgets(self) -> None:
@@ -66,7 +89,7 @@ class MissingPeopleView(BaseView):
 
         self.results_container = tk.LabelFrame(master=self.container, text="Matches")
         self.results_container.pack()
-        self._render_results_fields(self.results_container)
+        self._render_results_fields(self.results_container, results=self.search_results)
 
     def _render_refugee_family_search_fields(self, container):
         self.refugee_family_id_label = tk.Label(
@@ -77,18 +100,6 @@ class MissingPeopleView(BaseView):
         )
 
         self.refugee_family_id_entry = tk.Entry(
-            master=container,
-            width=70,
-        )
-
-        self.location_label = tk.Label(
-            master=container,
-            text="Camp Location",
-            width=20,
-            anchor="w",
-        )
-
-        self.location_entry = tk.Entry(
             master=container,
             width=70,
         )
@@ -115,6 +126,19 @@ class MissingPeopleView(BaseView):
         )
 
         self.main_rep_age_entry = tk.Entry(
+            master=container,
+            width=70,
+        )
+
+        # Main rep sex
+        self.main_rep_sex_label = tk.Label(
+            master=container,
+            text="Main Rep Sex",
+            width=20,
+            anchor="w",
+        )
+
+        self.main_rep_sex_entry = tk.Entry(
             master=container,
             width=70,
         )
@@ -197,10 +221,33 @@ class MissingPeopleView(BaseView):
             width=70,
         )
 
+        self.camp_label = tk.Label(
+            master=container,
+            text="Camp",
+            width=20,
+            anchor="w",
+        )
+
+        self.camp_entry = tk.Entry(
+            master=container,
+            width=70,
+        )
+
+        self.plan_label = tk.Label(
+            master=container,
+            text="Plan",
+            width=20,
+            anchor="w",
+        )
+
+        self.plan_entry = tk.Entry(
+            master=container,
+            width=70,
+        )
+
         # Search
         self.search_button = tk.Button(
-            master=container,
-            text="Search",
+            master=container, text="Search", command=self._handle_search_click
         )
 
         # PLACE WIDGETS ON SCREEN
@@ -213,46 +260,131 @@ class MissingPeopleView(BaseView):
         self.main_rep_age_label.grid(row=2, column=0)
         self.main_rep_age_entry.grid(row=2, column=1)
 
-        self.main_rep_home_town_label.grid(row=3, column=0)
-        self.main_rep_home_town_entry.grid(row=3, column=1)
+        self.main_rep_sex_label.grid(row=3, column=0)
+        self.main_rep_sex_entry.grid(row=3, column=1)
 
-        self.n_adults_label.grid(row=4, column=0)
-        self.n_adults_entry.grid(row=4, column=1)
+        self.main_rep_home_town_label.grid(row=4, column=0)
+        self.main_rep_home_town_entry.grid(row=4, column=1)
 
-        self.n_children_label.grid(row=5, column=0)
-        self.n_children_entry.grid(row=5, column=1)
+        self.n_adults_label.grid(row=5, column=0)
+        self.n_adults_entry.grid(row=5, column=1)
 
-        self.n_missing_members_label.grid(row=6, column=0)
-        self.n_missing_members_entry.grid(row=6, column=1)
+        self.n_children_label.grid(row=6, column=0)
+        self.n_children_entry.grid(row=6, column=1)
 
-        self.medical_conditions_label.grid(row=7, column=0)
-        self.medical_conditions_entry.grid(row=7, column=1)
+        self.n_missing_members_label.grid(row=7, column=0)
+        self.n_missing_members_entry.grid(row=7, column=1)
 
-        self.is_in_camp_label.grid(row=8, column=0)
-        self.is_in_camp_entry.grid(row=8, column=1)
+        self.medical_conditions_label.grid(row=8, column=0)
+        self.medical_conditions_entry.grid(row=8, column=1)
 
-        self.location_label.grid(row=9, column=0)
-        self.location_entry.grid(row=9, column=1)
+        self.is_in_camp_label.grid(row=9, column=0)
+        self.is_in_camp_entry.grid(row=9, column=1)
 
-        self.search_button.grid(row=10, column=0, columnspan=2)
+        self.camp_label.grid(row=10, column=0)
+        self.camp_entry.grid(row=10, column=1)
 
-    def _render_results_fields(self, container):
+        self.plan_label.grid(row=11, column=0)
+        self.plan_entry.grid(row=11, column=1)
+
+        self.search_button.grid(row=20, column=0, columnspan=2)
+
+    def _render_results_fields(self, container, results: list[list[str]]):
         header_cols = [
-            "Refugee Family ID",
+            "RefugeeFamID",
             "Main Rep Name",
             "Main Rep Age",
+            "Main Rep Sex",
             "Main Rep Home Town",
-            "Adults (N)",
-            "Children (N)",
-            "Missing Members (N)",
+            "Adults (n)",
+            "Children (n)",
+            "Missing Members (n)",
             "Medical Conditions",
             "Residing in Camp",
-            "Camp Location",
+            "Camp",
+            # "Plan",
         ]
 
         self.render_tree_table(
             container=container,
             header_cols=header_cols,
-            data=[["-" for _ in range(len(header_cols))]],
-            max_rows=5
+            data=results,
+            max_rows=10,
+            treeheight=10,
         )
+
+    def _construct_where_clauses_from(self, fields_and_values: dict) -> str:
+        """Returns valid SQL WHERE clauses joined using ANDs"""
+
+        where_clauses = []
+
+        for field, val in fields_and_values.items():
+            if val:
+                # TODO : actually do this
+                if field == "plan_id":
+                    continue
+                where_clauses.append(f"{field} LIKE '%{val}%'")
+
+        where_joined = "\n AND ".join(where_clauses)
+
+        return where_joined
+
+    def perform_search(self, all_field_values):
+        fields_and_values = {
+            key: val for key, val in zip(self.all_field_keys, all_field_values)
+        }
+
+        where_clauses = self._construct_where_clauses_from(fields_and_values)
+
+        if not where_clauses:
+            self.render_error_popup_window(message="Please enter at least 1 value!")
+            return
+
+        search_query = f"""SELECT *
+            FROM RefugeeFamily
+            WHERE 
+                {where_clauses if where_clauses else ''}
+        """
+        logging.debug(f"RAW QUERY: {search_query}")
+
+        search_results_raw = run_query_get_rows(search_query)
+        self.search_results = [list(result.values()) for result in search_results_raw]
+        logging.debug(f"RESULTS: {self.search_results}")
+
+        # Delete current tree
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        for result in self.search_results:
+            self.tree.insert("", "end", values=result)
+
+    def _handle_search_click(self) -> None:
+        refugee_family_id_input = self.refugee_family_id_entry.get()
+        main_rep_name_input = self.main_rep_name_entry.get()
+        main_rep_age_input = self.main_rep_age_entry.get()
+        main_rep_sex_input = self.main_rep_sex_entry.get()
+        main_rep_home_town_input = self.main_rep_home_town_entry.get()
+        n_adults_input = self.n_adults_entry.get()
+        n_children_input = self.n_children_entry.get()
+        n_missing_members_input = self.n_missing_members_entry.get()
+        medical_conditions_input = self.medical_conditions_entry.get()
+        is_in_camp_input = self.is_in_camp_entry.get()
+        camp_input = self.camp_entry.get()
+        plan_input = self.plan_entry.get()
+
+        all_field_values = [
+            refugee_family_id_input,
+            main_rep_name_input,
+            main_rep_age_input,
+            main_rep_sex_input,
+            main_rep_home_town_input,
+            n_adults_input,
+            n_children_input,
+            n_missing_members_input,
+            medical_conditions_input,
+            is_in_camp_input,
+            camp_input,
+            plan_input,
+        ]
+
+        self.perform_search(all_field_values=all_field_values)
