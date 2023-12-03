@@ -334,6 +334,7 @@ class CampDetailView(BaseView):
                 50,
                 200,
             ],
+            
         )
 
     # ------------------------ Refugees list ------------------------------
@@ -420,6 +421,7 @@ class CampDetailView(BaseView):
                 150,
                 150,
             ],
+            rowheight=20,
         )
 
     def render_selected_refugee_actions(self, container) -> None:

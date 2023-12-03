@@ -1,12 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
-import datetime
-import re
+from tkinter import ttk
 
 # Project imports
 from constants import config
 from utilities.db import run_query_get_rows, insert_query_with_values
-from utilities.validators import is_valid_email
 from .base import BaseView
 
 
