@@ -44,12 +44,8 @@ class MissingPeopleView(BaseView):
         self.container = tk.Frame(
             master=self,
             width=config.SCREEN_WIDTH,
-            height=300,
         )
         self.container.pack(
-            fill="both",
-            padx=30,
-            pady=100,
         )
 
         # Header
@@ -73,7 +69,7 @@ class MissingPeopleView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="If a refugee is looking to find their family across registered Refugee Families, a search across fields can be attempted below.\n\nPlease fill in as many fields as known.",
+            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required.",
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -90,7 +86,7 @@ class MissingPeopleView(BaseView):
         self.results_container = tk.LabelFrame(master=self.container, text="Matches")
         self.results_container.pack()
         self._render_results_fields(self.results_container, results=self.search_results)
-
+    
     def _render_refugee_family_search_fields(self, container):
         self.refugee_family_id_label = tk.Label(
             master=container,
