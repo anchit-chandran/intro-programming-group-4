@@ -153,9 +153,19 @@ class NewResourceView(BaseView):
         label_amount.grid(
                     row=0,
                     column=1,)
+        
+        # Set char length limit
+        resource_name = tk.StringVar()
+        resource_name.trace(
+            "w",
+            lambda *args: self.set_character_limit(
+                entry_text=resource_name, char_limit=20,
+            ),
+        )
         entry_new_resource_name = tk.Entry(
                 master=self.resource_change_form_container,
                 width=35,
+                textvariable=resource_name
                 )
         entry_new_resource_name.grid(
                 row=1,
@@ -209,9 +219,7 @@ class NewResourceView(BaseView):
         # Instructions label
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="---Input---\nHere you can add a new resource in the form below. \nThe new resource should not duplicate with resources you already have. Enter positive units as amount. \n\n ---Submit---\nClick submit new resource to update the records. \nClick back to go back to edit resources view.",
-            width = 80,
-            height = 8,
+            text="---Input---\nCreate a new resource below.\n\nThe new resource should not duplicate with resources you already have.\nResource name can be a max of 20 characters.\n\nUnits must be positive integers. \n\n ---Submit---\nClick 'Submit new resource' to create the new resource.",
             anchor = "w",
             justify = "left",
         )
