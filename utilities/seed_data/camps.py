@@ -17,7 +17,7 @@ for plan_id in range(1, 4):
 
 RESOURCE_NAMES = ["Food", "Water", "Medicine", "Clothing"]
 # add resources for each camp
-for camp_id in range(2, len(camp_data) + 1):
+for camp_id in range(1, len(camp_data) + 1):
     # create resources, per camp
     for j in range(len(RESOURCE_NAMES)):
         new_resource = {

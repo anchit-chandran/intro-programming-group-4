@@ -112,8 +112,6 @@ class CampDetailView(BaseView):
         # Create container
         self.container = ttk.Frame(
             master=self,
-            width=500,
-            height=300,
         )
         self.container.pack(
             fill="both",
@@ -124,8 +122,6 @@ class CampDetailView(BaseView):
         # Header
         self.header_container = ttk.Frame(
             master=self.container,
-            width=500,
-            height=100,
         )
         self.header_container.grid(
             row=0,
@@ -140,16 +136,29 @@ class CampDetailView(BaseView):
                 text="GO BACK TO PLAN",
                 command=self.handle_back_button,
             )
-            self.go_back_button.grid(
-                row=0, column=0, padx=(0, 30), pady=20, sticky="ne"
-            )
+            self.go_back_button.pack(side='top')
 
         self.header = ttk.Label(
             master=self.header_container,
             text=f"Camp Details",
             font=(60),
         )
-        self.header.grid(row=0, column=1, padx=(0, 30), pady=20, sticky="nw")
+        self.header.pack()
+
+        # Instructions label
+        self.instructions_container = tk.LabelFrame(
+            master=self.header_container,
+            text="Instructions for Camp Detail",
+        )
+        self.instructions_container.pack(side='bottom')
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="Information pertaining to this Camp, including its Resources can be seen here.\n\nNew Refugee Families can be registered using the '+ Add Refugee Family' button.\n\nRefugee Families who were previously registered, but have since left, can be viewed using the 'View Departed Refugees' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button.",
+            anchor="w",
+            justify="left",
+            wraplength=1000,
+        )
+        self.instructions_label.pack()
 
         # ------------------------ Top container------------------------------
 
@@ -269,16 +278,7 @@ class CampDetailView(BaseView):
     def render_camp_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
 
-        # headers list
-        self.header_cols = [
-            "Id",
-            "First Name",
-            "Last Name",
-            "Phone #",
-            "Age",
-            "Languages",
-        ]
-        self.data_to_render = [self.header_cols]
+        self.data_to_render = []
 
         for volunteer in self.all_volunteers:
             data_to_add = []
@@ -310,33 +310,37 @@ class CampDetailView(BaseView):
         self.table_container = ttk.Frame(
             master=self.all_volunteers_container,
         )
-        self.table_container.grid(row=1, column=0)
+        self.table_container.grid(row=1, column=0, columnspan=2)
 
-        # Find the max col width
-        self.max_col_width = 15
-
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=self.table_container,
-                items=row,
-                column_width=self.max_col_width,
-                header=ix == 0,  # True if first row, else False
-            )
+        # headers list
+        self.header_cols = [
+            "Id",
+            "First Name",
+            "Last Name",
+            "Phone #",
+            "Age",
+            "Languages",
+        ]
+        self.render_tree_table(
+            header_cols=self.header_cols,
+            data=self.data_to_render,
+            container=self.table_container,
+            tree_name="volunteer_tree",
+            col_widths=[
+                50,
+                100,
+                100,
+                100,
+                50,
+                200,
+            ],
+        )
 
     # ------------------------ Refugees list ------------------------------
     def render_camp_refugees(self) -> None:
         self.all_refugees = self.get_refugees()
 
-        # headers list
-        self.header_cols = [
-            "Id",
-            "Main Rep Name",
-            "Med Conditions",
-            "Adults",
-            "Children",
-            "Missing members",
-        ]
-        self.data_to_render = [self.header_cols]
+        self.data_to_render = []
 
         for refugee in self.all_refugees:
             data_to_add = []
@@ -353,141 +357,104 @@ class CampDetailView(BaseView):
             master=self.container,
             width=1000,
         )
-        self.all_refugees_container.grid(
-            row=4, column=0, columnspan=10, pady=10, sticky="w"
-        )
+        self.all_refugees_container.grid(row=4, column=0, pady=10, sticky="w")
 
         # table title
-        self.refugees_header = ttk.Label(
+        header_container = tk.Frame(
             master=self.all_refugees_container,
+        )
+        header_container.grid(row=0, column=0, pady=5, sticky="w")
+        self.refugees_header = ttk.Label(
+            master=header_container,
             text="REFUGEE FAMILIES",
             font=42,
         )
-        self.refugees_header.grid(row=0, column=0, pady=5, sticky="w")
+        self.refugees_header.pack(side="left")
+
+        self.generic_action_buttons_container = tk.Frame(master=header_container)
+        self.generic_action_buttons_container.pack()
 
         # View refugees who left the camp button
         self.add_refugee_button = ttk.Button(
-            master=self.all_refugees_container,
+            master=self.generic_action_buttons_container,
             text="View Departed Refugees",
             command=self.handle_view_departed_click,
         )
-        self.add_refugee_button.grid(row=0, column=1, sticky="w")
-
-        camp_id = self.get_camp_id()
+        self.add_refugee_button.pack(side="right")
 
         # Add refugee button
         self.add_refugee_button = ttk.Button(
-            master=self.all_refugees_container,
+            master=self.generic_action_buttons_container,
             text="+ Add Regugee Family",
             command=self._handle_add_refugee_click,
         )
-        self.add_refugee_button.grid(row=0, column=2, sticky="w")
-
-        # MAKE THE TABLE SCROLLABLE
-        # canvas container
-        self.refugee_table_canvas = tk.Canvas(
-            master=self.all_refugees_container, width=1000, height=200
-        )
-        self.refugee_table_canvas.grid(row=1, column=0, sticky="nsew", columnspan=2)
+        self.add_refugee_button.pack(side="right")
 
         # table
-        self.table_container = ttk.Frame(
-            master=self.refugee_table_canvas,
-        )
-        self.table_container.grid(row=1, column=0)
-
-        # create scrollable window
-        self.refugee_table_canvas.create_window(
-            (0, 0), window=self.table_container, anchor="nw"
-        )
-
-        # create scrollbar
-        self.refugee_scrollbar = ttk.Scrollbar(
+        table_container = ttk.Frame(
             master=self.all_refugees_container,
-            orient="vertical",
-            command=self.refugee_table_canvas.yview,
         )
-        self.refugee_scrollbar.grid(row=1, column=1, sticky="nse", padx=1)
+        table_container.grid(row=1, column=0)
+        # Selected refugee action buttons
+        self.render_selected_refugee_actions(container=table_container)
 
-        self.refugee_table_canvas.configure(yscrollcommand=self.refugee_scrollbar.set)
-
-        # Find the max col width
-        self.max_col_width = 15
-
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=self.table_container,
-                items=row,
-                column_width=self.max_col_width,
-                header=ix == 0,  # True if first row, else False
-                is_refugee_table=True,
-            )
-
-        # updating scroll area
-        self.refugee_table_canvas.update_idletasks()  # to checck everything is rendered
-        self.refugee_table_canvas.configure(
-            scrollregion=self.refugee_table_canvas.bbox("all")
-        )  # setting the area scrolled with all the items inside
-
-    def _render_row(
-        self,
-        container: ttk.Frame,
-        items: list[str],
-        column_width=15,
-        header=False,
-        is_refugee_table=False,
-    ) -> None:
-        self.row_container = ttk.Frame(
-            master=container,
+        # headers list
+        self.header_cols = [
+            "Id",
+            "Main Rep Name",
+            "Med Conditions",
+            "Adults (n)",
+            "Children (n)",
+            "Missing members (n)",
+        ]
+        self.render_tree_table(
+            header_cols=self.header_cols,
+            data=self.data_to_render,
+            container=table_container,
+            tree_name="refugee_tree",
+            col_widths=[
+                50,
+                150,
+                150,
+                150,
+                150,
+                150,
+            ],
         )
-        self.row_container.grid(row=container.grid_size()[1], sticky="w")
 
-        for ix, label in enumerate(items):
-            column_width = 15
-            self.cell_frame = ttk.Frame(
-                master=self.row_container,
-                width=300,
-                height=25,
+    def render_selected_refugee_actions(self, container) -> None:
+        action_frame = tk.LabelFrame(
+            master=container, text="Selected Refugee Family Actions"
+        )
+        action_frame.pack(side="right")
+
+        self.view_refugee_button = ttk.Button(
+            master=action_frame,
+            text="👁️ View",
+            command=lambda: self._handle_selected_refugee_actions_click("view"),
+        )
+        self.view_refugee_button.pack(side="left")
+
+        self.edit_refugee_button = ttk.Button(
+            master=action_frame,
+            text="✏️ Edit",
+            command=lambda: self._handle_selected_refugee_actions_click("edit"),
+        )
+        self.edit_refugee_button.pack(side="right")
+
+    def _handle_selected_refugee_actions_click(self, action: str):
+        refugee_row = self.refugee_tree.focus()
+        if not refugee_row:
+            self.render_error_popup_window(
+                message="Please select a Refugee Family first!"
             )
-            self.cell_frame.grid(row=0, column=ix, pady=5)
-            add_border(self.cell_frame)
+            return
 
-            # Decrease width for id column
-            if ix == 0:
-                column_width = 3
+        # Get selected row data
+        refugee_data = self.refugee_tree.item(refugee_row, "values")
+        refugee_id = refugee_data[0]
 
-            # ADD SPACE FOR LANGUAGES FOR VOLUNTEERS
-            if not is_refugee_table and ix == 5:
-                column_width += 15
-
-            self.cell_content = ttk.Label(
-                master=self.cell_frame,
-                text=label,
-                width=column_width,
-            )
-
-            self.cell_content.pack(
-                fill="both",
-                expand=True,
-            )
-
-        # Add edit buttons
-        if not header and is_refugee_table:
-            BUTTON_WIDTH = 5
-            # edit btn
-            self.edit_refugees_btn = ttk.Button(
-                master=self.row_container,
-                text="EDIT",
-                command=lambda: self.handle_edit_click(items[0]),
-                width=BUTTON_WIDTH,
-            )
-            self.edit_refugees_btn.grid(row=0, column=len(items) + 1, padx=5)
-
-            # view btn
-            self.edit_refugees_btn = ttk.Button(
-                master=self.row_container,
-                text="VIEW",
-                command=lambda: self.handle_view_click(items[0]),
-                width=BUTTON_WIDTH,
-            )
-            self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)
+        if action == "view":
+            self.handle_view_click(refugee_id=refugee_id)
+        elif action == "edit":
+            self.handle_edit_click(refugee_id=refugee_id)

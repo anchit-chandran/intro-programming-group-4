@@ -60,7 +60,7 @@ class MessagesView(BaseView):
         )
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="Below you can see your messages, separated by resolved and unresolved.\n\nYou can resolve / unresolve messages by selecting the message and pressing the appropriate button.\n\nNOTE: messages are sorted first by  Priority (highest priority at the top), then by most recently received.\n\n---Sending messages---\nYou can send message by clicking the 'New Message' button.",
+            text="Below you can see your messages, separated by resolved and unresolved. You can scroll if there are many.\n\nYou can resolve / unresolve messages by selecting the message and pressing the appropriate button.\n\nNOTE: messages are sorted first by  Priority (highest priority at the top), then by most recently received.\n\n---Sending messages---\nYou can send message by clicking the 'New Message' button.",
             anchor="w",
             justify="left",
         )
