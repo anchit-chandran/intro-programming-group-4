@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import datetime
 import re
@@ -47,22 +48,38 @@ class AddEditRefugeeView(BaseView):
         self.container.pack(
             fill="both",
             padx=40,
-            pady=100,
+            pady=(50, 100),
         )
 
         # Header
         self.header_container = tk.Frame(self.container)
-        self.header_container.pack(pady=15, fill="x", expand=True)
+        self.header_container.pack(pady=5, fill="x", expand=True)
 
+        self.header_text = (
+            "Edit Refugee Family" if self.is_edit else "Add Refugee Family"
+        )
         self.header = tk.Label(
             master=self.header_container,
-            text=f"Edit refugee" if self.is_edit else "Add refugee",
-            font=(60),
+            text=self.header_text,
+            font=(20),
         )
         self.header.pack(
-            side="left",
-            padx=60,
+            side="top",
         )
+
+        # Instructions label
+        self.instructions_container = ttk.LabelFrame(
+            master=self.header_container,
+            text="Instructions",
+        )
+        self.instructions_container.pack(side="bottom")
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="All fields are mandatory.\n\nNumber of adults, number of children, age of main representative and number of missing people must be a valid positive integer",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # ----------------------- FORM ----------------------------
         self.form_container = tk.Frame(
@@ -72,42 +89,54 @@ class AddEditRefugeeView(BaseView):
             pady=15,
             fill="both",
             expand=True,
+            padx=40,
         )
         # display plan - can't change
-        self._render_plan_name(self.form_container, on_row=0, on_col=0)
+        self._render_plan_name(self.form_container, on_row=0, on_col=0),
         # display camp - question - can change or not?
         self._render_camp_name(self.form_container, on_row=0, on_col=1)
 
         # id
-        self._render_refugee_id(self.form_container, on_row=1, on_col=0)
+        self._render_refugee_id(self.form_container, on_row=1, on_col=0, stick_side="w")
 
         # rep name
-        self._render_main_rep_name(self.form_container, on_row=2, on_col=0)
-
-        # medical condition
-        self._render_med_condition_name(self.form_container, on_row=3, on_col=0)
-
-        # number of adults
-        self._render_num_adults(self.form_container, on_row=4, on_col=0)
-
-        # number of children
-        self._render_num_children(self.form_container, on_row=5, on_col=0)
-        # main_rep_home_towm
-        self._render_hometown(self.form_container, on_row=6, on_col=0)
+        self._render_main_rep_name(
+            self.form_container, on_row=1, on_col=1, stick_side="e"
+        )
 
         # main_rep_age
-        self._render_rep_age(self.form_container, on_row=1, on_col=1)
+        self._render_rep_age(self.form_container, on_row=2, on_col=0, stick_side="w")
+
+        # main_rep_home_towm
+        self._render_hometown(self.form_container, on_row=2, on_col=1, stick_side="e")
 
         # main_rep_sex
 
+        # number of adults
+        self._render_num_adults(self.form_container, on_row=3, on_col=0, stick_side="w")
+
+        # number of children
+        self._render_num_children(
+            self.form_container, on_row=3, on_col=1, stick_side="e"
+        )
+
         # number of missing people
-        self._render_num_miss_members(self.form_container, on_row=2, on_col=1)
+        self._render_num_miss_members(
+            self.form_container, on_row=4, on_col=0, stick_side="w"
+        )
 
         # Status
-        self._render_status(self.form_container, on_row=3, on_col=1)
+        self._render_status(self.form_container, on_row=4, on_col=1, stick_side="e")
+
+        # medical condition
+        self._render_med_condition_name(
+            self.form_container, on_row=5, on_col=0, stick_side="w"
+        )
 
         # Buttons
-        self._render_action_buttons(self.form_container, on_row=7, on_col=0)
+        self._render_action_buttons(
+            self.form_container, on_row=7, on_col=0, stick_side="nsew"
+        )
 
     # -------------- Rendering functions for inputs ------------
 
@@ -116,7 +145,7 @@ class AddEditRefugeeView(BaseView):
         self.plan_name_container = tk.Frame(
             master=form_container,
         )
-        self.plan_name_container.grid(row=on_row, column=on_col)
+        self.plan_name_container.grid(row=on_row, column=on_col, padx=30, pady=10)
 
         self.plan_name_label_container = tk.Frame(
             master=self.plan_name_container,
@@ -161,7 +190,7 @@ class AddEditRefugeeView(BaseView):
         self.camp_name_container = tk.Frame(
             master=form_container,
         )
-        self.camp_name_container.grid(row=on_row, column=on_col)
+        self.camp_name_container.grid(row=on_row, column=on_col, padx=30, pady=10)
 
         self.camp_name_label_container = tk.Frame(
             master=self.camp_name_container,
@@ -199,14 +228,15 @@ class AddEditRefugeeView(BaseView):
         self.camp_name_entry.pack()
 
     #  Refugee ID
-    def _render_refugee_id(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_refugee_id(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         """Renders refugee ID if exists or new refugee ID if adding"""
         self.refugee_id_container = tk.Frame(
             master=form_container,
         )
         self.refugee_id_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.refugee_id_label_container = tk.Frame(
@@ -248,13 +278,14 @@ class AddEditRefugeeView(BaseView):
         self.refugee_id_entry.pack()
 
     # Refugee main rep namme
-    def _render_main_rep_name(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_main_rep_name(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.rep_name_container = tk.Frame(
             master=form_container,
         )
         self.rep_name_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.rep_name_label_container = tk.Frame(
@@ -299,14 +330,13 @@ class AddEditRefugeeView(BaseView):
 
     # Medical conition
     def _render_med_condition_name(
-        self, form_container, on_row: int, on_col: int
+        self, form_container, on_row: int, on_col: int, stick_side: str
     ) -> None:
         self.med_condition_container = tk.Frame(
             master=form_container,
         )
         self.med_condition_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.med_condition_label_container = tk.Frame(
@@ -350,13 +380,14 @@ class AddEditRefugeeView(BaseView):
         self.med_condition_entry.pack()
 
     # Number of adults
-    def _render_num_adults(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_num_adults(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.num_adults_container = tk.Frame(
             master=form_container,
         )
         self.num_adults_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.num_adults_label_container = tk.Frame(
@@ -394,13 +425,14 @@ class AddEditRefugeeView(BaseView):
         self.num_adults_entry.pack()
 
     # Number of children
-    def _render_num_children(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_num_children(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.num_children_container = tk.Frame(
             master=form_container,
         )
         self.num_children_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.num_children_label_container = tk.Frame(
@@ -438,13 +470,14 @@ class AddEditRefugeeView(BaseView):
         self.num_children_entry.pack()
 
     # Hometown
-    def _render_hometown(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_hometown(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.rep_hometown_container = tk.Frame(
             master=form_container,
         )
         self.rep_hometown_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.rep_hometown_label_container = tk.Frame(
@@ -488,13 +521,14 @@ class AddEditRefugeeView(BaseView):
         self.rep_hometown_entry.pack()
 
     # Main rep age
-    def _render_rep_age(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_rep_age(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.rep_age_container = tk.Frame(
             master=form_container,
         )
         self.rep_age_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.rep_age_label_container = tk.Frame(
@@ -535,14 +569,13 @@ class AddEditRefugeeView(BaseView):
 
     # Number of missing people
     def _render_num_miss_members(
-        self, form_container, on_row: int, on_col: int
+        self, form_container, on_row: int, on_col: int, stick_side: str
     ) -> None:
         self.num_miss_members_container = tk.Frame(
             master=form_container,
         )
         self.num_miss_members_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=30, pady=10, sticky=stick_side
         )
 
         self.num_miss_members_label_container = tk.Frame(
@@ -580,13 +613,14 @@ class AddEditRefugeeView(BaseView):
         self.num_miss_members_entry.pack()
 
     # Status
-    def _render_status(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_status(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.status_container = tk.Frame(
             master=form_container,
         )
         self.status_container.grid(
-            row=on_row,
-            column=on_col,
+            row=on_row, column=on_col, padx=(20, 50), pady=10, sticky=stick_side
         )
 
         self.status_label_container = tk.Frame(
@@ -630,12 +664,19 @@ class AddEditRefugeeView(BaseView):
         self.status_entry.pack()
 
     # Buttons
-    def _render_action_buttons(self, form_container, on_row: int, on_col: int) -> None:
+    def _render_action_buttons(
+        self, form_container, on_row: int, on_col: int, stick_side: str
+    ) -> None:
         self.action_buttons_container = tk.Frame(
             master=form_container,
         )
         self.action_buttons_container.grid(
-            row=on_row, column=on_col, pady=20, columnspan=2
+            row=on_row,
+            column=on_col,
+            padx=30,
+            sticky=stick_side,
+            pady=20,
+            columnspan=2,
         )
 
         self.submit_button = tk.Button(
@@ -692,7 +733,7 @@ class AddEditRefugeeView(BaseView):
         hometown = self.rep_hometown_entry.get()
         rep_age = self.rep_age_entry.get()
         missing_members = self.num_miss_members_entry.get()
-        status = self.status_entry.get()
+        status = self.status_text.get()
 
         if status == "In camp":
             status = 1
@@ -736,7 +777,22 @@ class AddEditRefugeeView(BaseView):
             self.form_is_valid = False
             errors["missing_members"].append("This field is required.")
 
-        # data validation
+        # DATA VALIDATION
+        # if the numbers are valid input (type and not negative)
+        if not self.is_valid_number(num_adults.strip()):
+            self.form_is_valid = False
+            errors["num_adults"].append("Invalid number of adults")
+        if not self.is_valid_number(num_children.strip()):
+            self.form_is_valid = False
+            errors["num_children"].append("Invalid number of children")
+        if not self.is_valid_number(missing_members.strip()):
+            self.form_is_valid = False
+            errors["missing_members"].append("Invalid number of missing memebers")
+        if not self.is_valid_number(rep_age.strip()) or (
+            int(rep_age) > 105 or int(rep_age) <= 0
+        ):
+            self.form_is_valid = False
+            errors["rep_age"].append("Invalid age")
 
         # error message if from is not valid
         if not self.form_is_valid:
@@ -749,7 +805,78 @@ class AddEditRefugeeView(BaseView):
                     error_msg += "\n\n"
             self.render_error_popup_window(message=error_msg)
 
-        return
+        # INSERT VALUES INTO DB
+        if self.is_edit:
+            insert_query_with_values(
+                query=f"""UPDATE RefugeeFamily
+                                     SET
+                                        main_rep_name = :main_rep_name,
+                                        medical_conditions = :med_condition,
+                                        n_adults = :num_adults,
+                                        n_children = :num_children,
+                                        main_rep_home_town = :hometown,
+                                        main_rep_age = :rep_age,
+                                        n_missing_members = :missing_members,
+                                        is_in_camp = :status
+                                     WHERE
+                                        id = :refugee_id
+                                     """,
+                values={
+                    "refugee_id": refugee_id,
+                    "main_rep_name": main_rep_name,
+                    "med_condition": med_condition,
+                    "num_adults": num_adults,
+                    "num_children": num_children,
+                    "hometown": hometown,
+                    "rep_age": rep_age,
+                    "missing_members": missing_members,
+                    "status": status,
+                },
+            )
+            logging.info(
+                f"Updated refugee family: {refugee_id=}, {main_rep_name=}, {num_adults=}, {num_children=}, {hometown=}, {rep_age=}, {missing_members=}, {status=}"
+            )
+        else:
+            insert_query_with_values(
+                query="""INSERT INTO RefugeeFamily 
+                    (
+                                        main_rep_name,
+                                        medical_conditions,
+                                        n_adults,
+                                        n_children,
+                                        main_rep_home_town,
+                                        main_rep_age,
+                                        n_missing_members,
+                                        is_in_camp,
+                                        camp_id
+                        ) VALUES (
+                                        :main_rep_name,
+                                        :med_condition,
+                                        :num_adults,
+                                        :num_children,
+                                        :hometown,
+                                        :rep_age,
+                                        :missing_members,
+                                        :status,
+                                        :camp_id
+                    );
+                    """,
+                values={
+                    "main_rep_name": main_rep_name,
+                    "med_condition": med_condition,
+                    "num_adults": num_adults,
+                    "num_children": num_children,
+                    "hometown": hometown,
+                    "rep_age": rep_age,
+                    "missing_members": missing_members,
+                    "status": status,
+                    "camp_id": self.camp_id,
+                },
+            )
+            logging.info(
+                f"Inserted refugee family:{main_rep_name=}, {num_adults=}, {num_children=}, {hometown=}, {rep_age=}, {missing_members=}, {status=}"
+            )
+        self.master.switch_to_view("camp_detail")
 
     def _render_delete_confirm_popup_window(self) -> None:
         title = "🚨 Delete Refugee Record"
@@ -768,4 +895,25 @@ class AddEditRefugeeView(BaseView):
         )
 
         self.master.switch_to_view("camp_detail")
-        # get the input values
+
+    def is_valid_number(self, entry) -> bool:
+        try:
+            int_value = int(entry)
+            if int_value >= 0:
+                return True
+        except ValueError:
+            return False
+
+    def _render_field_label_from_key(self, field_key: str) -> str:
+        key_name_map = {
+            "main_rep_name": "Main Representative Name",
+            "med_condition": "Medical Condition",
+            "num_adults": "Number of Adults",
+            "num_children": "Number of Children",
+            "hometown": "Hometown",
+            "rep_age": "Representative's Age",
+            "missing_members": "Number of Missing Members",
+            "status": "Status",
+        }
+
+        return key_name_map[field_key]
