@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 from constants import config
@@ -14,16 +15,16 @@ class PlanDetailView(BaseView):
         super().__init__(master)
         self.master = master
 
-        self.plan_name = self.master.get_global_state().get("plan_name")
-        if not self.plan_name:
-            logging.error("No plan name in global state. Returning to all plans")
-            raise ValueError("No plan name in global state")
+        self.plan_id = self.master.get_global_state().get("plan_id_to_view")
+        if not self.plan_id:
+            logging.error("No plan id in global state!")
+            raise ValueError("No plan id in global state")
 
         # Get all plan details
         self.get_plan_details()
 
         self.render_widgets()
-        
+
         self.update()
 
     def render_widgets(self) -> None:
@@ -32,45 +33,45 @@ class PlanDetailView(BaseView):
         # Create container
         self.container = tk.Frame(
             master=self,
-            width=1200,
-            height=300,
         )
         self.container.pack(
             fill="both",
-            padx=10,
-            pady=100,
         )
 
-        self.header_label = tk.Label(
+        # Instructions label
+        self.instructions_container = ttk.LabelFrame(
             master=self.container,
-            text=f"DETAILS FOR {self.plan_name.upper()}",
-            font=(60),
+            text="Instructions for Plan Detail View",
         )
-        self.header_label.grid(row=0, column=0, columnspan=2)
+        self.instructions_container.grid(row=0, column=0, sticky="n", padx=10)
+
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.\n\nNOTE: you can scroll to see more Camps, if there are more.",
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         # PLAN INFORMATION
         self.info_container = tk.Frame(
             master=self.container,
-            width=1000,
-            height=300,
         )
         self.info_frame = tk.LabelFrame(
             master=self.info_container,
             text="Information",
             padx=10,
-            pady=10,
         )
         self.total_resources_frame = tk.LabelFrame(
             master=self.info_container,
-            text="Primary Resources",
+            text="Total Plan Resources",
             padx=10,
-            pady=10,
         )
 
         # PLAN INFORMATION
         self.info_container.grid(
-            row=1,
-            column=0,
+            row=0,
+            column=1,
         )
         self.info_frame.pack(
             side="left",
@@ -86,187 +87,143 @@ class PlanDetailView(BaseView):
         self.render_total_resources(
             container=self.total_resources_frame,
         )
-        
-        self.add_camp_frame = tk.Frame(
+
+        self.camps_frame = tk.Frame(
             master=self.container,
         )
-        self.add_camp_frame.grid(
-            row=2,
-            column=0,
-            columnspan=2,
-            sticky='e',
-        )
-        self.add_camp_button = tk.Button(
-            master=self.add_camp_frame,
-            text="Add Camp",
-            command=lambda: self._handle_add_camp_click(),
-        )
-        self.add_camp_button.pack(side='right')
+        self.camps_frame.grid(row=1, column=1, sticky="e")
+
+        self.render_camp_action_buttons(container=self.camps_frame)
 
         self.all_camps_container = tk.Frame(
             master=self.container,
-            width=1200,
-            height=300,
         )
-        self.all_camps_container.grid(
-            row=3,
-            column=0,
-            columnspan=2,
-            pady=40,
-        )
+        self.all_camps_container.grid(row=3, column=0, pady=5, columnspan=1)
         self.render_all_camps(container=self.all_camps_container)
 
-    def _handle_add_camp_click(self) -> None:
-        
+    def render_camp_action_buttons(self, container) -> None:
+        self.add_camp_button = tk.Button(
+            master=container,
+            text="Add Camp",
+            command=lambda: self._handle_add_camp_click(),
+        )
+        self.add_camp_button.pack(side="left", padx=30)
+
+        self.selected_camp_actions_frame = tk.LabelFrame(
+            container, text="Selected Camp Actions"
+        )
+        self.selected_camp_actions_frame.pack(anchor="w", padx=10)
 
         
+
+        self.view_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="View Camp",
+            command=lambda: self._handle_selected_camp_actions_click("view"),
+        )
+        self.view_camp_button.pack(side="left", pady=5, padx=5)
+        
+        self.edit_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="Edit Camp",
+            command=lambda: self._handle_selected_camp_actions_click("edit"),
+        )
+        self.edit_camp_button.pack(side="left", pady=5, padx=5)
+
+        self.resources_camp_button = tk.Button(
+            master=self.selected_camp_actions_frame,
+            text="Edit Resources for Camp",
+            command=lambda: self._handle_selected_camp_actions_click("resources"),
+        )
+        self.resources_camp_button.pack(side="left", pady=5, padx=5)
+
+    def _handle_add_camp_click(self) -> None:
         current_state = self.master.get_global_state()
         current_state["plan_id_for_camp"] = self.plan_id
         self.master.set_global_state(current_state)
-        
+
         self.master.switch_to_view("add_edit_camp")
-    
+
     def render_all_camps(self, container) -> None:
         self.all_camps = self.get_all_camps()
 
-        self.header_cols = [
-            "Camp",
-            "Location",
-            "Current Capacity (n)",
-            "Volunteers (n)",
-            "Refugee Families (n)",
-            "Resources",
-            "Actions",
-        ]
-        self.data_to_render = [self.header_cols]
+        self.data_to_render = []
 
         # Get data
         for camp in self.all_camps:
             data_to_add = self.get_data_to_render_from_camp(camp)
             self.data_to_render.append(data_to_add)
+        logging.debug(f'{self.data_to_render=}')
+        # Render resource string
+        for item in self.data_to_render:
+            resources = int(item[-1])
+            if not resources:
+                label = '❌'
+            else:
+                label = f"{resources} allocated"
+            item[6] = label
+                
 
-        # Render table
-        for ix, row in enumerate(self.data_to_render):
-            self._render_row(
-                container=container,
-                items=row,
-                header=ix == 0,  # True if first row, else False
-            )
+        self.header_cols = [
+            "ID",
+            "Camp",
+            "Location",
+            "Current Capacity (n)",
+            "Volunteers (n)",
+            "Refugee Families (n)",
+            "Resource Types (n)",
+        ]
 
-    def _render_row(
-        self,
-        container: tk.Frame,
-        items: list[str],
-        column_width=15,
-        header=False,
-    ) -> None:
-        self.row_container = tk.Frame(
-            master=container,
+        # TODO: dynamically choose Rowheight mostly determined by n resources, each separated by \n
+
+        self.render_tree_table(
+            header_cols=self.header_cols,
+            data=self.data_to_render,
+            container=container,
+            col_widths=[
+                30,
+                100,
+                100,
+                150,
+                100,
+                120,
+                120,
+            ],
+            rowheight=75,
+            max_rows=4,
         )
-        self.row_container.pack()
 
-        for ix, label in enumerate(items):
-            self.cell_frame = tk.Frame(
-                master=self.row_container,
-                width=200,
-                height=25,
-            )
-            self.cell_frame.grid(
-                row=0,
-                column=ix,
-            )
-            if not header:
-                add_border(self.cell_frame)
+    def _handle_selected_camp_actions_click(self, action: str):
+        camp_row = self.tree.focus()
+        if not camp_row:
+            self.render_error_popup_window(message="Please select a camp first!")
+            return
 
-            # Extra work to render resource col as it's in the form of [('Food', '100'), ('Water', '200'), ('Medicine', '300')]
-            if ix == 5:
-                column_width += 20  # MAKE RESOURCE COLUMN WIDER
+        # Get selected row data
+        camp_data = self.tree.item(camp_row, "values")
+        camp_id = camp_data[0]
+        if action == "edit":
+            self._handle_edit_click(camp_id=camp_id)
+        elif action == "view":
+            self._handle_view_click(camp_id=camp_id)
+        else:
+            self._handle_edit_resources_click(camp_id=camp_id)
 
-                if not header:
-                    new_label = [f"{resource[0]}: {resource[1]}" for resource in label]
-                    label = "\n".join(new_label)
-
-            # Make action col thinner
-            if ix == 6:
-                column_width -= 25
-
-            self.cell_content = tk.Label(
-                master=self.cell_frame,
-                text=label,
-                width=column_width,
-                height=5 if not header else 1,
-            )
-
-            self.cell_content.pack()
-
-        # Add action buttons
-        if not header:
-            BUTTON_WIDTH = column_width - 20
-
-            self.buttons_frame = tk.Frame(
-                master=self.row_container,
-            )
-            self.buttons_frame.grid(
-                row=0,
-                column=len(items),
-                padx=5,
-            )
-
-            tk.Button(
-                master=self.buttons_frame,
-                text="Edit",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_edit_click(items[0]),
-            ).pack(fill="both")
-            tk.Button(
-                master=self.buttons_frame,
-                text="View",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_view_click(items[0]),
-            ).pack(fill="both")
-            tk.Button(
-                master=self.buttons_frame,
-                text="Resources",
-                width=BUTTON_WIDTH,
-                command=lambda: self._handle_edit_resources_click(items[0]),
-            ).pack(fill="both")
-
-    def _handle_edit_resources_click(self, camp_name: str) -> None:
-        camp_id = self.get_camp_id_from_name(camp_name)
-
+    def _handle_edit_resources_click(self, camp_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["camp_id_for_resources"] = camp_id
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("edit_resources")
 
-    def get_camp_id_from_name(self, camp_name: str) -> int:
-        """Gets plan name from plan id"""
-        camp_id = run_query_get_rows(
-            f"""
-            SELECT
-                id
-            FROM
-                Camp
-            WHERE
-                name = '{camp_name}'
-        """
-        )[0]["id"]
-
-        return camp_id
-
-    def _handle_edit_click(self, camp_name: str) -> None:
-        camp_id = self.get_camp_id_from_name(camp_name)
-
+    def _handle_edit_click(self, camp_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["camp_id_to_edit"] = camp_id
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("add_edit_camp")
 
-    def _handle_view_click(self, camp_name: str) -> None:
-        camp_id = self.get_camp_id_from_name(camp_name)
-
+    def _handle_view_click(self, camp_id: int) -> None:
         current_state = self.master.get_global_state()
         current_state["camp_id_to_view"] = camp_id
         self.master.set_global_state(current_state)
@@ -276,6 +233,8 @@ class PlanDetailView(BaseView):
     def get_data_to_render_from_camp(self, camp: dict) -> list:
         """Gets data to render from camp"""
         data_to_render = []
+
+        data_to_render.append(camp["id"])
 
         # Get camp name
         data_to_render.append(camp["name"])
@@ -306,14 +265,14 @@ class PlanDetailView(BaseView):
         resources = run_query_get_rows(
             f"""
             SELECT
-                name, amount
+                COUNT(name)
             FROM
                 CampResources
             WHERE
                 camp_id = '{camp["id"]}'
         """
         )
-        return [(resource["name"], resource["amount"]) for resource in resources]
+        return resources[0]['COUNT(name)']
 
     def get_refugee_familes_for_camp(self, camp: dict) -> int:
         """Gets refugee families for camp"""
@@ -364,7 +323,7 @@ class PlanDetailView(BaseView):
 
         current_capacity = max_capacity - total_refugees
 
-        return f"{current_capacity}\n(MAX: {max_capacity})"
+        return f"{current_capacity} (MAX: {max_capacity})"
 
     def render_total_resources(self, container) -> None:
         """Renders total resources for this plan"""
@@ -471,11 +430,10 @@ class PlanDetailView(BaseView):
             FROM
                 Plan
             WHERE
-                title = '{self.plan_name}'
+                id = '{self.plan_id}'
         """
         )[0]
 
-        self.plan_id = plan_details["id"]
         self.plan_title = plan_details["title"]
         self.plan_description = plan_details["description"]
         self.plan_location = plan_details["location"]

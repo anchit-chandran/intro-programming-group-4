@@ -4,9 +4,17 @@
 
 - SQLite Viewer
 
-## Setup
+## Getting Started
 
-In the root directory, run:
+1. Clone the repository
+2. `cd` into the repo
+3. Install necessary requirements using:
+
+```python
+pip install -r requirements.txt
+```
+
+4. In the root directory, run:
 
 ```python
 python main.py

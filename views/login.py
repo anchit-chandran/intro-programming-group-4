@@ -100,7 +100,6 @@ class LoginView(BaseView):
         password = self.password.get()
 
         if not self._input_valid(username, password):
-            title = "Invalid"
             message = "Fields cannot be blank."
             self.render_error_popup_window(message=message)
             return None
@@ -109,13 +108,21 @@ class LoginView(BaseView):
 
         # Query db
         un_pw_correct = run_query_get_rows(
-            query=f"SELECT id, username, is_admin, password FROM User WHERE username='{username}' and password='{password}'"
+            query=f"SELECT id, username, is_admin, password, is_active FROM User WHERE username='{username}' and password='{password}'"
         )
 
         # U/n or pw incorrect
         if not un_pw_correct:
             self.render_error_popup_window(
                 message="Username or password incorrect. Please check and try again.",
+            )
+            return None
+        
+        # Deactivated acccount
+        if not un_pw_correct[0]['is_active']:
+            self.render_error_popup_window(
+                title='Deactivated Account',
+                message="Your account has been deactivated!\n\nThis must be frustrating and we apologise for the inconvenience.\n\n The only way to resolve this is to speak with your admin."
             )
             return None
 

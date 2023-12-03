@@ -5,9 +5,9 @@ camp_resource_data = []
 names = ['Alpha', 'Beta', 'Gamma']
 for plan_id in range(1, 4):
     # create 3 camps
-    for j in range(3):
+    for j in range(10):
         new_camp = {
-            "name": f"Camp {names[j]}",
+            "name": f"Camp {names[j % 3]}",
             "location": f"Location {j}",
             "maxCapacity": (j * 10) + 30,
             "plan_id": plan_id,
