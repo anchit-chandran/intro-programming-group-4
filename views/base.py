@@ -256,8 +256,7 @@ class BaseView(tk.Frame):
         style.configure("Treeview")
         style.map("Treeview", background=[("selected", "green")])
 
-        if rowheight:
-            style.configure("Treeview", rowheight=rowheight)
+        style.configure("Treeview", rowheight=rowheight or 25)
             
         tree = ttk.Treeview(master=container, style="Treeview", **extra_config)
 
