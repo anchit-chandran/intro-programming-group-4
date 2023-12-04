@@ -34,6 +34,7 @@ class MainApplication(tk.Tk):
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
             "search":SearchView,
         }
+        logging.debug(self.view_map.keys())
         # Create the reverse map
         self.reverse_view_map = {}
         for view_name, view in self.view_map.items():

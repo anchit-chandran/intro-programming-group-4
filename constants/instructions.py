@@ -1,0 +1,20 @@
+INSTRUCTIONS = {
+    "login": "",
+    "plan_detail": "",
+    "all_plans": "",
+    "add_edit_plan": "",
+    "add_edit_camp": "",
+    "camp_detail": "",
+    "all_volunteers": "",
+    "messages": "",
+    "profile": {
+        "own_profile": "Edit your own profile",
+    },
+    "new_msg": "",
+    "edit_resources": "",
+    "new_resource": "",
+    "add_edit_refugee": "",
+    "departed_refugees": "",
+    "refugee_profile": "",
+    "search": "",
+}
