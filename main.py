@@ -32,7 +32,7 @@ class MainApplication(tk.Tk):
             "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add
             "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
-            "missing_people":MissingPeopleView,
+            "search":SearchView,
         }
         # Create the reverse map
         self.reverse_view_map = {}
@@ -52,7 +52,7 @@ class MainApplication(tk.Tk):
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("missing_people")
+        self.switch_to_view("search")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"

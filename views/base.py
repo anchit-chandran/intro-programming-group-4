@@ -107,12 +107,12 @@ class BaseView(tk.Frame):
                 column=2,
                 sticky="w",
             )
-            self.missing_people_button = tk.Button(
+            self.search_button = tk.Button(
                 master=self.nav_container,
                 text="Search 🔍",
-                command=self._handle_missing_people_click,
+                command=self._handle_search_click,
             )
-            self.missing_people_button.grid(
+            self.search_button.grid(
                 row=0,
                 column=3,
                 sticky="w",
@@ -201,8 +201,8 @@ class BaseView(tk.Frame):
         )
         self.user_text.pack(padx=5, pady=5)
 
-    def _handle_missing_people_click(self)->None:
-        self.master.switch_to_view('missing_people')
+    def _handle_search_click(self)->None:
+        self.master.switch_to_view('search')
     
     def set_character_limit(self, entry_text: tk.StringVar, char_limit: int) -> None:
         """Set character limit for entry_text (exclusive)
@@ -256,8 +256,7 @@ class BaseView(tk.Frame):
         style.configure("Treeview")
         style.map("Treeview", background=[("selected", "green")])
 
-        if rowheight:
-            style.configure("Treeview", rowheight=rowheight)
+        style.configure("Treeview", rowheight=rowheight or 25)
             
         tree = ttk.Treeview(master=container, style="Treeview", **extra_config)
 
