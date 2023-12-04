@@ -11,7 +11,7 @@ from constants import config
 from utilities.db import run_query_get_rows
 
 
-class MissingPeopleView(BaseView):
+class SearchView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -70,7 +70,7 @@ class MissingPeopleView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.",
+            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.\n\nNOTE: search fields labelled '< or >' can search on exact integers, or can be combined with the '<' / '>' symbols to search ranges e.g. for Number of Children, '>1' would return all Families with more than 2 children.",
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -156,7 +156,7 @@ class MissingPeopleView(BaseView):
         # Number of Adults
         self.n_adults_label = tk.Label(
             master=container,
-            text="No. of Adults",
+            text="No. of Adults (< or >)",
             width=20,
             anchor="w",
         )
@@ -169,7 +169,7 @@ class MissingPeopleView(BaseView):
         # Number of Children
         self.n_children_label = tk.Label(
             master=container,
-            text="No. of Children",
+            text="No. of Children (< or >)",
             width=20,
             anchor="w",
         )
@@ -182,7 +182,7 @@ class MissingPeopleView(BaseView):
         # Number of Missing Members
         self.n_missing_members_label = tk.Label(
             master=container,
-            text="No. of Missing Members",
+            text="No. of Missing Members (< or >)",
             width=20,
             anchor="w",
         )
@@ -336,6 +336,16 @@ class MissingPeopleView(BaseView):
             if val:
                 if field == 'camp_id':
                     val = self._get_camp_id_from_label(val)
+                
+                # Numeric fields
+                if field in ['n_adults', 'n_children', 'n_missing_members']:
+                    # Look for carets
+                    carets = re.findall(pattern=r">|<", string=val)
+                    if carets:
+                        # If there are carets, then change value to WHERE FIELD > val
+                        where_clauses.append(f"{field} {carets[0]} {val.replace(carets[0], '')}")
+                        continue
+                    
                 where_clauses.append(f"{field} LIKE '%{val}%'")
 
         where_joined = "\n AND ".join(where_clauses)
