@@ -27,6 +27,9 @@ class AddEditCampView(BaseView):
             self.edit_camp_details = run_query_get_rows(
                 f"SELECT * FROM Camp WHERE id = '{self.camp_id}'"
             )[0]
+        
+        
+        self.is_admin = self.master.get_global_state().get('is_admin')
 
         self.render_widgets()
         self.master.update()
@@ -144,13 +147,14 @@ class AddEditCampView(BaseView):
         self.cancel_button = tk.Button(
             master=self.action_buttons_container,
             text="Cancel",
-            command=lambda: self.handle_cancel_click(),
+            command=self.handle_cancel_click,
         )
         self.cancel_button.pack(
             side="left",
         )
 
-        if self.camp_id:
+
+        if self.camp_id and self.is_admin:
             self.delete_button = tk.Button(
                 master=self.action_buttons_container,
                 text="Delete",
@@ -166,7 +170,13 @@ class AddEditCampView(BaseView):
         # Clean state
         self.master.get_global_state().pop("camp_id_to_edit", None)
         
-        self.master.switch_to_view('plan_detail')
+        if self.is_admin:
+            self.master.switch_to_view('plan_detail')
+        else:
+            current_global_state = self.master.get_global_state()
+            current_global_state["camp_id_to_view"] = self.camp_id
+            self.master.set_global_state(current_global_state)
+            self.master.switch_to_view('camp_detail')
     
     def _render_plan_id(self, form_container, on_row: int) -> None:
         # PLAN ID

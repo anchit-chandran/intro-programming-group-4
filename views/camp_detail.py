@@ -19,10 +19,6 @@ class CampDetailView(BaseView):
         self.render_widgets()
         self.update()
 
-    def handle_send_message(self):
-        """navigates to new message form view"""
-        self.master.switch_to_view("new_msg")
-
     def handle_edit_click(self, refugee_id: int):
         """Navigates to edit refugee from view"""
         current_global_state = self.master.get_global_state()
@@ -114,9 +110,6 @@ class CampDetailView(BaseView):
             master=self,
         )
         self.container.pack(
-            fill="both",
-            padx=30,
-            pady=20,
         )
 
         # Header
@@ -258,22 +251,49 @@ class CampDetailView(BaseView):
             )
             row_number += 1
 
-        # if volunteer - show message button, if not - hide
+        # if volunteer - show edit buttons
         if self.is_volunteer:
-            # button
-            self.send_message_button = ttk.Button(
+            
+            self.camp_action_buttons_container = tk.LabelFrame(
                 master=self.top_container,
-                text="MESSAGE ADMIN",
-                command=self.handle_send_message,
+                text='Camp Actions'
             )
-            self.send_message_button.grid(
-                row=0, column=3, padx=30, pady=20, sticky="ne"
+            self.camp_action_buttons_container.grid(row=0, column=3,  sticky="ne")
+            
+            self.edit_details_button = ttk.Button(
+                master=self.camp_action_buttons_container,
+                text="📝 Edit Details",
+                command=self.handle_edit_click,
             )
+            self.edit_details_button.pack(side='top', padx=5, pady=5)
+            
+            self.edit_resources_button = ttk.Button(
+                master=self.camp_action_buttons_container,
+                text="📝 Edit Resources",
+                command=self.handle_resources_click,
+            )
+            self.edit_resources_button.pack(side='bottom', padx=5, pady=5)
 
         # render tables
         self.render_camp_volunteers()
         self.render_camp_refugees()
 
+    
+    def handle_edit_click(self)->None:
+        
+        current_global_state = self.master.get_global_state()
+        camp_id_to_view = current_global_state.pop('camp_id_to_view')
+        plan_id_for_camp = run_query_get_rows(f"SELECT plan_id FROM Camp WHERE id={camp_id_to_view}")[0]['plan_id']
+        
+        current_global_state["camp_id_to_edit"] = camp_id_to_view
+        current_global_state["plan_id_to_view"] = plan_id_for_camp
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("add_edit_camp")
+        
+    
+    def handle_resources_click(self)->None:
+        pass
+    
     # ------------------------ Volunteers list ------------------------------
     def render_camp_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
