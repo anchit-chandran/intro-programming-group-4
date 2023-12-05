@@ -266,13 +266,7 @@ class CampDetailView(BaseView):
                 command=self.handle_edit_click,
             )
             self.edit_details_button.pack(side='top', padx=5, pady=5)
-            
-            self.edit_resources_button = ttk.Button(
-                master=self.camp_action_buttons_container,
-                text="📝 Edit Resources",
-                command=self.handle_resources_click,
-            )
-            self.edit_resources_button.pack(side='bottom', padx=5, pady=5)
+
 
         # render tables
         self.render_camp_volunteers()
@@ -290,9 +284,6 @@ class CampDetailView(BaseView):
         self.master.set_global_state(current_global_state)
         self.master.switch_to_view("add_edit_camp")
         
-    
-    def handle_resources_click(self)->None:
-        pass
     
     # ------------------------ Volunteers list ------------------------------
     def render_camp_volunteers(self) -> None:
