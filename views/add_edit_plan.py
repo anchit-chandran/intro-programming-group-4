@@ -611,10 +611,23 @@ class AddEditPlanView(BaseView):
             errors["plan_name"].append("This field is required.")
         else:
             # Ensure unique name
-            duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}'")
-            if len(duplicate_plans):
-                self.form_is_valid = False
-                errors["plan_name"].append(f"Plan Name must be unique!")
+            if self.is_edit:
+                # Get current plan name
+                current_plan_name = run_query_get_rows(f"SELECT title FROM Plan WHERE id={plan_id}")[0]['title']
+                
+                # Check duplicates
+                n_duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}' AND title != '{current_plan_name}'")[0]['COUNT(*)']
+                logging.debug(f'{self.is_edit=} and {n_duplicate_plans=}')
+                
+                if n_duplicate_plans: # bc this current plan will already show
+                    self.form_is_valid = False
+                    errors["plan_name"].append(f"Plan Name must be unique!")
+            else:
+                # Check duplicates
+                n_duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}'")[0]['COUNT(*)']
+                if n_duplicate_plans:
+                    self.form_is_valid = False
+                    errors["plan_name"].append(f"Plan Name must be unique!")
         if not "".join(start_date.split("-")).strip():
             self.form_is_valid = False
             errors["start_date"].append("This field is required.")
