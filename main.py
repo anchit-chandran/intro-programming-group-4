@@ -1,7 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
-import sqlite3
+import os
 
 # Project imports
 from views import *
@@ -41,20 +41,21 @@ class MainApplication(tk.Tk):
             self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
-        self.DEBUG = True or testing
+        self.DEBUG = (os.environ.get('DEBUG') == 'True') or testing
         if self.DEBUG:
             self.set_global_state(
                 {
-                    "user_id": 2,
+                    "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
-                    'camp_id_to_view' : 1,
                 }
             )
+        
+        logging.info(f'{self.DEBUG=}')
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("camp_detail")
+        self.switch_to_view("login")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -75,7 +76,7 @@ class MainApplication(tk.Tk):
         # self.attributes('-fullscreen', True)
 
         # DB Setup
-        setup_db(reset_database=True)
+        setup_db(reset_database=False)
 
     def switch_to_default_view_after_login(self) -> None:
         """Based on whether is_admin, switch to default view after login"""
@@ -126,5 +127,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     main()
