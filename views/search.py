@@ -133,10 +133,15 @@ class SearchView(BaseView):
             anchor="w",
         )
 
-        self.main_rep_sex_entry = tk.Entry(
+        self.main_rep_sex_entry = ttk.Combobox(
             master=container,
-            width=70,
+            width=6,
+            state="readonly",
         )
+        sex_values = ['']
+        sex_values.extend(list(config.SEX_VALUES))
+        self.main_rep_sex_entry["values"] = sex_values
+        self.main_rep_sex_entry.current(None) 
 
         # Main Rep Home Town
         self.main_rep_home_town_label = tk.Label(
@@ -260,7 +265,7 @@ class SearchView(BaseView):
         self.main_rep_age_entry.grid(row=2, column=1)
 
         self.main_rep_sex_label.grid(row=3, column=0)
-        self.main_rep_sex_entry.grid(row=3, column=1)
+        self.main_rep_sex_entry.grid(row=3, column=1, sticky='w')
 
         self.main_rep_home_town_label.grid(row=4, column=0)
         self.main_rep_home_town_entry.grid(row=4, column=1)
@@ -410,18 +415,18 @@ class SearchView(BaseView):
 
             n_adults_input = self.n_adults_entry.get()
             if n_adults_input:
-                num = n_adults_input.replace('<','').replace('>','')
+                num = n_adults_input.replace("<", "").replace(">", "")
                 if not num.isnumeric():
                     errors += " Are the number fields correct?"
                     raise Exception("Nums must be ints")
             n_children_input = self.n_children_entry.get()
             if n_children_input:
-                num = n_children_input.replace('<','').replace('>','')
+                num = n_children_input.replace("<", "").replace(">", "")
                 if not num.isnumeric():
                     raise Exception("Nums must be ints")
             n_missing_members_input = self.n_missing_members_entry.get()
             if n_missing_members_input:
-                num = n_missing_members_input.replace('<','').replace('>','')
+                num = n_missing_members_input.replace("<", "").replace(">", "")
                 if not num.isnumeric():
                     errors += " Are the number fields correct?"
                     raise Exception("Nums must be ints")
