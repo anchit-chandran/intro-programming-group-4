@@ -1,7 +1,9 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import messagebox
 from tkinter import ttk
+from datetime import date
 
 # Project imports
 from constants import config
@@ -29,7 +31,7 @@ class AllPlansView(BaseView):
         self.container.pack(
             pady=10,
         )
-        
+
         # Instructions label
         self.instructions_container = ttk.LabelFrame(
             master=self.container,
@@ -73,6 +75,15 @@ class AllPlansView(BaseView):
             command=self._handle_edit_click,
         )
         self.edit_plan_button.pack(
+            side="right",
+        )
+
+        self.toggle_status_button = tk.Button(
+            master=self.header_container,
+            text="Toggle Plan Status",
+            command=self._handle_toggle_click,
+        )
+        self.toggle_status_button.pack(
             side="right",
         )
 
@@ -146,7 +157,6 @@ class AllPlansView(BaseView):
             container=self.all_plans_container,
         )
 
-    
     def get_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM Plan")
 
@@ -155,35 +165,87 @@ class AllPlansView(BaseView):
         if plan_row:
             plan_data = self.tree.item(plan_row, "values")
             plan_id = plan_data[0]
+            if self._check_plan_ended(plan_id=plan_id):
+                self.render_error_popup_window(message="Plan has ended! Please re-open the Plan to go further.")
+                return
             current_global_state = self.master.get_global_state()
             current_global_state["plan_id_to_view"] = plan_id
             self.master.set_global_state(current_global_state)
 
             self.master.switch_to_view("plan_detail")
         else:
-            self.render_error_popup_window(message='Please select a plan to view!')
-
+            self.render_error_popup_window(message="Please select a plan to view!")
 
     def _handle_add_plan_click(self):
         # Clean EDIT PLAN global vars
         current_state = self.master.get_global_state()
-        current_state.pop("plan_name_to_edit", None)
+        current_state.pop("plan_id_to_edit", None)
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("add_edit_plan")
 
+    def _handle_toggle_click(self):
+        plan_row = self.tree.focus()
+        if not plan_row:
+            self.render_error_popup_window(
+                message="Please select a plan to toggle status!"
+            )
+
+        plan_data = self.tree.item(plan_row, "values")
+        plan_id = plan_data[0]
+        plan_end_date = plan_data[4]
+
+        confirm_msg = f'Are you sure you want to {"end" if plan_end_date == "Ongoing" else "restart"} this plan?'
+        user_input = messagebox.askyesno("Toggle Plan Status", confirm_msg)
+        
+        if not user_input:
+            return
+
+        # set enddate to today
+        if plan_end_date == "Ongoing":
+            today = date.today()
+            run_query_get_rows(
+                f"""UPDATE Plan
+                                        SET
+                                            end_date = '{today}'
+                                        WHERE
+                                            id = {plan_id}"""
+            )
+        else:
+            run_query_get_rows(
+                f"""UPDATE Plan
+                                        SET
+                                            end_date = ''
+                                        WHERE
+                                            id = {plan_id}"""
+            )
+        
+        self.master.refresh_view()
+
+    def _check_plan_ended(self, plan_id:int)->bool:
+        plan_end_date = run_query_get_rows(f"SELECT end_date FROM Plan WHERE id={plan_id}")[0]['end_date']
+        logging.debug(f"{plan_end_date=}")
+        return bool(plan_end_date)
+        
+    
     def _handle_edit_click(self):
         plan_row = self.tree.focus()
         if plan_row:
+
             plan_data = self.tree.item(plan_row, "values")
             plan_id = plan_data[0]
+            
+            if self._check_plan_ended(plan_id=plan_id):
+                self.render_error_popup_window(message="Plan has ended! Please re-open the Plan to go further.")
+                return
+            
             current_global_state = self.master.get_global_state()
             current_global_state["plan_id_to_edit"] = plan_id
             self.master.set_global_state(current_global_state)
 
             self.master.switch_to_view("add_edit_plan")
         else:
-            self.render_error_popup_window(message='Please select a plan to edit!')
+            self.render_error_popup_window(message="Please select a plan to edit!")
 
     def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
         """Calculates the total number of camps for plan"""
