@@ -27,9 +27,8 @@ class AddEditCampView(BaseView):
             self.edit_camp_details = run_query_get_rows(
                 f"SELECT * FROM Camp WHERE id = '{self.camp_id}'"
             )[0]
-        
-        
-        self.is_admin = self.master.get_global_state().get('is_admin')
+
+        self.is_admin = self.master.get_global_state().get("is_admin")
 
         self.render_widgets()
         self.master.update()
@@ -60,14 +59,14 @@ class AddEditCampView(BaseView):
         self.header.pack(
             side="top",
         )
-        
+
         # Instructions label
         self.instructions_container = ttk.LabelFrame(
             master=self.header_container,
             text="Instructions",
         )
-        self.instructions_container.pack(side='bottom')
-        
+        self.instructions_container.pack(side="bottom")
+
         # editing
         if self.camp_id:
             current_capacity = self.calculate_current_capacity(camp_id=self.camp_id)
@@ -120,11 +119,13 @@ class AddEditCampView(BaseView):
             on_row=5,
         )
 
-    def calculate_current_capacity(self, camp_id:int)->int:
-        current_capacity = run_query_get_rows(f"SELECT COUNT(id) FROM RefugeeFamily WHERE is_in_camp=1 AND camp_id={camp_id}")[0]['COUNT(id)']
-        
+    def calculate_current_capacity(self, camp_id: int) -> int:
+        current_capacity = run_query_get_rows(
+            f"SELECT COUNT(id) FROM RefugeeFamily WHERE is_in_camp=1 AND camp_id={camp_id}"
+        )[0]["COUNT(id)"]
+
         return int(current_capacity)
-    
+
     def _render_action_buttons(self, form_container, on_row: int) -> None:
         self.action_buttons_container = tk.Frame(
             master=form_container,
@@ -153,7 +154,6 @@ class AddEditCampView(BaseView):
             side="left",
         )
 
-
         if self.camp_id and self.is_admin:
             self.delete_button = tk.Button(
                 master=self.action_buttons_container,
@@ -165,19 +165,18 @@ class AddEditCampView(BaseView):
                 side="left",
             )
 
-    def handle_cancel_click(self)->None:
-        
+    def handle_cancel_click(self) -> None:
         # Clean state
         self.master.get_global_state().pop("camp_id_to_edit", None)
-        
+
         if self.is_admin:
-            self.master.switch_to_view('plan_detail')
+            self.master.switch_to_view("plan_detail")
         else:
             current_global_state = self.master.get_global_state()
             current_global_state["camp_id_to_view"] = self.camp_id
             self.master.set_global_state(current_global_state)
-            self.master.switch_to_view('camp_detail')
-    
+            self.master.switch_to_view("camp_detail")
+
     def _render_plan_id(self, form_container, on_row: int) -> None:
         # PLAN ID
         self.plan_id_container = tk.Frame(
@@ -421,8 +420,6 @@ class AddEditCampView(BaseView):
         camp_name = self.camp_name_entry.get()
         location = self.location_entry.get()
         maxCapacity = self.maxCapacity_entry.get()
-        
-        logging.debug(f"{plan_id=} {camp_id=} {camp_name=} {location=} {maxCapacity=}")
 
         # Perform form validation
         self.form_is_valid = True
@@ -437,19 +434,30 @@ class AddEditCampView(BaseView):
         if not camp_name.strip():
             self.form_is_valid = False
             errors["camp_name"].append("This field is required.")
-        # unique name 
+        # unique name
         else:
-            #self.camp_id is None if adding, 
+            # self.camp_id is None if adding,
             if self.camp_id is None:
-                if len(run_query_get_rows(f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}")):
+                duplicate_camps = run_query_get_rows(
+                    f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}"
+                )
+
+                if len(duplicate_camps):
                     self.form_is_valid = False
                     errors["camp_name"].append("Camp name must be unique!")
             else:
-                # editing camp id -> check if >1 matches (as the first match is the same camp name)
-                if len(run_query_get_rows(f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}"))>1:
+                # editing camp id -> exclude current camp name
+                current_camp_name = run_query_get_rows(
+                    f"SELECT name FROM Camp WHERE id = {camp_id}"
+                )[0]["name"]
+                duplicate_camps = run_query_get_rows(
+                    f"SELECT name FROM Camp WHERE name='{camp_name}' AND name != '{current_camp_name}' AND plan_id={plan_id}"
+                )
+
+                if len(duplicate_camps):
                     self.form_is_valid = False
                     errors["camp_name"].append("Camp name must be unique!")
-                    
+
         if not location.strip():
             self.form_is_valid = False
             errors["location"].append("This field is required.")
@@ -461,21 +469,23 @@ class AddEditCampView(BaseView):
             try:
                 if not maxCapacity.isnumeric():
                     self.form_is_valid = False
-                    errors["maxCapacity"].append('Invalid input! Must be a positive integer')
+                    errors["maxCapacity"].append(
+                        "Invalid input! Must be a positive integer"
+                    )
                 else:
                     # Num IS an integer
-                    if int(maxCapacity) < 0: raise Exception
-                    
+                    if int(maxCapacity) < 0:
+                        raise Exception
+
                     current_capacity = self.calculate_current_capacity(camp_id=camp_id)
-                    logging.debug(f"Comparing {maxCapacity=} < {current_capacity=}")
+                    
                     if int(maxCapacity) < current_capacity:
                         self.form_is_valid = False
-                        errors["maxCapacity"].append(f'Invalid input! Cannot be less than current capacity ({current_capacity})')
+                        errors["maxCapacity"].append(
+                            f"Invalid input! Cannot be less than current capacity ({current_capacity})"
+                        )
             except Exception as e:
                 logging.debug(f"Invalid input for maxCapacity")
-        
-        
-
 
         # VALIDATE
         if not self.form_is_valid:
@@ -507,7 +517,7 @@ class AddEditCampView(BaseView):
                                         id = :id
                                      """,
                 values={
-                    "id" : camp_id,
+                    "id": camp_id,
                     "plan_id": plan_id,
                     "name": camp_name,
                     "location": location,
@@ -542,17 +552,17 @@ class AddEditCampView(BaseView):
             logging.info(
                 f"Inserted plan: {plan_id=}, {camp_name=}, {camp_id=}, {location=}, {maxCapacity=}"
             )
-        
+
         # Clean state
         self.master.get_global_state().pop("camp_id_to_edit", None)
-        
+
         if self.is_admin:
             self.master.switch_to_view("plan_detail")
         else:
             current_global_state = self.master.get_global_state()
             current_global_state["camp_id_to_view"] = self.camp_id
             self.master.set_global_state(current_global_state)
-            self.master.switch_to_view('camp_detail')
+            self.master.switch_to_view("camp_detail")
 
     def _render_delete_confirm_popup_window(self) -> None:
         self.error_popup_window = tk.Toplevel(self.master)

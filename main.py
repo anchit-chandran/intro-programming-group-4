@@ -45,8 +45,8 @@ class MainApplication(tk.Tk):
             self.set_global_state(
                 {
                     "user_id": 2,
-                    "username": "volunteer1",
-                    "is_admin": 0,
+                    "username": "admin",
+                    "is_admin": 1,
                     'camp_id_to_view' : 1,
                 }
             )
