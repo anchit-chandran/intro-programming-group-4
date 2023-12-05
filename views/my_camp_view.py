@@ -269,8 +269,6 @@ class MyCampView(BaseView):
                 master=self.top_container,
                 text="MESSAGE ADMIN",
                 command=self.handle_send_message,
-                bg="red",
-                fg="white",
             )
             self.send_message_button.grid(
                 row=0, column=2, padx=30, pady=20, sticky="ne"
@@ -497,6 +495,6 @@ class MyCampView(BaseView):
                 text="VIEW",
                 command=lambda: self.handle_view_click(items[0]),
                 width=column_width - 3,
-                bg="lightblue",
+                
             )
             self.edit_refugees_btn.grid(row=0, column=len(items) + 2, padx=5)

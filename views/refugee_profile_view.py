@@ -7,6 +7,7 @@ from utilities.db import run_query_get_rows
 from constants.console_color_codes import PrintColor
 from .base import BaseView
 
+
 class RefugeeProfileView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
@@ -27,11 +28,10 @@ class RefugeeProfileView(BaseView):
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)
         self.master.switch_to_view("add_edit_refugee")
- 
 
     def render_widgets(self) -> None:
         """Renders widgets for refugee profile view"""
-        
+
         # Create container
         self.container = tk.Frame(
             master=self,
@@ -41,7 +41,7 @@ class RefugeeProfileView(BaseView):
         self.container.pack(
             fill="both",
         )
-        
+
         # Header
         self.header_container = tk.Frame(
             master=self.container,
@@ -49,7 +49,7 @@ class RefugeeProfileView(BaseView):
             height=10,
         )
         self.header_container.pack()
-        
+
         self.header = tk.Label(
             master=self.header_container,
             text=f"REFUGEE PROFILE",
@@ -61,10 +61,12 @@ class RefugeeProfileView(BaseView):
             pady=10,
         )
 
-       # Refugee profile variables
-        
-        refugee_family_id = self.master.get_global_state().get("refugee_id_to_view")  
-        refugee_family_data = run_query_get_rows(f"SELECT * FROM RefugeeFamily WHERE id = '{refugee_family_id}'")[0]
+        # Refugee profile variables
+
+        refugee_family_id = self.master.get_global_state().get("refugee_id_to_view")
+        refugee_family_data = run_query_get_rows(
+            f"SELECT * FROM RefugeeFamily WHERE id = '{refugee_family_id}'"
+        )[0]
 
         main_rep_name = refugee_family_data.get("main_rep_name")
         if main_rep_name is None:
@@ -91,6 +93,7 @@ class RefugeeProfileView(BaseView):
             main_rep_age = "No information provided"
 
         main_rep_sex = refugee_family_data.get("main_rep_sex")
+        
         if main_rep_sex is None:
             main_rep_sex = "No information provided"
         elif main_rep_sex == "F":
@@ -114,7 +117,6 @@ class RefugeeProfileView(BaseView):
         camp_location = camp_data.get("location")
         if camp_location is None:
             camp_location = "No information provided"
-        
 
         # Section: Refugee family details
         self.refugee_details_label_container = tk.LabelFrame(
@@ -127,15 +129,15 @@ class RefugeeProfileView(BaseView):
         # Section: Edit Button
         self.button_container = tk.Frame(
             master=self.container,
-            width = 50,
-            height = 50,
-        )  
+            width=50,
+            height=50,
+        )
 
         # Section: Back Button
         self.back_button_container = tk.Frame(
             master=self.container,
-            width = 10,
-            height = 50,
+            width=10,
+            height=50,
         )
 
         # Set up - labels and entries:
@@ -167,7 +169,7 @@ class RefugeeProfileView(BaseView):
             state="disabled",
             text=tk.StringVar(value=camp_location),
         )
-        
+
         # Main rep name
         self.main_rep_name_label = tk.Label(
             master=self.refugee_details_label_container,
@@ -196,6 +198,21 @@ class RefugeeProfileView(BaseView):
             width=70,
             state="disabled",
             text=tk.StringVar(value=main_rep_age),
+        )
+        
+        # Main rep sex
+        self.main_rep_sex_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Main Rep Sex",
+            width=20,
+            anchor="w",
+        )
+
+        self.main_rep_sex_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=main_rep_sex),
         )
 
         # Main Rep Home Town
@@ -297,8 +314,6 @@ class RefugeeProfileView(BaseView):
             width=30,
             text="Edit",
             command=lambda: self.handle_edit_click(refugee_family_data.get("id")),
-            fg="white",
-            bg="blue",
         )
 
         # Back button
@@ -307,17 +322,59 @@ class RefugeeProfileView(BaseView):
             command=lambda: self.handle_view_click(camp_id),
             width=10,
             text="BACK",
-            fg="white",
-            bg="black",
         )
 
+        # Add to grid
+        self.refugee_details_label_container.pack(pady=(10, 20))
+        self.button_container.pack(pady=(0, 20))
+        self.back_button_container.pack(pady=(0, 20))
+
+        self.refugee_family_id_label.grid(row=0, column=0)
+        self.refugee_family_id_entry.grid(row=0, column=1)
+
+        self.main_rep_name_label.grid(row=1, column=0)
+        self.main_rep_name_entry.grid(row=1, column=1)
+
+        self.main_rep_age_label.grid(row=2, column=0)
+        self.main_rep_age_entry.grid(row=2, column=1)
         
-        
+        self.main_rep_sex_label.grid(row=2, column=0)
+        self.main_rep_sex_entry.grid(row=2, column=1)
+
+        self.main_rep_home_town_label.grid(row=3, column=0)
+        self.main_rep_home_town_entry.grid(row=3, column=1)
+
+        self.n_adults_label.grid(row=4, column=0)
+        self.n_adults_entry.grid(row=4, column=1)
+
+        self.n_children_label.grid(row=5, column=0)
+        self.n_children_entry.grid(row=5, column=1)
+
+        self.n_missing_members_label.grid(row=6, column=0)
+        self.n_missing_members_entry.grid(row=6, column=1)
+
+        self.medical_conditions_label.grid(row=7, column=0)
+        self.medical_conditions_entry.grid(row=7, column=1)
+
+        self.is_in_camp_label.grid(row=8, column=0)
+        self.is_in_camp_entry.grid(row=8, column=1)
+
+        self.location_label.grid(row=9, column=0)
+        self.location_entry.grid(row=9, column=1)
+
+        self.edit_button.grid(
+            row=0,
+            column=0,
+        )
+        self.back_button.grid(
+            row=0,
+            column=0,
+        )
 
         # Add to grid
         self.refugee_details_label_container.pack(pady=(10, 20))
         self.button_container.pack(pady=(0, 20))
-        self.back_button_container.pack(pady=(0,20))
+        self.back_button_container.pack(pady=(0, 20))
 
         self.refugee_family_id_label.grid(row=0, column=0)
         self.refugee_family_id_entry.grid(row=0, column=1)
@@ -348,51 +405,12 @@ class RefugeeProfileView(BaseView):
 
         self.location_label.grid(row=9, column=0)
         self.location_entry.grid(row=9, column=1)
-    
 
-        self.edit_button.grid(row=0, column=0,)
-        self.back_button.grid(row=0, column=0,)
-
-        
-        
-
-        # Add to grid
-        self.refugee_details_label_container.pack(pady=(10, 20))
-        self.button_container.pack(pady=(0, 20))
-        self.back_button_container.pack(pady=(0,20))
-
-        self.refugee_family_id_label.grid(row=0, column=0)
-        self.refugee_family_id_entry.grid(row=0, column=1)
-
-        self.main_rep_name_label.grid(row=1, column=0)
-        self.main_rep_name_entry.grid(row=1, column=1)
-
-        self.main_rep_age_label.grid(row=2, column=0)
-        self.main_rep_age_entry.grid(row=2, column=1)
-
-        self.main_rep_home_town_label.grid(row=3, column=0)
-        self.main_rep_home_town_entry.grid(row=3, column=1)
-
-        self.n_adults_label.grid(row=4, column=0)
-        self.n_adults_entry.grid(row=4, column=1)
-
-        self.n_children_label.grid(row=5, column=0)
-        self.n_children_entry.grid(row=5, column=1)
-
-        self.n_missing_members_label.grid(row=6, column=0)
-        self.n_missing_members_entry.grid(row=6, column=1)
-
-        self.medical_conditions_label.grid(row=7, column=0)
-        self.medical_conditions_entry.grid(row=7, column=1)
-
-        self.is_in_camp_label.grid(row=8, column=0)
-        self.is_in_camp_entry.grid(row=8, column=1)
-
-        self.location_label.grid(row=9, column=0)
-        self.location_entry.grid(row=9, column=1)
-    
-
-        self.edit_button.grid(row=0, column=0,)
-        self.back_button.grid(row=0, column=0,)
-
-    
+        self.edit_button.grid(
+            row=0,
+            column=0,
+        )
+        self.back_button.grid(
+            row=0,
+            column=0,
+        )

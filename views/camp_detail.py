@@ -39,10 +39,31 @@ class CampDetailView(BaseView):
 
     def _handle_add_refugee_click(self):
         """navigates to add refugee form view"""
-        current_state = self.master.get_global_state()
-        current_state.pop("refugee_id_to_edit", None)
-        self.master.set_global_state(current_state)
-        self.master.switch_to_view("add_edit_refugee")
+        # get the max capacity and refugee number in the camp
+        camp_id = self.get_camp_id()
+        maxCapacity = run_query_get_rows(
+            f"SELECT maxCapacity FROM Camp WHERE id='{camp_id}'"
+        )[0]["maxCapacity"]
+
+        n_refugees = len(
+            run_query_get_rows(
+                f"SELECT id FROM RefugeeFamily WHERE camp_id = {camp_id} AND is_in_camp=1"
+            )
+        )
+
+        print(maxCapacity)
+        print(n_refugees)
+
+        if n_refugees < maxCapacity:
+            current_state = self.master.get_global_state()
+            current_state.pop("refugee_id_to_edit", None)
+            self.master.set_global_state(current_state)
+            self.master.switch_to_view("add_edit_refugee")
+        else:
+            self.render_error_popup_window(
+                message="The camp is at its max capacity. Cannot add more refugee families"
+            )
+            return
 
     def get_camp_id(self):
         """gets camp id from state"""
@@ -129,7 +150,7 @@ class CampDetailView(BaseView):
                 text="GO BACK TO PLAN",
                 command=self.handle_back_button,
             )
-            self.go_back_button.pack(side='top')
+            self.go_back_button.pack(side="top")
 
         self.header = ttk.Label(
             master=self.header_container,
@@ -143,7 +164,7 @@ class CampDetailView(BaseView):
             master=self.header_container,
             text="Instructions for Camp Detail",
         )
-        self.instructions_container.pack(side='bottom')
+        self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
             text="Information pertaining to this Camp, including its Resources can be seen here.\n\nNew Refugee Families can be registered using the '+ Add Refugee Family' button.\n\nRefugee Families who were previously registered, but have since left, can be viewed using the 'View Departed Refugees' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button.",
@@ -345,7 +366,6 @@ class CampDetailView(BaseView):
                 50,
                 200,
             ],
-            
         )
 
     # ------------------------ Refugees list ------------------------------
@@ -397,7 +417,7 @@ class CampDetailView(BaseView):
         # Add refugee button
         self.add_refugee_button = ttk.Button(
             master=self.generic_action_buttons_container,
-            text="+ Add Regugee Family",
+            text=" + Add Regugee Family",
             command=self._handle_add_refugee_click,
         )
         self.add_refugee_button.pack(side="right")

@@ -2,7 +2,7 @@ camp_data = []
 camp_resource_data = []
 
 # for each plan 1 - 3
-names = ['Alpha', 'Beta', 'Gamma']
+names = ["Alpha", "Beta", "Gamma"]
 for plan_id in range(1, 4):
     # create 3 camps
     for j in range(3):
