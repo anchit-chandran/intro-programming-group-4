@@ -34,7 +34,6 @@ class AllVolunteersView(BaseView):
             font=(60),
         )
         self.header.pack(
-            side="left",
             padx=200,
         )
         
@@ -44,19 +43,19 @@ class AllVolunteersView(BaseView):
             command=lambda: self._handle_selected_action_button_click(action="add"),
         )
         self.add_volunteer_button.pack(
-            side="left",
+            side="right",
         )
         
         self.selected_vol_action_container = tk.LabelFrame(
             master=self.header_container,
             text='Selected Volunteer Actions',
         )
-        self.selected_vol_action_container.pack(side='right', padx=30)
+        self.selected_vol_action_container.pack(side='left', padx=30)
 
         # selected volunteer buttons
         self.edit_volunteer_button = tk.Button(
             master=self.selected_vol_action_container,
-            text="Edit Selected volunteer",
+            text="📝 Edit Selected volunteer",
             command=lambda: self._handle_selected_action_button_click(action="edit"),
         )
         self.edit_volunteer_button.pack(
@@ -67,7 +66,7 @@ class AllVolunteersView(BaseView):
 
         self.view_volunteer_button = tk.Button(
             master=self.selected_vol_action_container,
-            text="View Selected volunteer",
+            text="🔍 View Selected volunteer",
             command=lambda: self._handle_selected_action_button_click(action="view"),
         )
         self.view_volunteer_button.pack(
@@ -78,7 +77,7 @@ class AllVolunteersView(BaseView):
         
         self.toggle_status_volunteer_button = tk.Button(
             master=self.selected_vol_action_container,
-            text="Toggle Selected User Status",
+            text="🔚 Toggle Selected User Status",
             command=lambda: self._handle_selected_action_button_click(
                 action="toggle_status"
             ),
