@@ -98,6 +98,7 @@ class MessagesView(BaseView):
             is_resolved=is_resolved,
             tree_name=tree_name,
             container=self.unresolved_table_container,
+            
         )
 
         self.resolve_selected_button = tk.Button(
@@ -163,9 +164,6 @@ class MessagesView(BaseView):
                 "Priority",
                 "Message",
             ]
-            extra_config = {}
-            if tree_name == 'unresolved_tree':
-                extra_config.update({'max_rows':15})
             
             self.render_tree_table(
                 header_cols=self.header_cols,
@@ -181,7 +179,7 @@ class MessagesView(BaseView):
                     60,
                     250,
                 ],
-                **extra_config
+                max_rows=6,
             )
 
     def get_messages(self, is_resolved: bool):

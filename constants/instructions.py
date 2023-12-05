@@ -13,19 +13,17 @@ new_resource = "---Input---\nCreate a new resource below.\n\nThe resource name m
 
 edit_resources = "---Input---\nPlease edit existing resource amounts in the form below.\nAdd new Resource types using '+ New resource'. Only whole number amounts are allowed.\n\n ---Submit---\nClick 'Submit changes' to save any edits.\n\nNOTE: newly added resources are already saved."
 
+camp_detail = "Information about this Camp, including its Resources, can be seen here.\n\nNew Refugee Families can be registered using the '+ Add Refugee Family' button.\n\nRefugee Families previously registered but have since left can be viewed using the 'View Departed Refugees' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button."
 
 
 INSTRUCTIONS = {
     "login": login,
     "plan_detail": plan_detail,
     "add_edit_plan": add_edit_plan,
-    "camp_detail": "",
+    "camp_detail": camp_detail,
     "all_volunteers": "",
     "messages": messages_instructions,
     "new_msg": new_msg,
-    "profile": {
-        "own_profile": "Edit your own profile",
-    },
     "new_resource": new_resource,
     "edit_resources": edit_resources,
     "add_edit_refugee": "",

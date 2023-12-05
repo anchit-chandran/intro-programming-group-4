@@ -1,12 +1,11 @@
 # Python imports
-import logging
 import tkinter as tk
 import tkinter.ttk as ttk
 from datetime import datetime
 
 # Project imports
 from views.base import BaseView
-from constants import config
+from constants import instructions
 from utilities.db import run_query_get_rows
 from utilities.formatting import add_border
 
@@ -19,19 +18,7 @@ class CampDetailView(BaseView):
         self.render_widgets()
         self.update()
 
-    def handle_edit_click(self, refugee_id: int):
-        """Navigates to edit refugee from view"""
-        current_global_state = self.master.get_global_state()
-        current_global_state["refugee_id_to_edit"] = refugee_id
-        self.master.set_global_state(current_global_state)
-        self.master.switch_to_view("add_edit_refugee")
-
-    def handle_view_click(self, refugee_id: int):
-        """navigates to refugee profile view"""
-        current_global_state = self.master.get_global_state()
-        current_global_state["refugee_id_to_view"] = refugee_id
-        self.master.set_global_state(current_global_state)
-        self.master.switch_to_view("refugee_profile")
+    
 
     def handle_view_departed_click(self):
         """navigates to departed refugee list view"""
@@ -50,9 +37,6 @@ class CampDetailView(BaseView):
                 f"SELECT id FROM RefugeeFamily WHERE camp_id = {camp_id} AND is_in_camp=1"
             )
         )
-
-        print(maxCapacity)
-        print(n_refugees)
 
         if n_refugees < maxCapacity:
             current_state = self.master.get_global_state()
@@ -167,7 +151,7 @@ class CampDetailView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="Information pertaining to this Camp, including its Resources can be seen here.\n\nNew Refugee Families can be registered using the '+ Add Refugee Family' button.\n\nRefugee Families who were previously registered, but have since left, can be viewed using the 'View Departed Refugees' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button.",
+            text=instructions.INSTRUCTIONS['camp_detail'],
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -284,7 +268,7 @@ class CampDetailView(BaseView):
             self.edit_details_button = ttk.Button(
                 master=self.camp_action_buttons_container,
                 text="📝 Edit Details",
-                command=self.handle_edit_click,
+                command=self.handle_edit_click_volunteer,
             )
             self.edit_details_button.pack(side='top', padx=5, pady=5)
 
@@ -292,10 +276,10 @@ class CampDetailView(BaseView):
         # render tables
         self.render_camp_volunteers()
         self.render_camp_refugees()
-
     
-    def handle_edit_click(self)->None:
-        
+    
+    def handle_edit_click_volunteer(self):
+    
         current_global_state = self.master.get_global_state()
         camp_id_to_view = current_global_state.pop('camp_id_to_view')
         plan_id_for_camp = run_query_get_rows(f"SELECT plan_id FROM Camp WHERE id={camp_id_to_view}")[0]['plan_id']
@@ -305,7 +289,7 @@ class CampDetailView(BaseView):
         self.master.set_global_state(current_global_state)
         self.master.switch_to_view("add_edit_camp")
         
-    
+        
     # ------------------------ Volunteers list ------------------------------
     def render_camp_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
@@ -491,3 +475,20 @@ class CampDetailView(BaseView):
             self.handle_view_click(refugee_id=refugee_id)
         elif action == "edit":
             self.handle_edit_click(refugee_id=refugee_id)
+
+    def handle_edit_click(self, refugee_id: int):
+        """Navigates to edit refugee from view"""
+        
+        
+        
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_edit"] = refugee_id
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("add_edit_refugee")
+
+    def handle_view_click(self, refugee_id: int):
+        """navigates to refugee profile view"""
+        current_global_state = self.master.get_global_state()
+        current_global_state["refugee_id_to_view"] = refugee_id
+        self.master.set_global_state(current_global_state)
+        self.master.switch_to_view("refugee_profile")
