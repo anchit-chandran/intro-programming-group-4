@@ -1,3 +1,5 @@
+import os
+
 TITLE = "RefugEASE"
 SCREEN_WIDTH = 1600
 SCREEN_HEIGHT = 950
@@ -5,7 +7,7 @@ SIZE = f"{SCREEN_WIDTH}x{SCREEN_HEIGHT}"
 LOGOICO = 'assets/logo.ico'
 
 # DATABASE CONFIG
-DATABASE_NAME = 'db'
+DATABASE_NAME = os.environ.get('DATABASE_NAME', 'db')
 
 # COLORS
 LIGHTGREY = '#969393'

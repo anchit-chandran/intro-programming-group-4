@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # Project imports
-from constants import config
+from constants import config, instructions
 from utilities.db import run_query_get_rows
 from utilities.formatting import add_border
 from .base import BaseView
@@ -47,7 +47,7 @@ class PlanDetailView(BaseView):
 
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.\n\nNOTE: you can scroll to see more Camps, if there are more.",
+            text=instructions.INSTRUCTIONS['plan_detail'],
             anchor="w",
             justify="left",
         )
@@ -88,23 +88,24 @@ class PlanDetailView(BaseView):
             container=self.total_resources_frame,
         )
 
-        self.camps_frame = tk.Frame(
-            master=self.container,
-        )
-        self.camps_frame.grid(row=1, column=1, sticky="e")
-
-        self.render_camp_action_buttons(container=self.camps_frame)
 
         self.all_camps_container = tk.Frame(
             master=self.container,
         )
         self.all_camps_container.grid(row=3, column=0, pady=5, columnspan=1)
+        
+        self.action_buttons = tk.Frame(
+            master=self.all_camps_container,
+        )
+        self.action_buttons.pack(side='top')
+        
+        self.render_camp_action_buttons(container=self.action_buttons)
         self.render_all_camps(container=self.all_camps_container)
 
     def render_camp_action_buttons(self, container) -> None:
         self.add_camp_button = tk.Button(
             master=container,
-            text="Add Camp",
+            text="+ Add Camp",
             command=lambda: self._handle_add_camp_click(),
         )
         self.add_camp_button.pack(side="left", padx=30)
@@ -118,21 +119,21 @@ class PlanDetailView(BaseView):
 
         self.view_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
-            text="View Camp",
+            text="🔍 View Camp",
             command=lambda: self._handle_selected_camp_actions_click("view"),
         )
         self.view_camp_button.pack(side="left", pady=5, padx=5)
         
         self.edit_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
-            text="Edit Camp",
+            text="📝 Edit Camp",
             command=lambda: self._handle_selected_camp_actions_click("edit"),
         )
         self.edit_camp_button.pack(side="left", pady=5, padx=5)
 
         self.resources_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
-            text="Edit Resources for Camp",
+            text="📝 Edit Resources for Camp",
             command=lambda: self._handle_selected_camp_actions_click("resources"),
         )
         self.resources_camp_button.pack(side="left", pady=5, padx=5)

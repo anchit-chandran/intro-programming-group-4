@@ -6,6 +6,7 @@ from tkinter import messagebox
 # Project imports
 from utilities.db import run_query_get_rows, insert_query_with_values
 from .base import BaseView
+from constants import instructions
 
 
 class EditResourcesView(BaseView):
@@ -162,7 +163,7 @@ class EditResourcesView(BaseView):
         # Instructions label
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="---Input---\nPlease edit existing resource amounts in the form below.\nAdd new resources with the corresponding button \nEnter positive units. \n\n ---Submit---\nClick submit changes to save any edits. Keep in mind that newly added resources are already saved. \nClick back to go back to camp and plan details.",
+            text=instructions.INSTRUCTIONS['edit_resources'],
             width = 80,
             height = 8,
             anchor = "w",

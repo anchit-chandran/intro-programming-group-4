@@ -42,9 +42,9 @@ class ProfileView(BaseView):
             logging.debug(f"Editing volunteer: {self.volunteer_id}")
             self._set_volunteer_instance_data()
             
-            self.instructions_text = "This is the Profile Editing View.\n\nDate of birth must be a valid date, before today (babies should not be volunteers!)."
+            self.instructions_text = "This is the Profile Editing View.\n\nDate of birth must be a valid date and at least 18 years prior to today (children can't be volunteers!)."
             
-            if self._check_is_admin(): self.instructions_text += "\n\nAdmin can assign the Camp using the dropdown."
+            if self._check_is_admin(): self.instructions_text += "\n\nAs admin, you can assign the Camp using the dropdown."
             
             return "edit_volunteer"
         elif current_state.get("volunteer_id_to_view"):

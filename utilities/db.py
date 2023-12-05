@@ -425,15 +425,14 @@ def create_and_seed_messages_table() -> None:
         )
 
 
-def setup_db(reset_database=True) -> None:
+def setup_db(reset_database=False) -> None:
     """Creates and seeds tables."""
 
     if reset_database:
         reset_db()
-
-    create_and_seed_plan_table()
-    create_and_seed_camp_table()
-    create_and_seed_camp_resources_table()
-    create_and_seed_refugee_family_table()
-    create_and_seed_user_table()
-    create_and_seed_messages_table()
+        create_and_seed_plan_table()
+        create_and_seed_camp_table()
+        create_and_seed_camp_resources_table()
+        create_and_seed_refugee_family_table()
+        create_and_seed_user_table()
+        create_and_seed_messages_table()
