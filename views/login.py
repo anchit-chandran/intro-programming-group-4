@@ -39,11 +39,13 @@ class LoginView(BaseView):
         header_container.pack()
         
         self.logo = tk.PhotoImage(file="assets/logo.png")
-        self.logo_label = tk.Label(
-            master=header_container,
-            image=self.logo,
-        )
-        self.logo_label.pack(side='top')
+        
+        if not self.master.testing:
+            self.logo_label = tk.Label(
+                master=header_container,
+                image=self.logo,
+            )
+            self.logo_label.pack(side='top')
         
         # Instructions label
         self.instructions_label = tk.Label(
