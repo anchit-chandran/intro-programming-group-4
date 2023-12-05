@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # Project imports
-from constants import config, message_priorities
+from constants import config, message_priorities, instructions
 from utilities.db import run_query_get_rows
 from utilities.formatting import add_border, calculate_max_col_width
 from .base import BaseView
@@ -60,7 +60,7 @@ class MessagesView(BaseView):
         )
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="Below you can see your messages, separated by resolved and unresolved. You can scroll if there are many.\n\nYou can resolve / unresolve messages by selecting the message and pressing the appropriate button.\n\nNOTE: messages are sorted first by  Priority (highest priority at the top), then by most recently received.\n\n---Sending messages---\nYou can send message by clicking the 'New Message' button.",
+            text=instructions.INSTRUCTIONS['messages'],
             anchor="w",
             justify="left",
         )
