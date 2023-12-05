@@ -108,7 +108,7 @@ class AddEditRefugeeView(BaseView):
         self._render_rep_age(self.form_container, on_row=2, on_col=0, stick_side="w")
 
         # main_rep_sex
-        self._render_gender(self.form_container, on_row=2, on_col=1, stick_side="e")
+        self._render_sex(self.form_container, on_row=2, on_col=1, stick_side="e")
 
         # main_rep_home_towm
         self._render_hometown(self.form_container, on_row=3, on_col=0, stick_side="w")
@@ -667,57 +667,57 @@ class AddEditRefugeeView(BaseView):
         self.status_entry.pack()
 
     # Main rep sex
-    def _render_gender(
+    def _render_sex(
         self, form_container, on_row: int, on_col: int, stick_side: str
     ) -> None:
-        self.gender_container = tk.Frame(
+        self.sex_container = tk.Frame(
             master=form_container,
         )
-        self.gender_container.grid(
+        self.sex_container.grid(
             row=on_row, column=on_col, padx=(20, 50), pady=10, sticky=stick_side
         )
 
-        self.gender_label_container = tk.Frame(
-            master=self.gender_container,
+        self.sex_label_container = tk.Frame(
+            master=self.sex_container,
         )
-        self.gender_label_container.pack(
+        self.sex_label_container.pack(
             expand=True,
             fill="x",
         )
-        self.gender_label = tk.Label(
-            master=self.gender_label_container,
-            text="Gender",
+        self.sex_label = tk.Label(
+            master=self.sex_label_container,
+            text="Main Rep Sex",
         )
-        self.gender_label.pack(
+        self.sex_label.pack(
             side="left",
         )
 
-        self.gender_entry_container = tk.Frame(
-            master=self.gender_container,
+        self.sex_entry_container = tk.Frame(
+            master=self.sex_container,
         )
-        self.gender_entry_container.pack(
+        self.sex_entry_container.pack(
             expand=True,
             fill="x",
         )
 
-        self.gender_text = tk.StringVar()
+        self.sex_text = tk.StringVar()
         if self.is_edit:
             if self.edit_refugee_details["main_rep_sex"] == "F":
-                self.gender_text.set("Female")
+                self.sex_text.set("Female")
             if self.edit_refugee_details["main_rep_sex"] == "M":
-                self.gender_text.set("Male")
+                self.sex_text.set("Male")
             else:
-                self.gender_text.set("Other")
+                self.sex_text.set("Other")
         else:
-            self.gender_text.set("Other")
+            self.sex_text.set("Other")
 
         self.options = ["Female", "Male", "Other"]
-        self.gender_entry = tk.OptionMenu(
-            self.gender_entry_container, self.gender_text, *self.options
+        self.sex_entry = tk.OptionMenu(
+            self.sex_entry_container, self.sex_text, *self.options
         )
-        self.gender_entry.config(width=30)
+        self.sex_entry.config(width=30)
 
-        self.gender_entry.pack()
+        self.sex_entry.pack()
 
     # Buttons
     def _render_action_buttons(
@@ -790,20 +790,20 @@ class AddEditRefugeeView(BaseView):
         rep_age = self.rep_age_entry.get()
         missing_members = self.num_miss_members_entry.get()
         status = self.status_text.get()
-        gender = self.gender_text.get()
+        sex = self.sex_text.get()
 
-        # change to db format status and gender
+        # change to db format status and sex
         if status == "In camp":
             status = 1
         elif status == "Left camp":
             status = 0
 
-        if gender == "Female":
-            gender = "F"
-        elif gender == "Male":
-            gender = "M"
+        if sex == "Female":
+            sex = "F"
+        elif sex == "Male":
+            sex = "M"
         else:
-            gender = "Other"
+            sex = "Other"
 
         # form validation
         self.form_is_valid = True
@@ -898,7 +898,7 @@ class AddEditRefugeeView(BaseView):
                                         main_rep_age = :rep_age,
                                         n_missing_members = :missing_members,
                                         is_in_camp = :status,
-                                        main_rep_sex = :gender
+                                        main_rep_sex = :sex
                                      WHERE
                                         id = :refugee_id
                                      """,
@@ -912,11 +912,11 @@ class AddEditRefugeeView(BaseView):
                     "rep_age": rep_age,
                     "missing_members": missing_members,
                     "status": status,
-                    "gender": gender,
+                    "sex": sex,
                 },
             )
             logging.info(
-                f"Updated refugee family: {refugee_id=}, {main_rep_name=}, {num_adults=}, {num_children=}, {hometown=}, {rep_age=}, {missing_members=}, {status=},  {gender=}"
+                f"Updated refugee family: {refugee_id=}, {main_rep_name=}, {num_adults=}, {num_children=}, {hometown=}, {rep_age=}, {missing_members=}, {status=},  {sex=}"
             )
         else:
             insert_query_with_values(
@@ -942,7 +942,7 @@ class AddEditRefugeeView(BaseView):
                                         :missing_members,
                                         :status,
                                         :camp_id,
-                                        :gender
+                                        :sex
                     );
                     """,
                 values={
@@ -955,11 +955,11 @@ class AddEditRefugeeView(BaseView):
                     "missing_members": missing_members,
                     "status": status,
                     "camp_id": self.camp_id,
-                    "gender": gender,
+                    "sex": sex,
                 },
             )
             logging.info(
-                f"Inserted refugee family:{main_rep_name=}, {num_adults=}, {num_children=}, {hometown=}, {rep_age=}, {missing_members=}, {status=}, {gender=}"
+                f"Inserted refugee family:{main_rep_name=}, {num_adults=}, {num_children=}, {hometown=}, {rep_age=}, {missing_members=}, {status=}, {sex=}"
             )
         self.master.switch_to_view("camp_detail")
 
@@ -999,7 +999,7 @@ class AddEditRefugeeView(BaseView):
             "rep_age": "Representative's Age",
             "missing_members": "Number of Missing Members",
             "status": "Status",
-            "gender": "Gender",
+            "sex": "Sex",
             "num_members": "Family Members",
         }
 

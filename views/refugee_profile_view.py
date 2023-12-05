@@ -93,6 +93,7 @@ class RefugeeProfileView(BaseView):
             main_rep_age = "No information provided"
 
         main_rep_sex = refugee_family_data.get("main_rep_sex")
+        
         if main_rep_sex is None:
             main_rep_sex = "No information provided"
         elif main_rep_sex == "F":
@@ -197,6 +198,21 @@ class RefugeeProfileView(BaseView):
             width=70,
             state="disabled",
             text=tk.StringVar(value=main_rep_age),
+        )
+        
+        # Main rep sex
+        self.main_rep_sex_label = tk.Label(
+            master=self.refugee_details_label_container,
+            text="Main Rep Sex",
+            width=20,
+            anchor="w",
+        )
+
+        self.main_rep_sex_entry = tk.Entry(
+            master=self.refugee_details_label_container,
+            width=70,
+            state="disabled",
+            text=tk.StringVar(value=main_rep_sex),
         )
 
         # Main Rep Home Town
@@ -321,6 +337,9 @@ class RefugeeProfileView(BaseView):
 
         self.main_rep_age_label.grid(row=2, column=0)
         self.main_rep_age_entry.grid(row=2, column=1)
+        
+        self.main_rep_sex_label.grid(row=2, column=0)
+        self.main_rep_sex_entry.grid(row=2, column=1)
 
         self.main_rep_home_town_label.grid(row=3, column=0)
         self.main_rep_home_town_entry.grid(row=3, column=1)
