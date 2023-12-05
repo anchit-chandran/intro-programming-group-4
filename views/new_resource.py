@@ -3,7 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 
 # Project imports
-from constants import config
+from constants import instructions
 from utilities.db import run_query_get_rows, insert_query_with_values
 from .base import BaseView
 
@@ -219,7 +219,7 @@ class NewResourceView(BaseView):
         # Instructions label
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="---Input---\nCreate a new resource below.\n\nThe new resource should not duplicate with resources you already have.\nResource name can be a max of 20 characters.\n\nUnits must be positive integers. \n\n ---Submit---\nClick 'Submit new resource' to create the new resource.",
+            text=instructions.INSTRUCTIONS['new_resource'],
             anchor = "w",
             justify = "left",
         )
