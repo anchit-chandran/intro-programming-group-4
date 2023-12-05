@@ -3,6 +3,7 @@ from constants.config import SEX_VALUES
 
 
 from .camps import camp_data
+from constants import config
 
 refugee_family_data = []
 NAMES = [
