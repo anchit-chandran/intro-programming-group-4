@@ -2,12 +2,12 @@ messages_instructions = "Below you can see your messages, separated by resolved 
 
 new_msg = "Please select the recipient and the urgency of the message.\n\nPlease keep your messages concise, with a maximum of 40 characters.\n\nNOTE: Plan and Camp are auto-filled according to your account."
 
+
 INSTRUCTIONS = {
-    "login": "",
+    "login": "RefugEASE is an the open-source humanitarian aid management system!\n\nPlease use your account details to access the application.",
     "plan_detail": "",
     "all_plans": "",
     "add_edit_plan": "",
-    "add_edit_camp": "",
     "camp_detail": "",
     "all_volunteers": "",
     "messages": messages_instructions,

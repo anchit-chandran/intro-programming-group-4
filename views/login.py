@@ -1,11 +1,13 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import ttk
 
 # Project imports
 from .base import BaseView
 from utilities.db import run_query_get_rows
 from constants.config import TITLE
+from constants import instructions
 
 
 class LoginView(BaseView):
@@ -31,12 +33,27 @@ class LoginView(BaseView):
         )
 
         # Header
+        header_container = tk.Frame(
+            master=self.container
+        )
+        header_container.pack()
+        
         self.logo = tk.PhotoImage(file="assets/logo.png")
         self.logo_label = tk.Label(
-            master=self.container,
+            master=header_container,
             image=self.logo,
         )
-        self.logo_label.pack()
+        self.logo_label.pack(side='top')
+        
+        # Instructions label
+        self.instructions_label = tk.Label(
+            master=header_container,
+            text=instructions.INSTRUCTIONS['login'],
+            anchor="w",
+            justify="left",
+            
+        )
+        self.instructions_label.pack(side='top', padx=10, pady=10)
 
         # Username
         self.username_frame = tk.Frame(
