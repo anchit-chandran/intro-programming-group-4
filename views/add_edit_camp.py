@@ -439,9 +439,17 @@ class AddEditCampView(BaseView):
             errors["camp_name"].append("This field is required.")
         # unique name 
         else:
-            if len(run_query_get_rows(f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}")):
-                self.form_is_valid = False
-                errors["camp_name"].append("Camp name must be unique!")
+            #self.camp_id is None if adding, 
+            if self.camp_id is None:
+                if len(run_query_get_rows(f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}")):
+                    self.form_is_valid = False
+                    errors["camp_name"].append("Camp name must be unique!")
+            else:
+                # editing camp id -> check if >1 matches (as the first match is the same camp name)
+                if len(run_query_get_rows(f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}"))>1:
+                    self.form_is_valid = False
+                    errors["camp_name"].append("Camp name must be unique!")
+                    
         if not location.strip():
             self.form_is_valid = False
             errors["location"].append("This field is required.")
@@ -537,7 +545,14 @@ class AddEditCampView(BaseView):
         
         # Clean state
         self.master.get_global_state().pop("camp_id_to_edit", None)
-        self.master.switch_to_view("plan_detail")
+        
+        if self.is_admin:
+            self.master.switch_to_view("plan_detail")
+        else:
+            current_global_state = self.master.get_global_state()
+            current_global_state["camp_id_to_view"] = self.camp_id
+            self.master.set_global_state(current_global_state)
+            self.master.switch_to_view('camp_detail')
 
     def _render_delete_confirm_popup_window(self) -> None:
         self.error_popup_window = tk.Toplevel(self.master)
