@@ -6,7 +6,7 @@ from tkinter import messagebox
 import datetime
 
 # Project imports
-from constants import config
+from constants import config, instructions
 from utilities.db import run_query_get_rows, insert_query_with_values
 from utilities.validators import is_valid_email
 from .base import BaseView
@@ -67,7 +67,7 @@ class AddEditPlanView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="All fields are mandatory.\n\nStart Date must be a valid date, and in the future.\n\nCentral email must be a valid email in the general format: example@domain.com.",
+            text=instructions.INSTRUCTIONS['add_edit_plan'],
             anchor="w",
             justify="left",
         )
@@ -79,8 +79,6 @@ class AddEditPlanView(BaseView):
         )
         self.form_container.pack(
             pady=15,
-            fill="both",
-            expand=True,
         )
 
         self._render_plan_id(
