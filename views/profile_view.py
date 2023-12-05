@@ -1073,13 +1073,23 @@ class ProfileView(BaseView):
         self.master.switch_to_view(next_view)
             
 
-    def _is_dob_valid(self, dob: str):
-        """dob in YYYY-MM-DD format"""
+    def _is_dob_valid(self, dob: str)->bool:
+        """`dob` inserted in YYYY-MM-DD format"""
         try:
             year, month, day = dob.split("-")
-            date(year=int(year), month=int(month), day=int(day))
+            date_of_birth = date(year=int(year), month=int(month), day=int(day))
         except Exception as e:
             return False
+        
+        # Now check if age > 18
+        today = date.today()
+        age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day)) # thanks https://stackoverflow.com/questions/2217488/age-from-birthdate-in-python
+        
+        if age < 18:
+            self.form_errors["dob_input"].append("Volunteer's age cannot be < 18!")
+            self.form_is_valid = False
+            return False
+        
         return True
 
     def _is_dob_in_past(self, dob: str):
