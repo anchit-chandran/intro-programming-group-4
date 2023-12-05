@@ -40,7 +40,7 @@ class AllPlansView(BaseView):
         self.instructions_container.pack()
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.\n\nNOTE: Refugee Family count excludes those registered but not currently in the camp.",
+            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.\n\nIf a Plan is ended, using 'Toggle Plan Status' with a selected plan, further interaction with the Plan is disabled until it is restarted.\n\nNOTE: Refugee Family count excludes those registered but not currently in the camp.",
             anchor="w",
             justify="left",
         )
@@ -59,7 +59,7 @@ class AllPlansView(BaseView):
             side="left",
         )
 
-        # Add plan buttons
+        # Add plan button
         self.add_plan_button = tk.Button(
             master=self.header_container,
             text="+ Add Plan",
@@ -68,32 +68,46 @@ class AllPlansView(BaseView):
         self.add_plan_button.pack(
             side="right",
         )
+        
+        # Selected plan action buttons
+        self.selected_plan_action_buttons_container = tk.LabelFrame(
+            master=self.header_container,
+            text='Selected Plan Actions'
+        )
+        self.selected_plan_action_buttons_container.pack(side='top')
 
         self.edit_plan_button = tk.Button(
-            master=self.header_container,
-            text="Edit Selected Plan",
+            master=self.selected_plan_action_buttons_container,
+            text="📝 Edit Plan",
             command=self._handle_edit_click,
         )
         self.edit_plan_button.pack(
             side="right",
+            pady=5,
+            padx=5,
         )
 
         self.toggle_status_button = tk.Button(
-            master=self.header_container,
-            text="Toggle Plan Status",
+            master=self.selected_plan_action_buttons_container,
+            text="🔚 Toggle Status",
             command=self._handle_toggle_click,
         )
         self.toggle_status_button.pack(
             side="right",
+            pady=5,
+            padx=5,
+            
         )
 
         self.view_plan_button = tk.Button(
-            master=self.header_container,
-            text="View Selected Plan",
+            master=self.selected_plan_action_buttons_container,
+            text="🔍 View",
             command=self._handle_view_click,
         )
         self.view_plan_button.pack(
             side="right",
+            pady=5,
+            padx=5,
         )
 
         self.render_all_plans()
@@ -190,19 +204,21 @@ class AllPlansView(BaseView):
             self.render_error_popup_window(
                 message="Please select a plan to toggle status!"
             )
+            return
 
         plan_data = self.tree.item(plan_row, "values")
         plan_id = plan_data[0]
-        plan_end_date = plan_data[4]
+        plan_end_date = run_query_get_rows(f"SELECT end_date FROM Plan WHERE id={plan_id}")[0]['end_date']
 
-        confirm_msg = f'Are you sure you want to {"end" if plan_end_date == "Ongoing" else "restart"} this plan?'
+        confirm_msg = f'Are you sure you want to {"end" if plan_end_date is None else "restart"} this plan?'
         user_input = messagebox.askyesno("Toggle Plan Status", confirm_msg)
         
         if not user_input:
             return
 
         # set enddate to today
-        if plan_end_date == "Ongoing":
+        logging.debug(f'{plan_end_date=}')
+        if plan_end_date is None:
             today = date.today()
             run_query_get_rows(
                 f"""UPDATE Plan
@@ -211,11 +227,12 @@ class AllPlansView(BaseView):
                                         WHERE
                                             id = {plan_id}"""
             )
+        # Restart plan
         else:
             run_query_get_rows(
                 f"""UPDATE Plan
                                         SET
-                                            end_date = ''
+                                            end_date = NULL
                                         WHERE
                                             id = {plan_id}"""
             )
