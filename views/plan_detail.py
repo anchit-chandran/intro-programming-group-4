@@ -47,7 +47,7 @@ class PlanDetailView(BaseView):
 
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.",
+            text="You can see information pertaining to this Plan.\n\nTotal Plan Resources are a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.\n\nNOTE: you can scroll to see more Camps, if there are more.",
             anchor="w",
             justify="left",
         )
@@ -118,21 +118,21 @@ class PlanDetailView(BaseView):
 
         self.view_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
-            text="View Selected Camp",
+            text="View Camp",
             command=lambda: self._handle_selected_camp_actions_click("view"),
         )
         self.view_camp_button.pack(side="left", pady=5, padx=5)
         
         self.edit_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
-            text="Edit Selected Camp",
+            text="Edit Camp",
             command=lambda: self._handle_selected_camp_actions_click("edit"),
         )
         self.edit_camp_button.pack(side="left", pady=5, padx=5)
 
         self.resources_camp_button = tk.Button(
             master=self.selected_camp_actions_frame,
-            text="Edit Resources for Selected Camp",
+            text="Edit Resources for Camp",
             command=lambda: self._handle_selected_camp_actions_click("resources"),
         )
         self.resources_camp_button.pack(side="left", pady=5, padx=5)
@@ -153,15 +153,16 @@ class PlanDetailView(BaseView):
         for camp in self.all_camps:
             data_to_add = self.get_data_to_render_from_camp(camp)
             self.data_to_render.append(data_to_add)
-
-        # Get string for resource data
+        logging.debug(f'{self.data_to_render=}')
+        # Render resource string
         for item in self.data_to_render:
-            resources = item[6]
-            new_label = [f"{resource[0]}: {resource[1]}" for resource in resources]
-            label = "\n".join(new_label)
-            if not label:
-                label = "No resources"
+            resources = int(item[-1])
+            if not resources:
+                label = '❌'
+            else:
+                label = f"{resources} allocated"
             item[6] = label
+                
 
         self.header_cols = [
             "ID",
@@ -170,7 +171,7 @@ class PlanDetailView(BaseView):
             "Current Capacity (n)",
             "Volunteers (n)",
             "Refugee Families (n)",
-            "Resources",
+            "Resource Types (n)",
         ]
 
         # TODO: dynamically choose Rowheight mostly determined by n resources, each separated by \n
@@ -185,10 +186,11 @@ class PlanDetailView(BaseView):
                 100,
                 150,
                 100,
-                150,
-                100,
+                120,
+                120,
             ],
             rowheight=75,
+            max_rows=4,
         )
 
     def _handle_selected_camp_actions_click(self, action: str):
@@ -263,14 +265,14 @@ class PlanDetailView(BaseView):
         resources = run_query_get_rows(
             f"""
             SELECT
-                name, amount
+                COUNT(name)
             FROM
                 CampResources
             WHERE
                 camp_id = '{camp["id"]}'
         """
         )
-        return [(resource["name"], resource["amount"]) for resource in resources]
+        return resources[0]['COUNT(name)']
 
     def get_refugee_familes_for_camp(self, camp: dict) -> int:
         """Gets refugee families for camp"""
@@ -321,7 +323,7 @@ class PlanDetailView(BaseView):
 
         current_capacity = max_capacity - total_refugees
 
-        return f"{current_capacity}\n(MAX: {max_capacity})"
+        return f"{current_capacity} (MAX: {max_capacity})"
 
     def render_total_resources(self, container) -> None:
         """Renders total resources for this plan"""
