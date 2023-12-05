@@ -427,6 +427,11 @@ class AddEditCampView(BaseView):
         if not camp_name.strip():
             self.form_is_valid = False
             errors["camp_name"].append("This field is required.")
+        # unique name 
+        else:
+            if len(run_query_get_rows(f"SELECT name FROM Camp WHERE name='{camp_name}' AND plan_id={plan_id}")):
+                self.form_is_valid = False
+                errors["camp_name"].append("Camp name must be unique!")
         if not location.strip():
             self.form_is_valid = False
             errors["location"].append("This field is required.")
@@ -450,7 +455,9 @@ class AddEditCampView(BaseView):
                         errors["maxCapacity"].append(f'Invalid input! Cannot be less than current capacity ({current_capacity})')
             except Exception as e:
                 logging.debug(f"Invalid input for maxCapacity")
-                
+        
+        
+
 
         # VALIDATE
         if not self.form_is_valid:
