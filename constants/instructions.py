@@ -7,11 +7,11 @@ new_msg = "Please select the recipient and the urgency of the message.\n\nPlease
 
 add_edit_plan = "All fields are mandatory.\n\nStart Date must be a valid date, and cannot be before today.\n\nCentral email must be a valid email in the general format: example@domain.com."
 
+plan_detail = "You can see information about this Plan.\n\nTotal Plan Resources is a calculated aggregation across all Camps under this Plan.\n\nCamps for this Plan can be added using the 'Add Camp' button.\n\nCamps, and their associated resources, can be viewed or edited by selecting the Camp and using the appropriate action buttons.\n\nNOTE: you can scroll to see more Camps if there are more."
 
 INSTRUCTIONS = {
     "login": login,
-    "plan_detail": "",
-    "all_plans": "",
+    "plan_detail": plan_detail,
     "add_edit_plan": add_edit_plan,
     "camp_detail": "",
     "all_volunteers": "",
