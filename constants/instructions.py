@@ -11,7 +11,7 @@ INSTRUCTIONS = {
     "camp_detail": "",
     "all_volunteers": "",
     "messages": messages_instructions,
-    "new_msg": "",
+    "new_msg": new_msg,
     "profile": {
         "own_profile": "Edit your own profile",
     },

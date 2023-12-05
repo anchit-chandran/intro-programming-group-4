@@ -8,7 +8,7 @@ import datetime
 
 # Project imports
 from views.base import BaseView
-from constants import config
+from constants import config, instructions
 from constants.message_priorities import Priority
 from utilities.db import run_query_get_rows, insert_query_with_values
 
@@ -44,9 +44,13 @@ class NewMessageView(BaseView):
             text="Instructions",
         )
         self.instructions_container.pack()
+        
+        msg_text = instructions.INSTRUCTIONS['new_msg']
+        if self.master.get_global_state().get('is_admin'):
+            msg_text += " Admins are not associated with any specific Plan or Camp."
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="Please select to whom you would like to send the message and the urgency.\n\nMessages should be succinct, at most 40 characters.",
+            text=msg_text,
             anchor="w",
             justify="left",
         )
