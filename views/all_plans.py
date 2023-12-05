@@ -1,7 +1,9 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import messagebox
 from tkinter import ttk
+from datetime import date
 
 # Project imports
 from constants import config
@@ -29,7 +31,7 @@ class AllPlansView(BaseView):
         self.container.pack(
             pady=10,
         )
-        
+
         # Instructions label
         self.instructions_container = ttk.LabelFrame(
             master=self.container,
@@ -38,7 +40,7 @@ class AllPlansView(BaseView):
         self.instructions_container.pack()
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.\n\nNOTE: Refugee Family count excludes those registered but not currently in the camp.",
+            text="New plans can be added using the '+ Add Plan' button.\n\nPlans can be viewed or modified by first selecting the plan by clicking on it, then using the appropriate action button.\n\nIf a Plan is ended, using 'Toggle Plan Status' with a selected plan, further interaction with the Plan is disabled until it is restarted.\n\nNOTE: Refugee Family count excludes those registered but not currently in the camp.",
             anchor="w",
             justify="left",
         )
@@ -57,7 +59,7 @@ class AllPlansView(BaseView):
             side="left",
         )
 
-        # Add plan buttons
+        # Add plan button
         self.add_plan_button = tk.Button(
             master=self.header_container,
             text="+ Add Plan",
@@ -66,23 +68,46 @@ class AllPlansView(BaseView):
         self.add_plan_button.pack(
             side="right",
         )
+        
+        # Selected plan action buttons
+        self.selected_plan_action_buttons_container = tk.LabelFrame(
+            master=self.header_container,
+            text='Selected Plan Actions'
+        )
+        self.selected_plan_action_buttons_container.pack(side='top')
 
         self.edit_plan_button = tk.Button(
-            master=self.header_container,
-            text="Edit Selected Plan",
+            master=self.selected_plan_action_buttons_container,
+            text="📝 Edit Plan",
             command=self._handle_edit_click,
         )
         self.edit_plan_button.pack(
             side="right",
+            pady=5,
+            padx=5,
+        )
+
+        self.toggle_status_button = tk.Button(
+            master=self.selected_plan_action_buttons_container,
+            text="🔚 Toggle Status",
+            command=self._handle_toggle_click,
+        )
+        self.toggle_status_button.pack(
+            side="right",
+            pady=5,
+            padx=5,
+            
         )
 
         self.view_plan_button = tk.Button(
-            master=self.header_container,
-            text="View Selected Plan",
+            master=self.selected_plan_action_buttons_container,
+            text="🔍 View",
             command=self._handle_view_click,
         )
         self.view_plan_button.pack(
             side="right",
+            pady=5,
+            padx=5,
         )
 
         self.render_all_plans()
@@ -146,7 +171,6 @@ class AllPlansView(BaseView):
             container=self.all_plans_container,
         )
 
-    
     def get_plans(self) -> list[dict]:
         return run_query_get_rows("SELECT * FROM Plan")
 
@@ -155,35 +179,90 @@ class AllPlansView(BaseView):
         if plan_row:
             plan_data = self.tree.item(plan_row, "values")
             plan_id = plan_data[0]
+            if self._check_plan_ended(plan_id=plan_id):
+                self.render_error_popup_window(message="Plan has ended! Please re-open the Plan to go further.")
+                return
             current_global_state = self.master.get_global_state()
             current_global_state["plan_id_to_view"] = plan_id
             self.master.set_global_state(current_global_state)
 
             self.master.switch_to_view("plan_detail")
         else:
-            self.render_error_popup_window(message='Please select a plan to view!')
-
+            self.render_error_popup_window(message="Please select a plan to view!")
 
     def _handle_add_plan_click(self):
         # Clean EDIT PLAN global vars
         current_state = self.master.get_global_state()
-        current_state.pop("plan_name_to_edit", None)
+        current_state.pop("plan_id_to_edit", None)
         self.master.set_global_state(current_state)
 
         self.master.switch_to_view("add_edit_plan")
 
+    def _handle_toggle_click(self):
+        plan_row = self.tree.focus()
+        if not plan_row:
+            self.render_error_popup_window(
+                message="Please select a plan to toggle status!"
+            )
+            return
+
+        plan_data = self.tree.item(plan_row, "values")
+        plan_id = plan_data[0]
+        plan_end_date = run_query_get_rows(f"SELECT end_date FROM Plan WHERE id={plan_id}")[0]['end_date']
+
+        confirm_msg = f'Are you sure you want to {"end" if plan_end_date is None else "restart"} this plan?'
+        user_input = messagebox.askyesno("Toggle Plan Status", confirm_msg)
+        
+        if not user_input:
+            return
+
+        # set enddate to today
+        logging.debug(f'{plan_end_date=}')
+        if plan_end_date is None:
+            today = date.today()
+            run_query_get_rows(
+                f"""UPDATE Plan
+                                        SET
+                                            end_date = '{today}'
+                                        WHERE
+                                            id = {plan_id}"""
+            )
+        # Restart plan
+        else:
+            run_query_get_rows(
+                f"""UPDATE Plan
+                                        SET
+                                            end_date = NULL
+                                        WHERE
+                                            id = {plan_id}"""
+            )
+        
+        self.master.refresh_view()
+
+    def _check_plan_ended(self, plan_id:int)->bool:
+        plan_end_date = run_query_get_rows(f"SELECT end_date FROM Plan WHERE id={plan_id}")[0]['end_date']
+        logging.debug(f"{plan_end_date=}")
+        return bool(plan_end_date)
+        
+    
     def _handle_edit_click(self):
         plan_row = self.tree.focus()
         if plan_row:
+
             plan_data = self.tree.item(plan_row, "values")
             plan_id = plan_data[0]
+            
+            if self._check_plan_ended(plan_id=plan_id):
+                self.render_error_popup_window(message="Plan has ended! Please re-open the Plan to go further.")
+                return
+            
             current_global_state = self.master.get_global_state()
             current_global_state["plan_id_to_edit"] = plan_id
             self.master.set_global_state(current_global_state)
 
             self.master.switch_to_view("add_edit_plan")
         else:
-            self.render_error_popup_window(message='Please select a plan to edit!')
+            self.render_error_popup_window(message="Please select a plan to edit!")
 
     def _calculate_total_camps_per_plan(self, plan_id: int) -> int:
         """Calculates the total number of camps for plan"""

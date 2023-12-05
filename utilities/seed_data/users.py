@@ -1,11 +1,12 @@
 from datetime import date
+from constants.config import SEX_VALUES
 
 user_data = [
     {
         "username": "admin",
         "password": "111",
         "dob": date(1997, 10, 18),
-        "sex": "M",
+        "sex": SEX_VALUES[0],
         "phone_number": "07777777777",
         "is_active": 1,
         "is_admin": 1,
@@ -21,7 +22,7 @@ user_data = [
         "username": "volunteer1",
         "password": "111",
         "dob": date(1997, 10, 18),
-        "sex": "Other",
+        "sex": SEX_VALUES[1],
         "phone_number": "07777777777",
         "is_active": 1,
         "is_admin": 0,
@@ -37,7 +38,7 @@ user_data = [
         "username": "volunteer2",
         "password": "111",
         "dob": date(1997, 10, 18),
-        "sex": "F",
+        "sex": SEX_VALUES[1],
         "phone_number": "07777777777",
         "is_active": 1,
         "is_admin": 0,
@@ -53,7 +54,7 @@ user_data = [
         "username": "volunteer3",
         "password": "111",
         "dob": date(1997, 10, 18),
-        "sex": "F",
+        "sex": SEX_VALUES[1],
         "phone_number": "07777777777",
         "is_active": 1,
         "is_admin": 0,
@@ -70,7 +71,7 @@ user_data = [
         "username": "deactivatedVolunteer",
         "password": "111",
         "dob": date(1997, 10, 18),
-        "sex": "F",
+        "sex": SEX_VALUES[2],
         "phone_number": "07777777777",
         "is_active": 0,
         "is_admin": 0,

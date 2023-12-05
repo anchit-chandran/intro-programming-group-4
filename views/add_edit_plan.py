@@ -609,6 +609,25 @@ class AddEditPlanView(BaseView):
         if not plan_name.strip():
             self.form_is_valid = False
             errors["plan_name"].append("This field is required.")
+        else:
+            # Ensure unique name
+            if self.is_edit:
+                # Get current plan name
+                current_plan_name = run_query_get_rows(f"SELECT title FROM Plan WHERE id={plan_id}")[0]['title']
+                
+                # Check duplicates
+                n_duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}' AND title != '{current_plan_name}'")[0]['COUNT(*)']
+                logging.debug(f'{self.is_edit=} and {n_duplicate_plans=}')
+                
+                if n_duplicate_plans: # bc this current plan will already show
+                    self.form_is_valid = False
+                    errors["plan_name"].append(f"Plan Name must be unique!")
+            else:
+                # Check duplicates
+                n_duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}'")[0]['COUNT(*)']
+                if n_duplicate_plans:
+                    self.form_is_valid = False
+                    errors["plan_name"].append(f"Plan Name must be unique!")
         if not "".join(start_date.split("-")).strip():
             self.form_is_valid = False
             errors["start_date"].append("This field is required.")
@@ -640,7 +659,7 @@ class AddEditPlanView(BaseView):
                 if field_errors:
                     error_msg += self._render_field_label_from_key(field).upper()
                     for field_error in field_errors:
-                        error_msg += f"\t{field_error}\n"
+                        error_msg += f"\n\t{field_error}\n"
                     error_msg += "\n\n"
             self.render_error_popup_window(message=error_msg)
 

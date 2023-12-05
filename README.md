@@ -1,8 +1,6 @@
-# intro-programming-group-4
+# RefugEASE
 
-## Helpful VSCode Extensions
-
-- SQLite Viewer
+!()[./assets/logo.png]
 
 ## Setup
 

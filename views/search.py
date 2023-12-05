@@ -29,12 +29,11 @@ class SearchView(BaseView):
             "medical_conditions",
             "is_in_camp",
             "camp_id",
-
         ]
         # Get empty table for now
         self.search_results = [
             ["" for _ in range(len(self.all_field_keys))],
-        ]  
+        ]
 
         self.render_widgets()
 
@@ -46,8 +45,7 @@ class SearchView(BaseView):
             master=self,
             width=config.SCREEN_WIDTH,
         )
-        self.container.pack(
-        )
+        self.container.pack()
 
         # Header
         self.header_container = tk.Frame(self.container)
@@ -70,7 +68,7 @@ class SearchView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.\n\nNOTE: search fields labelled '< or >' can search on exact integers, or can be combined with the '<' / '>' symbols to search ranges e.g. for Number of Children, '>1' would return all Families with more than 2 children.",
+            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.\n\nNOTE: search fields labelled '(< or >)' can search on exact integers, or can be combined with the '<' / '>' symbols to search ranges e.g. for Number of Children, '>1' would return all Families with more than 2 children. These fields MUST include valid whole numbers.",
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -87,12 +85,12 @@ class SearchView(BaseView):
         self.results_container = tk.LabelFrame(master=self.container, text="Matches")
         self.results_container.pack()
         self._render_results_fields(self.results_container, results=self.search_results)
-    
+
     def _render_refugee_family_search_fields(self, container):
         self.refugee_family_id_label = tk.Label(
             master=container,
             text=f"Refugee Family ID:",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -105,7 +103,7 @@ class SearchView(BaseView):
         self.main_rep_name_label = tk.Label(
             master=container,
             text="Main Rep Name",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -118,7 +116,7 @@ class SearchView(BaseView):
         self.main_rep_age_label = tk.Label(
             master=container,
             text="Main Rep Age",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -131,20 +129,25 @@ class SearchView(BaseView):
         self.main_rep_sex_label = tk.Label(
             master=container,
             text="Main Rep Sex",
-            width=20,
+            width=25,
             anchor="w",
         )
 
-        self.main_rep_sex_entry = tk.Entry(
+        self.main_rep_sex_entry = ttk.Combobox(
             master=container,
-            width=70,
+            width=6,
+            state="readonly",
         )
+        sex_values = ['']
+        sex_values.extend(list(config.SEX_VALUES))
+        self.main_rep_sex_entry["values"] = sex_values
+        self.main_rep_sex_entry.current(None) 
 
         # Main Rep Home Town
         self.main_rep_home_town_label = tk.Label(
             master=container,
             text="Main Rep Home Town",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -157,7 +160,7 @@ class SearchView(BaseView):
         self.n_adults_label = tk.Label(
             master=container,
             text="No. of Adults (< or >)",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -170,7 +173,7 @@ class SearchView(BaseView):
         self.n_children_label = tk.Label(
             master=container,
             text="No. of Children (< or >)",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -183,7 +186,7 @@ class SearchView(BaseView):
         self.n_missing_members_label = tk.Label(
             master=container,
             text="No. of Missing Members (< or >)",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -196,7 +199,7 @@ class SearchView(BaseView):
         self.medical_conditions_label = tk.Label(
             master=container,
             text="Medical Conditions",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -209,7 +212,7 @@ class SearchView(BaseView):
         self.is_in_camp_label = tk.Label(
             master=container,
             text="Residing in Camp",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -221,23 +224,23 @@ class SearchView(BaseView):
         self.camp_label = tk.Label(
             master=container,
             text="Camp",
-            width=20,
+            width=25,
             anchor="w",
         )
 
         # CAMP DROPDOWN
         self.camp_entry = ttk.Combobox(
-                master=container,
-                width=25,
-                state="readonly",
-            )
+            master=container,
+            width=25,
+            state="readonly",
+        )
         self.camp_entry["values"] = self.get_all_camp_labels()
         self.camp_entry.current(0)
 
         self.plan_label = tk.Label(
             master=container,
             text="Plan",
-            width=20,
+            width=25,
             anchor="w",
         )
 
@@ -262,7 +265,7 @@ class SearchView(BaseView):
         self.main_rep_age_entry.grid(row=2, column=1)
 
         self.main_rep_sex_label.grid(row=3, column=0)
-        self.main_rep_sex_entry.grid(row=3, column=1)
+        self.main_rep_sex_entry.grid(row=3, column=1, sticky='w')
 
         self.main_rep_home_town_label.grid(row=4, column=0)
         self.main_rep_home_town_entry.grid(row=4, column=1)
@@ -283,28 +286,29 @@ class SearchView(BaseView):
         self.is_in_camp_entry.grid(row=9, column=1)
 
         self.camp_label.grid(row=10, column=0)
-        self.camp_entry.grid(row=10, column=1, sticky='w')
+        self.camp_entry.grid(row=10, column=1, sticky="w")
 
         self.search_button.grid(row=20, column=0, columnspan=2)
 
-    def _convert_camp_id_to_label(self, camp_id:int)->str:
+    def _convert_camp_id_to_label(self, camp_id: int) -> str:
         """Converts Camp id to form '`Name`' (ID:`id`)"""
-        name = run_query_get_rows(f"""SELECT name FROM Camp WHERE id={camp_id}""")[0]['name']
-        
-        return f'{name} (ID:{camp_id})'
-    
+        name = run_query_get_rows(f"""SELECT name FROM Camp WHERE id={camp_id}""")[0][
+            "name"
+        ]
+
+        return f"{name} (ID:{camp_id})"
+
     def get_all_camp_labels(self) -> list[str]:
         """Returns all camp labels in form ['Camp `ID` (PlanID: `id`)', ...,]"""
         camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp")
 
-        labels = [''] # start with empty label
+        labels = [""]  # start with empty label
         for camp in camp_data:
             labels.append(f"CampID: {camp['id']} (PlanID: {camp['plan_id']})")
 
         return labels
-    
-    def _render_results_fields(self, container, results: list[list[str]]):
 
+    def _render_results_fields(self, container, results: list[list[str]]):
         header_cols = [
             "RefugeeFamID",
             "Main Rep Name",
@@ -325,6 +329,19 @@ class SearchView(BaseView):
             data=results,
             max_rows=10,
             treeheight=10,
+            col_widths=[
+                80,
+                100,
+                80,
+                80,
+                125,
+                80,
+                125,
+                100,
+                125,
+                100,
+                100,
+            ],
         )
 
     def _construct_where_clauses_from(self, fields_and_values: dict) -> str:
@@ -334,18 +351,20 @@ class SearchView(BaseView):
 
         for field, val in fields_and_values.items():
             if val:
-                if field == 'camp_id':
+                if field == "camp_id":
                     val = self._get_camp_id_from_label(val)
-                
+
                 # Numeric fields
-                if field in ['n_adults', 'n_children', 'n_missing_members']:
+                if field in ["n_adults", "n_children", "n_missing_members"]:
                     # Look for carets
                     carets = re.findall(pattern=r">|<", string=val)
                     if carets:
                         # If there are carets, then change value to WHERE FIELD > val
-                        where_clauses.append(f"{field} {carets[0]} {val.replace(carets[0], '')}")
+                        where_clauses.append(
+                            f"{field} {carets[0]} {val.replace(carets[0], '')}"
+                        )
                         continue
-                    
+
                 where_clauses.append(f"{field} LIKE '%{val}%'")
 
         where_joined = "\n AND ".join(where_clauses)
@@ -373,7 +392,7 @@ class SearchView(BaseView):
         search_results_raw = run_query_get_rows(search_query)
         self.search_results = [list(result.values()) for result in search_results_raw]
         logging.debug(f"RESULTS: {self.search_results}")
-        
+
         # Convert campid to label
         for row in self.search_results:
             row[-1] = self._convert_camp_id_to_label(row[-1])
@@ -386,20 +405,35 @@ class SearchView(BaseView):
             self.tree.insert("", "end", values=result)
 
     def _handle_search_click(self) -> None:
+        errors = f"Invalid input!"
         try:
             refugee_family_id_input = self.refugee_family_id_entry.get()
             main_rep_name_input = self.main_rep_name_entry.get()
             main_rep_age_input = self.main_rep_age_entry.get()
             main_rep_sex_input = self.main_rep_sex_entry.get()
             main_rep_home_town_input = self.main_rep_home_town_entry.get()
+
             n_adults_input = self.n_adults_entry.get()
+            if n_adults_input:
+                num = n_adults_input.replace("<", "").replace(">", "")
+                if not num.isnumeric():
+                    errors += " Are the number fields correct?"
+                    raise Exception("Nums must be ints")
             n_children_input = self.n_children_entry.get()
+            if n_children_input:
+                num = n_children_input.replace("<", "").replace(">", "")
+                if not num.isnumeric():
+                    raise Exception("Nums must be ints")
             n_missing_members_input = self.n_missing_members_entry.get()
+            if n_missing_members_input:
+                num = n_missing_members_input.replace("<", "").replace(">", "")
+                if not num.isnumeric():
+                    errors += " Are the number fields correct?"
+                    raise Exception("Nums must be ints")
+
             medical_conditions_input = self.medical_conditions_entry.get()
             is_in_camp_input = self.is_in_camp_entry.get()
             camp_input = self.camp_entry.get()
-        
-            
 
             all_field_values = [
                 refugee_family_id_input,
@@ -417,8 +451,8 @@ class SearchView(BaseView):
 
             self.perform_search(all_field_values=all_field_values)
         except Exception as e:
-            logging.debug(f'Something went wrong: {e}')
-            self.render_error_popup_window(message='Invalid input!')
+            logging.debug(f"Something went wrong: {e}")
+            self.render_error_popup_window(message=errors)
 
     def _get_camp_id_from_label(self, label: str) -> int:
         """Returns camp id int from label, which is in format 'CampID: 2 (PlanID: 1)'"""
