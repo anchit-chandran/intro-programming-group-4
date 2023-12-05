@@ -58,13 +58,13 @@ class AddEditPlanView(BaseView):
         self.header.pack(
             side="top",
         )
-        
+
         # Instructions label
         self.instructions_container = ttk.LabelFrame(
             master=self.header_container,
             text="Instructions",
         )
-        self.instructions_container.pack(side='bottom')
+        self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
             text="All fields are mandatory.\n\nStart Date must be a valid date, and in the future.\n\nCentral email must be a valid email in the general format: example@domain.com.",
@@ -613,18 +613,24 @@ class AddEditPlanView(BaseView):
             # Ensure unique name
             if self.is_edit:
                 # Get current plan name
-                current_plan_name = run_query_get_rows(f"SELECT title FROM Plan WHERE id={plan_id}")[0]['title']
-                
+                current_plan_name = run_query_get_rows(
+                    f"SELECT title FROM Plan WHERE id={plan_id}"
+                )[0]["title"]
+
                 # Check duplicates
-                n_duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}' AND title != '{current_plan_name}'")[0]['COUNT(*)']
-                logging.debug(f'{self.is_edit=} and {n_duplicate_plans=}')
-                
-                if n_duplicate_plans: # bc this current plan will already show
+                n_duplicate_plans = run_query_get_rows(
+                    f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}' AND title != '{current_plan_name}'"
+                )[0]["COUNT(*)"]
+                logging.debug(f"{self.is_edit=} and {n_duplicate_plans=}")
+
+                if n_duplicate_plans:  # bc this current plan will already show
                     self.form_is_valid = False
                     errors["plan_name"].append(f"Plan Name must be unique!")
             else:
                 # Check duplicates
-                n_duplicate_plans = run_query_get_rows(f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}'")[0]['COUNT(*)']
+                n_duplicate_plans = run_query_get_rows(
+                    f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}'"
+                )[0]["COUNT(*)"]
                 if n_duplicate_plans:
                     self.form_is_valid = False
                     errors["plan_name"].append(f"Plan Name must be unique!")
@@ -741,13 +747,13 @@ class AddEditPlanView(BaseView):
         if confirm:
             logging.debug(f"Deleting {self.edit_plan_details['id']=}")
 
-        # Perform deletion
-        insert_query_with_values(
-            query="""DELETE 
-                                 FROM Plan
-                                 WHERE id = :id
-                                 """,
-            values={"id": self.edit_plan_details["id"]},
-        )
+            # Perform deletion
+            insert_query_with_values(
+                query="""DELETE 
+                                    FROM Plan
+                                    WHERE id = :id
+                                    """,
+                values={"id": self.edit_plan_details["id"]},
+            )
 
-        self.master.switch_to_view("all_plans")
+            self.master.switch_to_view("all_plans")

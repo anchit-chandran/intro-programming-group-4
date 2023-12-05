@@ -5,6 +5,8 @@
 import logging
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
+
 
 # Project imports
 from views.base import BaseView
@@ -478,7 +480,7 @@ class AddEditCampView(BaseView):
                         raise Exception
 
                     current_capacity = self.calculate_current_capacity(camp_id=camp_id)
-                    
+
                     if int(maxCapacity) < current_capacity:
                         self.form_is_valid = False
                         errors["maxCapacity"].append(
@@ -565,40 +567,19 @@ class AddEditCampView(BaseView):
             self.master.switch_to_view("camp_detail")
 
     def _render_delete_confirm_popup_window(self) -> None:
-        self.error_popup_window = tk.Toplevel(self.master)
-        self.error_popup_window.title("🚨 Delete Camp")
-        tk.Label(
-            master=self.error_popup_window,
-            text="Are you sure you want to delete this camp?",
-        ).pack(
-            pady=2,
-            padx=10,
-            expand=True,
-            fill="both",
-        )
+        title = "🚨 Delete Camp"
+        message = "Are you sure you want to delete this camp?"
+        confirm = messagebox.askokcancel(title=title, message=message)
+        if confirm:
+            logging.debug(f"Deleting {self.edit_camp_details['id']=}")
 
-        actions_container = tk.Frame(
-            master=self.error_popup_window,
-        )
-        actions_container.pack()
-        tk.Button(
-            master=actions_container,
-            text="Cancel",
-            command=lambda: self._delete_window(self.error_popup_window),
-        ).pack(
-            pady=2,
-            side="left",
-            fill="x",
-        )
-        tk.Button(
-            master=actions_container,
-            text="Delete",
-            fg="red",
-        ).pack(
-            pady=2,
-            side="right",
-            fill="x",
-        )
+            # Perform deletion
+            insert_query_with_values(
+                query="""DELETE 
+                                    FROM Camp
+                                    WHERE id = :id
+                                    """,
+                values={"id": self.edit_camp_details["id"]},
+            )
 
-        # Disable main window
-        self.error_popup_window.grab_set()
+            self.master.switch_to_view("plan_detail")
