@@ -2,7 +2,7 @@ import sqlite3
 import logging
 
 # Project imports
-from constants import config
+from constants import config, console_color_codes
 from utilities.seed_data import (
     camp_data,
     camp_resource_data,
@@ -423,7 +423,7 @@ def create_and_seed_messages_table() -> None:
                 "receiver_id": message["receiver_id"],
             },
         )
-
+    
 
 def setup_db(reset_database=False) -> None:
     """Creates and seeds tables."""
@@ -436,3 +436,34 @@ def setup_db(reset_database=False) -> None:
         create_and_seed_refugee_family_table()
         create_and_seed_user_table()
         create_and_seed_messages_table()
+    else:
+        # check if tables exist
+        conn = get_connection()
+        cursor = conn.cursor()
+        table_names = ['Plan','Camp','CampResources','RefugeeFamily','User','Messages']
+        seed_fns = [
+            create_and_seed_plan_table,
+            create_and_seed_camp_table,
+            create_and_seed_camp_resources_table,
+            create_and_seed_refugee_family_table,
+            create_and_seed_user_table,
+            create_and_seed_messages_table,
+        ]
+        table_name_seed_fn_map = {table_name:seed_fn for table_name,seed_fn in zip(table_names, seed_fns)}
+        
+        for table_name in table_names:
+            logging.info(f'{console_color_codes.PrintColor.HEADER}Checking {table_name} exists...{console_color_codes.PrintColor.ENDC}')
+            cursor.execute(f"SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+            
+            if (cursor.fetchone()[0] == 1):
+                # table exists
+                logging.info(f'Found!')
+                continue
+            else:
+                # create table
+                logging.info(f'Creating...')
+                seed_function = table_name_seed_fn_map[table_name]
+                seed_function()
+                logging.info('Done!')
+        
+        conn.close()

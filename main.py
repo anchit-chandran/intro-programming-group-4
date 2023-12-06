@@ -41,7 +41,7 @@ class MainApplication(tk.Tk):
             self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
-        self.DEBUG = True#(os.environ.get('DEBUG') == 'True') or testing
+        self.DEBUG = False#(os.environ.get('DEBUG') == 'True') or testing
         if self.DEBUG:
             self.set_global_state(
                 {
