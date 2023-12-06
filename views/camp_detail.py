@@ -228,30 +228,17 @@ class CampDetailView(BaseView):
             height=700,
         )
         self.resources_num_container.grid(row=4, column=1, pady=5, padx=10, sticky="w")
+        
+        resources_to_render = [[resource['name'], resource["amount"]] for resource in camp_resources]
+        
+        self.render_tree_table(
+            container=self.resources_num_container,
+            header_cols=['Name','Units'],
+            data = resources_to_render,
+            max_rows=4,
+            treeheight=4,
+        )
 
-        # map through the resources to create a lable with values
-        row_number = 4
-        for resource in camp_resources:
-            # left label
-            # get from db and map over
-            self.resources_label = ttk.Label(
-                master=self.resources_num_container,
-                text=f"{resource['name']}: ",
-            )
-            self.resources_label.grid(
-                row=row_number, column=1, sticky="w", pady=2, padx=10
-            )
-
-            # right info
-            self.resources_info = tk.Entry(
-                master=self.resources_num_container,
-                state="disabled",
-                textvariable=tk.StringVar(value=resource["amount"]),
-            )
-            self.resources_info.grid(
-                row=row_number, column=2, sticky="w", pady=2, padx=10
-            )
-            row_number += 1
 
         # if volunteer - show edit buttons
         if self.is_volunteer:

@@ -114,7 +114,7 @@ class PlanDetailView(BaseView):
         self.selected_camp_actions_frame = tk.LabelFrame(
             container, text="Selected Camp Actions"
         )
-        self.selected_camp_actions_frame.pack(side="left", padx=10)
+        self.selected_camp_actions_frame.pack(side="left", padx=10, pady=10)
 
         
 
@@ -191,8 +191,7 @@ class PlanDetailView(BaseView):
                 120,
                 120,
             ],
-            rowheight=75,
-            max_rows=4,
+            max_rows=5,
         )
 
     def _handle_selected_camp_actions_click(self, action: str):
