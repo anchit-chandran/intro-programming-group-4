@@ -134,7 +134,7 @@ class CampDetailView(BaseView):
                 text="GO BACK TO PLAN",
                 command=self.handle_back_button,
             )
-            self.go_back_button.pack(side="top")
+            self.go_back_button.pack(side="bottom", pady=5)
 
         self.header = ttk.Label(
             master=self.header_container,
