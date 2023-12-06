@@ -237,6 +237,7 @@ class CampDetailView(BaseView):
             data = resources_to_render,
             max_rows=4,
             treeheight=4,
+            tree_name='resources_tree'
         )
 
 

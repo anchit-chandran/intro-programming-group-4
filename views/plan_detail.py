@@ -176,8 +176,6 @@ class PlanDetailView(BaseView):
             "Resource Types (n)",
         ]
 
-        # TODO: dynamically choose Rowheight mostly determined by n resources, each separated by \n
-
         self.render_tree_table(
             header_cols=self.header_cols,
             data=self.data_to_render,
@@ -342,31 +340,16 @@ class PlanDetailView(BaseView):
         """
         )
 
-        labels = [resource["name"] for resource in camp_resources]
-        values = [resource["amount"] for resource in camp_resources]
+        resources_to_render = [[resource['name'], resource["amount"]] for resource in camp_resources]
 
-        for ix, label in enumerate(labels):
-            tk.Label(
-                master=container,
-                text=label,
-            ).grid(
-                row=ix,
-                column=0,
-                sticky="w",
-            )
-
-            tk.Entry(
-                master=container,
-                state="disabled",
-                width=8,
-                textvariable=tk.StringVar(
-                    value=values[ix],
-                ),
-            ).grid(
-                row=ix,
-                column=1,
-                sticky="w",
-            )
+        self.render_tree_table(
+            container=container,
+            header_cols=['Name','Units'],
+            data = resources_to_render,
+            max_rows=4,
+            treeheight=4,
+            tree_name='resources_tree'
+        )
 
     def render_plan_information(self, container) -> None:
         """Renders all plan information with disabled entry boxes inside container"""
