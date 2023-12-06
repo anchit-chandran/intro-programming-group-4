@@ -1,7 +1,35 @@
 # Python imports
 import logging
+
+# set all other libraries logging to warning
+logging.basicConfig(level=logging.WARNING)
+
+# Now set only this app's logging to debug - https://stackoverflow.com/questions/51357691/python-logging-only-for-own-imported-modules
+log_wp = logging.getLogger(__name__)
+hdlr = logging.StreamHandler()
+
+log_wp.addHandler(hdlr)
+log_wp.setLevel(logging.DEBUG)
+
+import subprocess
+import sys
+
+try:
+    import matplotlib
+except ImportError:
+    from constants.console_color_codes import PrintColor
+    logging.info(f"{PrintColor.HEADER} Matplotlib is not installed. Attempting install...{PrintColor.HEADER}")
+    try:
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        logging.info(f"{PrintColor.OKGREEN} Success! {PrintColor.OKGREEN}")
+    except Exception as e:
+        logging.info(f"Could not install matplotlib: {e}")
+
+# Python imports
 import tkinter as tk
-import os
 
 # Project imports
 from views import *
@@ -32,7 +60,8 @@ class MainApplication(tk.Tk):
             "add_edit_refugee": AddEditRefugeeView,  # Needs refugee_id_to_edit if edit and camp_id_to_view from state if add
             "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
-            "search":SearchView,
+            "search": SearchView,
+            "pulse": PulseView,
         }
         logging.debug(self.view_map.keys())
         # Create the reverse map
@@ -41,21 +70,22 @@ class MainApplication(tk.Tk):
             self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
-        self.DEBUG = True#(os.environ.get('DEBUG') == 'True') or testing
+        self.DEBUG = True  # (os.environ.get('DEBUG') == 'True') or testing
         if self.DEBUG:
             self.set_global_state(
                 {
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
+                    "plan_id_to_view": 1,
                 }
             )
-        
-        logging.info(f'{self.DEBUG=}')
+
+        logging.info(f"{self.DEBUG=}")
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("search")
+        self.switch_to_view("pulse")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -71,8 +101,11 @@ class MainApplication(tk.Tk):
     def _initial_setup(self) -> None:
         # Initial attributes
         self.title(config.TITLE)
-        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}") # thanks https://stackoverflow.com/questions/54296506/how-to-show-minimize-and-maximize-buttons-tkinter
-        if not self.testing: self.iconbitmap(config.LOGOICO) # doesnt run on github actions
+        self.geometry(
+            f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}"
+        )  # thanks https://stackoverflow.com/questions/54296506/how-to-show-minimize-and-maximize-buttons-tkinter
+        if not self.testing:
+            self.iconbitmap(config.LOGOICO)  # doesnt run on github actions
         # self.attributes('-fullscreen', True)
 
         # DB Setup
@@ -127,5 +160,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+
     main()
