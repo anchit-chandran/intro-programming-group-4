@@ -36,16 +36,19 @@ class ProfileView(BaseView):
 
         """
         current_state = self.master.get_global_state()
-        self.instructions_text = 'This is the Profile View.'
+        self.instructions_text = "This is the Profile View."
         if current_state.get("volunteer_id_to_edit"):
             self.volunteer_id = current_state.pop("volunteer_id_to_edit")
             logging.debug(f"Editing volunteer: {self.volunteer_id}")
             self._set_volunteer_instance_data()
-            
+
             self.instructions_text = "This is the Profile Editing View.\n\nDate of birth must be a valid date and at least 18 years prior to today (children can't be volunteers!)."
-            
-            if self._check_is_admin(): self.instructions_text += "\n\nAs admin, you can assign the Camp using the dropdown."
-            
+
+            if self._check_is_admin():
+                self.instructions_text += (
+                    "\n\nAs admin, you can assign the Camp using the dropdown."
+                )
+
             return "edit_volunteer"
         elif current_state.get("volunteer_id_to_view"):
             self.volunteer_id = current_state.pop("volunteer_id_to_view")
@@ -71,16 +74,14 @@ class ProfileView(BaseView):
         self.container.pack(
             fill="both",
         )
-        
-         # Instructions label
+
+        # Instructions label
         self.instructions_container = ttk.LabelFrame(
             master=self.container,
             text="Instructions",
         )
         self.instructions_container.pack()
-        
-        
-        
+
         self.instructions_label = tk.Label(
             master=self.instructions_container,
             text=self.instructions_text,
@@ -145,7 +146,6 @@ class ProfileView(BaseView):
                 dob_day,
             ) = self._get_user_profile_text(user_profile)
 
-        
         # Section : User details (userID, camp_label, username, status)
         self.user_details_label_container = tk.LabelFrame(
             master=self.container,
@@ -241,7 +241,7 @@ class ProfileView(BaseView):
         )
 
         camp_label_text = tk.StringVar(value=camp_label)
-        
+
         # Add volunteer / admin editing volunteer
         if self.should_render in ["add_volunteer", "edit_volunteer"] and not getattr(
             self, "volunteer_editing_self", None
@@ -799,9 +799,11 @@ class ProfileView(BaseView):
         emergency_contact_number = user_profile.get("emergency_contact_number")
         if emergency_contact_number is None:
             emergency_contact_number = "No information provided"
-        
+
         campID = user_profile.get("camp_id")
-        camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp WHERE id={campID}")[0]
+        camp_data = run_query_get_rows(
+            f"SELECT id, plan_id FROM Camp WHERE id={campID}"
+        )[0]
         camp_label = f"CampID: {camp_data['id']} (PlanID: {camp_data['plan_id']})"
 
         dob_year, dob_month, dob_day = user_profile.get("dob").split("-")
@@ -841,7 +843,15 @@ class ProfileView(BaseView):
                 text="Edit",
                 command=self.handle_edit_click,
             )
-            self.edit_button.grid(row=0, column=0)
+            self.edit_button.grid(row=0, column=1)
+
+            if self.should_render in ["view_volunteer"]:
+                self.cancel_button = tk.Button(
+                    master=self.button_container,
+                    text="Back",
+                    command=self.handle_cancel_click,
+                )
+                self.cancel_button.grid(row=0, column=0, padx=10)
 
         elif self.should_render in ["edit_volunteer", "add_volunteer"]:
             self.button_container = tk.Frame(
@@ -858,7 +868,14 @@ class ProfileView(BaseView):
                 text=submit_button_text,
                 command=self.handle_edit_add_button_click,
             )
-            self.edit_add_button.grid(row=0, column=0)
+            self.edit_add_button.grid(row=0, column=1)
+
+            self.cancel_button = tk.Button(
+                master=self.button_container,
+                text="Cancel",
+                command=self.handle_cancel_click,
+            )
+            self.cancel_button.grid(row=0, column=0, padx=10)
 
     def handle_edit_add_button_click(self):
         user_id_input = self.userID_entry.get()
@@ -928,7 +945,7 @@ class ProfileView(BaseView):
                 self.form_is_valid = False
 
         # password_input
-        if self.should_render == 'add_volunteer':
+        if self.should_render == "add_volunteer":
             if not self._is_password_valid(password=password_input):
                 self.form_errors["password_input"].append(
                     "Password not strong enough! Must be:\n\t1) >8 chars\n\t2) Have >= 1 capital letter\n\t3) Have >=1 lowercase letter\n\t4) Have >=1 digit"
@@ -972,9 +989,9 @@ class ProfileView(BaseView):
         other_skills = all_values[10]
         emergency_contact_name = all_values[11]
         emergency_contact_number = all_values[12]
-        if self.should_render == 'add_volunteer':
+        if self.should_render == "add_volunteer":
             password = all_values[13]
-        
+
         if self._is_username_available(username=username):
             logging.debug("Adding new user")
             insert_query_with_values(
@@ -1064,32 +1081,35 @@ class ProfileView(BaseView):
             )
 
         logging.debug(f"Success!")
-        
-        if self._check_is_admin():
-            next_view = 'all_volunteers'
-        else:
-            next_view = 'profile'
-        
-        self.master.switch_to_view(next_view)
-            
 
-    def _is_dob_valid(self, dob: str)->bool:
+        if self._check_is_admin():
+            next_view = "all_volunteers"
+        else:
+            next_view = "profile"
+
+        self.master.switch_to_view(next_view)
+
+    def _is_dob_valid(self, dob: str) -> bool:
         """`dob` inserted in YYYY-MM-DD format"""
         try:
             year, month, day = dob.split("-")
             date_of_birth = date(year=int(year), month=int(month), day=int(day))
         except Exception as e:
             return False
-        
+
         # Now check if age > 18
         today = date.today()
-        age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day)) # thanks https://stackoverflow.com/questions/2217488/age-from-birthdate-in-python
-        
+        age = (
+            today.year
+            - date_of_birth.year
+            - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+        )  # thanks https://stackoverflow.com/questions/2217488/age-from-birthdate-in-python
+
         if age < 18:
             self.form_errors["dob_input"].append("Volunteer's age cannot be < 18!")
             self.form_is_valid = False
             return False
-        
+
         return True
 
     def _is_dob_in_past(self, dob: str):
@@ -1204,3 +1224,14 @@ class ProfileView(BaseView):
         if self.should_render == "add_volunteer":
             base_fields.append("password_input")
         return base_fields
+
+    def handle_cancel_click(self) -> None:
+        if self._check_is_admin():
+            next_view = "all_volunteers"
+        else:
+            current_global_state = self.master.get_global_state()
+            current_global_state["camp_id_to_view"] = self.camp_id
+            self.master.set_global_state(current_global_state)
+            next_view = "camp_detail"
+
+        self.master.switch_to_view(next_view)
