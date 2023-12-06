@@ -18,8 +18,6 @@ class CampDetailView(BaseView):
         self.render_widgets()
         self.update()
 
-    
-
     def handle_view_departed_click(self):
         """navigates to departed refugee list view"""
         self.master.switch_to_view("departed_refugees")
@@ -114,8 +112,7 @@ class CampDetailView(BaseView):
         self.container = tk.Frame(
             master=self,
         )
-        self.container.pack(
-        )
+        self.container.pack()
 
         # Header
         self.header_container = tk.Frame(
@@ -151,7 +148,7 @@ class CampDetailView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text=instructions.INSTRUCTIONS['camp_detail'],
+            text=instructions.INSTRUCTIONS["camp_detail"],
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -231,65 +228,49 @@ class CampDetailView(BaseView):
             height=700,
         )
         self.resources_num_container.grid(row=4, column=1, pady=5, padx=10, sticky="w")
+        
+        resources_to_render = [[resource['name'], resource["amount"]] for resource in camp_resources]
+        
+        self.render_tree_table(
+            container=self.resources_num_container,
+            header_cols=['Name','Units'],
+            data = resources_to_render,
+            max_rows=4,
+            treeheight=4,
+            tree_name='resources_tree'
+        )
 
-        # map through the resources to create a lable with values
-        row_number = 4
-        for resource in camp_resources:
-            # left label
-            # get from db and map over
-            self.resources_label = ttk.Label(
-                master=self.resources_num_container,
-                text=f"{resource['name']}: ",
-            )
-            self.resources_label.grid(
-                row=row_number, column=1, sticky="w", pady=2, padx=10
-            )
-
-            # right info
-            self.resources_info = tk.Entry(
-                master=self.resources_num_container,
-                state="disabled",
-                textvariable=tk.StringVar(value=resource["amount"]),
-            )
-            self.resources_info.grid(
-                row=row_number, column=2, sticky="w", pady=2, padx=10
-            )
-            row_number += 1
 
         # if volunteer - show edit buttons
         if self.is_volunteer:
-            
             self.camp_action_buttons_container = tk.LabelFrame(
-                master=self.top_container,
-                text='Camp Actions'
+                master=self.top_container, text="Camp Actions"
             )
-            self.camp_action_buttons_container.grid(row=0, column=3,  sticky="ne")
-            
+            self.camp_action_buttons_container.grid(row=0, column=3, sticky="ne")
+
             self.edit_details_button = ttk.Button(
                 master=self.camp_action_buttons_container,
                 text="📝 Edit Details",
                 command=self.handle_edit_click_volunteer,
             )
-            self.edit_details_button.pack(side='top', padx=5, pady=5)
-
+            self.edit_details_button.pack(side="top", padx=5, pady=5)
 
         # render tables
         self.render_camp_volunteers()
         self.render_camp_refugees()
-    
-    
+
     def handle_edit_click_volunteer(self):
-    
         current_global_state = self.master.get_global_state()
-        camp_id_to_view = current_global_state.pop('camp_id_to_view')
-        plan_id_for_camp = run_query_get_rows(f"SELECT plan_id FROM Camp WHERE id={camp_id_to_view}")[0]['plan_id']
-        
+        camp_id_to_view = current_global_state.pop("camp_id_to_view")
+        plan_id_for_camp = run_query_get_rows(
+            f"SELECT plan_id FROM Camp WHERE id={camp_id_to_view}"
+        )[0]["plan_id"]
+
         current_global_state["camp_id_to_edit"] = camp_id_to_view
         current_global_state["plan_id_to_view"] = plan_id_for_camp
         self.master.set_global_state(current_global_state)
         self.master.switch_to_view("add_edit_camp")
-        
-        
+
     # ------------------------ Volunteers list ------------------------------
     def render_camp_volunteers(self) -> None:
         self.all_volunteers = self.get_volunteers()
@@ -396,7 +377,7 @@ class CampDetailView(BaseView):
             text="View Departed Refugees",
             command=self.handle_view_departed_click,
         )
-        self.add_refugee_button.pack(side="right")
+        self.add_refugee_button.pack(side="left", padx=5)
 
         # Add refugee button
         self.add_refugee_button = ttk.Button(
@@ -404,15 +385,16 @@ class CampDetailView(BaseView):
             text=" + Add Regugee Family",
             command=self._handle_add_refugee_click,
         )
-        self.add_refugee_button.pack(side="right")
+        self.add_refugee_button.pack(side="left", padx=5)
 
+        # Selected refugee action buttons
+        self.render_selected_refugee_actions(container=self.generic_action_buttons_container)
+        
         # table
         table_container = tk.Frame(
             master=self.all_refugees_container,
         )
         table_container.grid(row=1, column=0)
-        # Selected refugee action buttons
-        self.render_selected_refugee_actions(container=table_container)
 
         # headers list
         self.header_cols = [
@@ -437,13 +419,15 @@ class CampDetailView(BaseView):
                 150,
             ],
             rowheight=20,
+            max_rows=10,
+            treeheight=10,
         )
 
     def render_selected_refugee_actions(self, container) -> None:
         action_frame = tk.LabelFrame(
             master=container, text="Selected Refugee Family Actions"
         )
-        action_frame.pack(side="right")
+        action_frame.pack(side="right", padx=10)
 
         self.view_refugee_button = ttk.Button(
             master=action_frame,
@@ -478,9 +462,7 @@ class CampDetailView(BaseView):
 
     def handle_edit_click(self, refugee_id: int):
         """Navigates to edit refugee from view"""
-        
-        
-        
+
         current_global_state = self.master.get_global_state()
         current_global_state["refugee_id_to_edit"] = refugee_id
         self.master.set_global_state(current_global_state)

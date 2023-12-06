@@ -107,16 +107,6 @@ class BaseView(tk.Frame):
                 column=2,
                 sticky="w",
             )
-            self.search_button = tk.Button(
-                master=self.nav_container,
-                text="Search 🔍",
-                command=self._handle_search_click,
-            )
-            self.search_button.grid(
-                row=0,
-                column=3,
-                sticky="w",
-            )
 
         else:
             # volunteer buttons
@@ -130,6 +120,17 @@ class BaseView(tk.Frame):
                 column=3,
                 sticky="w",
             )
+
+        self.search_nav_button = tk.Button(
+            master=self.nav_container,
+            text="Search 🔍",
+            command=self._handle_search_nav_click,
+        )
+        self.search_nav_button.grid(
+            row=0,
+            column=7,
+            sticky="w",
+        )
 
         self.profile_button = tk.Button(
             master=self.nav_container,
@@ -167,7 +168,7 @@ class BaseView(tk.Frame):
         )
         self.refresh_button.grid(
             row=0,
-            column=7,
+            column=8,
             sticky="e",
         )
 
@@ -178,7 +179,7 @@ class BaseView(tk.Frame):
         )
         self.logout_button.grid(
             row=0,
-            column=8,
+            column=9,
             sticky="e",
         )
 
@@ -188,7 +189,7 @@ class BaseView(tk.Frame):
         )
         self.username_frame.grid(
             row=0,
-            column=9,
+            column=10,
             sticky="w",
         )
         self.role_text = (
@@ -201,9 +202,9 @@ class BaseView(tk.Frame):
         )
         self.user_text.pack(padx=5, pady=5)
 
-    def _handle_search_click(self)->None:
-        self.master.switch_to_view('search')
-    
+    def _handle_search_nav_click(self) -> None:
+        self.master.switch_to_view("search")
+
     def set_character_limit(self, entry_text: tk.StringVar, char_limit: int) -> None:
         """Set character limit for entry_text (exclusive)
 
@@ -252,12 +253,12 @@ class BaseView(tk.Frame):
         }
 
         style = ttk.Style()
-        style.theme_use('default')
+        style.theme_use("default")
         style.configure("Treeview")
         style.map("Treeview", background=[("selected", "green")])
 
         style.configure("Treeview", rowheight=rowheight or 25)
-            
+
         tree = ttk.Treeview(master=container, style="Treeview", **extra_config)
 
         # Define cols

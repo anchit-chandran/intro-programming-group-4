@@ -1,9 +1,12 @@
 # Python imports)
 import logging
 import tkinter as tk
+from tkinter import ttk
+
 
 # Project imports
 from utilities.db import run_query_get_rows
+from constants import config, instructions
 from constants.console_color_codes import PrintColor
 from .base import BaseView
 
@@ -61,6 +64,20 @@ class RefugeeProfileView(BaseView):
             pady=10,
         )
 
+        # Instructions label
+        self.instructions_container = ttk.LabelFrame(
+            master=self.container,
+            text="Instructions",
+        )
+        self.instructions_container.pack()
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text=instructions.INSTRUCTIONS["refugee_profile"],
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
+
         # Refugee profile variables
 
         refugee_family_id = self.master.get_global_state().get("refugee_id_to_view")
@@ -93,7 +110,7 @@ class RefugeeProfileView(BaseView):
             main_rep_age = "No information provided"
 
         main_rep_sex = refugee_family_data.get("main_rep_sex")
-        
+
         if main_rep_sex is None:
             main_rep_sex = "No information provided"
         elif main_rep_sex == "F":
@@ -199,7 +216,7 @@ class RefugeeProfileView(BaseView):
             state="disabled",
             text=tk.StringVar(value=main_rep_age),
         )
-        
+
         # Main rep sex
         self.main_rep_sex_label = tk.Label(
             master=self.refugee_details_label_container,
@@ -309,7 +326,7 @@ class RefugeeProfileView(BaseView):
         )
 
         # Edit button
-        self.edit_button = tk.Button(
+        self.edit_button = ttk.Button(
             master=self.button_container,
             width=30,
             text="Edit",
@@ -317,7 +334,7 @@ class RefugeeProfileView(BaseView):
         )
 
         # Back button
-        self.back_button = tk.Button(
+        self.back_button = ttk.Button(
             master=self.back_button_container,
             command=lambda: self.handle_view_click(camp_id),
             width=10,
@@ -337,7 +354,7 @@ class RefugeeProfileView(BaseView):
 
         self.main_rep_age_label.grid(row=2, column=0)
         self.main_rep_age_entry.grid(row=2, column=1)
-        
+
         self.main_rep_sex_label.grid(row=2, column=0)
         self.main_rep_sex_entry.grid(row=2, column=1)
 
