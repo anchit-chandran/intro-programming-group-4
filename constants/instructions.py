@@ -1,4 +1,4 @@
-login = "RefugEASE is an the open-source humanitarian aid management system!\n\nPlease use your account details to access the application."
+login = "RefugEASE is an open-source humanitarian aid management system!\n\nPlease use your account details to access the application."
 
 messages_instructions = "Below you can see your messages, separated by resolved and unresolved. You can scroll if there are many. \n\nYou can resolve / unresolve messages by selecting the message and pressing the appropriate button. \n\nNOTE: messages are sorted first by Priority (highest priority at the top), then by most recently received.\n\n- - - Sending Messages - - -\nYou can send messages by clicking the 'New message' button."
 
