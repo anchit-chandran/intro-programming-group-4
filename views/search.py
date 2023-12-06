@@ -309,11 +309,11 @@ class SearchView(BaseView):
         logging.debug(f"downloading...")
         df = pd.DataFrame(columns=self.header_cols, data=self.search_results)
 
-        filename = f"{str(datetime.now()).replace('-','').replace(' ','').replace(':','').replace('.','')}-search-results.csv"
+        filename = f"reports/{str(datetime.now()).replace('-','').replace(' ','').replace(':','').replace('.','')}-search-results.csv"
 
         df.to_csv(filename)
 
-        messagebox.showinfo(title='Success 📩', message=f'Your file has been downloaded with the name: {filename}')
+        messagebox.showinfo(title='Success 📩', message=f'Your file has been downloaded to {filename}')
 
     def is_table_empty(self) -> int:
         rows = getattr(self, "search_results", None)
