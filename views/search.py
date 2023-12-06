@@ -2,8 +2,11 @@
 # Python imports
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import logging
 import re
+import pandas as pd
+from datetime import datetime
 
 # Project imports
 from views.base import BaseView
@@ -68,7 +71,7 @@ class SearchView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.\n\nNOTE: search fields labelled '(< or >)' can search on exact integers, or can be combined with the '<' / '>' symbols to search ranges e.g. for Number of Children, '>1' would return all Families with more than 2 children. These fields MUST include valid whole numbers.",
+            text="This is an open-ended utility which will perform a search across all registered Refugee Families and return matches based on as many fields inputted.\n\nSome example uses include:\n\n\t-Helping lost refugees reconnect with their family\n\t-Identifying refugees with particular medical conditions to provide medications\n\t-Identifying children to target educational and/or social aid\n\nPlease fill in as many fields as possible. At least 1 value is required. You can scroll if there are many results.\n\nNOTE: search fields labelled '(< or >)' can search on exact integers, or can be combined with the '<' / '>' symbols to search ranges e.g. for Number of Children, '>1' would return all Families with more than 2 children. These fields MUST include valid whole numbers.\n\nUse the 'Download' button to download the results.",
             anchor="w",
             justify="left",
             wraplength=1000,
@@ -79,6 +82,12 @@ class SearchView(BaseView):
             master=self.container, text="Search Fields"
         )
         self.refugee_search_container.pack()
+        
+        # download
+        self.download_button = tk.Button(
+            master=self.container, text = 'Download', command=self.handle_download_click
+        )
+        self.download_button.pack(side='top', pady=5)
 
         self._render_refugee_family_search_fields(self.refugee_search_container)
 
@@ -253,6 +262,8 @@ class SearchView(BaseView):
         self.search_button = tk.Button(
             master=container, text="Search", command=self._handle_search_click
         )
+        
+        
 
         # PLACE WIDGETS ON SCREEN
         self.refugee_family_id_label.grid(row=0, column=0)
@@ -288,8 +299,30 @@ class SearchView(BaseView):
         self.camp_label.grid(row=10, column=0)
         self.camp_entry.grid(row=10, column=1, sticky="w")
 
-        self.search_button.grid(row=20, column=0, columnspan=2)
+        self.search_button.grid(row=20, column=0, columnspan=2, pady=5)
+        
+    def handle_download_click(self)->None:
+        if self.is_table_empty():
+            self.render_error_popup_window(message="No results to download!")
+            return
+        
+        logging.debug(f'downloading...')
+        df = pd.DataFrame(columns=self.header_cols, data=self.search_results)
+        
+        filename = f"{str(datetime.now()).replace('-','').replace(' ','').replace(':','').replace('.','')}-search-results.csv"
 
+        df.to_csv(filename)
+        
+        messagebox.showinfo(title='Success 📩', message=f'Your file has been downloaded with the name: {filename}')
+        
+
+    def is_table_empty(self)->int:
+        rows = getattr(self, 'search_results', None)
+        if rows[0] == ['', '', '', '', '', '', '', '', '', '', '']:
+            return True
+        return False
+        
+    
     def _convert_camp_id_to_label(self, camp_id: int) -> str:
         """Converts Camp id to form '`Name`' (ID:`id`)"""
         name = run_query_get_rows(f"""SELECT name FROM Camp WHERE id={camp_id}""")[0][
@@ -309,7 +342,7 @@ class SearchView(BaseView):
         return labels
 
     def _render_results_fields(self, container, results: list[list[str]]):
-        header_cols = [
+        self.header_cols = [
             "RefugeeFamID",
             "Main Rep Name",
             "Main Rep Age",
@@ -322,10 +355,12 @@ class SearchView(BaseView):
             "Residing in Camp",
             "Camp",
         ]
+        
+        
 
         self.render_tree_table(
             container=container,
-            header_cols=header_cols,
+            header_cols=self.header_cols,
             data=results,
             max_rows=10,
             treeheight=10,
@@ -343,6 +378,7 @@ class SearchView(BaseView):
                 100,
             ],
         )
+        
 
     def _construct_where_clauses_from(self, fields_and_values: dict) -> str:
         """Returns valid SQL WHERE clauses joined using ANDs"""
@@ -403,6 +439,8 @@ class SearchView(BaseView):
 
         for result in self.search_results:
             self.tree.insert("", "end", values=result)
+
+        
 
     def _handle_search_click(self) -> None:
         errors = f"Invalid input!"
