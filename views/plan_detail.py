@@ -9,6 +9,12 @@ from utilities.db import run_query_get_rows
 from utilities.formatting import add_border
 from .base import BaseView
 
+MATPLOTLIB_INSTALLED=True
+try:
+    import matplotlib
+except ImportError:
+    logging.info('Matplotlib not installed. Not rendering pulse button.')
+    MATPLOTLIB_INSTALLED=False
 
 class PlanDetailView(BaseView):
     def __init__(self, master=None):
@@ -108,13 +114,14 @@ class PlanDetailView(BaseView):
     
     def render_camp_action_buttons(self, container) -> None:
         
-        self.pulse_button = tk.Button(
-            master=container,
-            text='📊 Pulse',
-            command=self.handle_pulse_click,
-            
-        )
-        self.pulse_button.pack(side='left')
+        if MATPLOTLIB_INSTALLED:
+            self.pulse_button = tk.Button(
+                master=container,
+                text='📊 Pulse',
+                command=self.handle_pulse_click,
+                
+            )
+            self.pulse_button.pack(side='left')
         
         self.add_camp_button = tk.Button(
             master=container,

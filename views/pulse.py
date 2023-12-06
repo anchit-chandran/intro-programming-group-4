@@ -4,6 +4,10 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 # Project imports
 from constants import config, instructions
@@ -69,14 +73,24 @@ class PulseView(BaseView):
         
         df = (
             pd.DataFrame(refugee_data)
-            [['camp_id','main_rep_sex']]
-            .groupby(by=['camp_id'])
-            .value_counts()
-            .reset_index(name='count')
-            .plot()
+            .groupby(by=['main_rep_sex'])
+            ['camp_id'].value_counts()
+            .unstack(0)
             )
         
-        logging.debug(df)
+        logging.debug(f'\n{df=}')
+        
+        lf = ttk.Labelframe(container, text='Sex by Camps')
+        lf.grid(row=0, column=0, sticky='nwes', padx=3, pady=3)
+
+        fig = Figure(figsize=(8,5), dpi=100)
+        ax = fig.add_subplot(111)
+
+        df.plot(kind='bar',ax=ax)
+
+        canvas = FigureCanvasTkAgg(fig, master=lf)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=0, column=0)
         
     
     def get_refugee_data_for_plan(self)->list[dict]:

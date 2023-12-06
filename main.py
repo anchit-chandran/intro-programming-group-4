@@ -54,6 +54,7 @@ class MainApplication(tk.Tk):
             "departed_refugees": DepartedRefugeesView,  # Needs camp_id_to_view from state
             "refugee_profile": RefugeeProfileView,  # Needs refugee_id_to_view in global state
             "search":SearchView,
+            'pulse':PulseView,
         }
         logging.debug(self.view_map.keys())
         # Create the reverse map
@@ -69,6 +70,7 @@ class MainApplication(tk.Tk):
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
+                    'plan_id_to_view': 1,
                 }
             )
         
@@ -76,7 +78,7 @@ class MainApplication(tk.Tk):
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("search")
+        self.switch_to_view("pulse")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
@@ -143,6 +145,10 @@ class MainApplication(tk.Tk):
 
 
 def main():
+    # Set external loggers to a higher level
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)
+    logging.getLogger('PIL').setLevel(logging.WARNING)
+    
     app = MainApplication()
     app.mainloop()
 
