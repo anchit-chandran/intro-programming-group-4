@@ -82,12 +82,12 @@ class SearchView(BaseView):
             master=self.container, text="Search Fields"
         )
         self.refugee_search_container.pack()
-        
+
         # download
         self.download_button = tk.Button(
-            master=self.container, text = 'Download', command=self.handle_download_click
+            master=self.container, text="Download", command=self.handle_download_click
         )
-        self.download_button.pack(side='top', pady=5)
+        self.download_button.pack(side="top", pady=5)
 
         self._render_refugee_family_search_fields(self.refugee_search_container)
 
@@ -113,7 +113,7 @@ class SearchView(BaseView):
             master=container,
             text="Main Rep Name",
             width=25,
-            anchor="w",
+            anchor="e",
         )
 
         self.main_rep_name_entry = tk.Entry(
@@ -139,7 +139,7 @@ class SearchView(BaseView):
             master=container,
             text="Main Rep Sex",
             width=25,
-            anchor="w",
+            anchor="e",
         )
 
         self.main_rep_sex_entry = ttk.Combobox(
@@ -147,10 +147,10 @@ class SearchView(BaseView):
             width=6,
             state="readonly",
         )
-        sex_values = ['']
+        sex_values = [""]
         sex_values.extend(list(config.SEX_VALUES))
         self.main_rep_sex_entry["values"] = sex_values
-        self.main_rep_sex_entry.current(None) 
+        self.main_rep_sex_entry.current(None)
 
         # Main Rep Home Town
         self.main_rep_home_town_label = tk.Label(
@@ -170,7 +170,7 @@ class SearchView(BaseView):
             master=container,
             text="No. of Adults (< or >)",
             width=25,
-            anchor="w",
+            anchor="e",
         )
 
         self.n_adults_entry = tk.Entry(
@@ -196,7 +196,7 @@ class SearchView(BaseView):
             master=container,
             text="No. of Missing Members (< or >)",
             width=25,
-            anchor="w",
+            anchor="e",
         )
 
         self.n_missing_members_entry = tk.Entry(
@@ -222,13 +222,15 @@ class SearchView(BaseView):
             master=container,
             text="Residing in Camp",
             width=25,
-            anchor="w",
+            anchor="e",
         )
-
-        self.is_in_camp_entry = tk.Entry(
+        self.is_in_camp_entry = ttk.Combobox(
             master=container,
-            width=35,
+            width=5,
+            state="readonly",
         )
+        self.is_in_camp_entry["values"] = ["", "Yes", "No"]
+        self.is_in_camp_entry.current(0)
 
         self.camp_label = tk.Label(
             master=container,
@@ -262,8 +264,6 @@ class SearchView(BaseView):
         self.search_button = tk.Button(
             master=container, text="Search", command=self._handle_search_click
         )
-        
-        
 
         # PLACE WIDGETS ON SCREEN
         self.refugee_family_id_label.grid(row=0, column=0)
@@ -276,7 +276,7 @@ class SearchView(BaseView):
         self.main_rep_age_entry.grid(row=1, column=1)
 
         self.main_rep_sex_label.grid(row=1, column=2)
-        self.main_rep_sex_entry.grid(row=1, column=3, sticky='w')
+        self.main_rep_sex_entry.grid(row=1, column=3, sticky="w")
 
         self.main_rep_home_town_label.grid(row=2, column=0)
         self.main_rep_home_town_entry.grid(row=2, column=1)
@@ -294,35 +294,33 @@ class SearchView(BaseView):
         self.medical_conditions_entry.grid(row=4, column=1)
 
         self.is_in_camp_label.grid(row=4, column=2)
-        self.is_in_camp_entry.grid(row=4, column=3)
+        self.is_in_camp_entry.grid(row=4, column=3, sticky="w")
 
         self.camp_label.grid(row=10, column=0)
         self.camp_entry.grid(row=10, column=1, sticky="w")
 
         self.search_button.grid(row=20, column=0, columnspan=4, pady=5)
-        
-    def handle_download_click(self)->None:
+
+    def handle_download_click(self) -> None:
         if self.is_table_empty():
             self.render_error_popup_window(message="No results to download!")
             return
-        
-        logging.debug(f'downloading...')
+
+        logging.debug(f"downloading...")
         df = pd.DataFrame(columns=self.header_cols, data=self.search_results)
-        
+
         filename = f"{str(datetime.now()).replace('-','').replace(' ','').replace(':','').replace('.','')}-search-results.csv"
 
         df.to_csv(filename)
-        
-        messagebox.showinfo(title='Success 📩', message=f'Your file has been downloaded with the name: {filename}')
-        
 
-    def is_table_empty(self)->int:
-        rows = getattr(self, 'search_results', None)
-        if rows[0] == ['', '', '', '', '', '', '', '', '', '', '']:
+        messagebox.showinfo(title='Success 📩', message=f'Your file has been downloaded with the name: {filename}')
+
+    def is_table_empty(self) -> int:
+        rows = getattr(self, "search_results", None)
+        if rows[0] == ["", "", "", "", "", "", "", "", "", "", ""]:
             return True
         return False
-        
-    
+
     def _convert_camp_id_to_label(self, camp_id: int) -> str:
         """Converts Camp id to form '`Name`' (ID:`id`)"""
         name = run_query_get_rows(f"""SELECT name FROM Camp WHERE id={camp_id}""")[0][
@@ -355,8 +353,6 @@ class SearchView(BaseView):
             "Residing in Camp",
             "Camp",
         ]
-        
-        
 
         self.render_tree_table(
             container=container,
@@ -378,7 +374,6 @@ class SearchView(BaseView):
                 100,
             ],
         )
-        
 
     def _construct_where_clauses_from(self, fields_and_values: dict) -> str:
         """Returns valid SQL WHERE clauses joined using ANDs"""
@@ -440,8 +435,6 @@ class SearchView(BaseView):
         for result in self.search_results:
             self.tree.insert("", "end", values=result)
 
-        
-
     def _handle_search_click(self) -> None:
         errors = f"Invalid input!"
         try:
@@ -470,7 +463,15 @@ class SearchView(BaseView):
                     raise Exception("Nums must be ints")
 
             medical_conditions_input = self.medical_conditions_entry.get()
-            is_in_camp_input = self.is_in_camp_entry.get()
+            is_in_camp_input_answer = self.is_in_camp_entry.get()
+            is_in_camp_answer_to_db_map = {
+                "": "",
+                "Yes": 1,
+                "No": 0,
+            }
+            is_in_camp_input = is_in_camp_answer_to_db_map[is_in_camp_input_answer]
+            
+            
             camp_input = self.camp_entry.get()
 
             all_field_values = [
