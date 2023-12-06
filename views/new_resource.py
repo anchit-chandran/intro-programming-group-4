@@ -67,8 +67,6 @@ class NewResourceView(BaseView):
                 resource_amount = int(resource_amount)
                 if resource_amount < 0:
                     messagebox.showerror("Error", "Invalid input. Please enter a positive unit.")
-                elif resource_amount == 0:
-                    messagebox.showerror("Error", "No need to record empty resources.")
                 else:
                     insert_query_with_values(query = f"INSERT INTO CampResources (name, amount, camp_id) VALUES (?, ?, ?)",
                                         values = (resource_name, resource_amount, self.camp_id,))
@@ -204,7 +202,7 @@ class NewResourceView(BaseView):
             command=lambda: self.handle_submit_new_resource_click(entry_new_resource_name, entry_new_resource_amount),
         )
         
-        self.submit_new_resource_button.grid(row=0, column=0,)
+        self.submit_new_resource_button.grid(row=0, column=1,)
            
         # Button to go back
         self.back_button = tk.Button(
@@ -214,7 +212,7 @@ class NewResourceView(BaseView):
             command=self.handle_back_click,
         )
         
-        self.back_button.grid(row=0, column=1,)   
+        self.back_button.grid(row=0, column=0,)   
         
         # Instructions label
         self.instructions_label = tk.Label(

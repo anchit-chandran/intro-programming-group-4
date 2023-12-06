@@ -42,9 +42,6 @@ class EditResourcesView(BaseView):
                 if updated_values[resource] < 0:
                     messagebox.showerror("Error", "Invalid input. Please enter a positive unit.")
                     break
-                if updated_values[resource] == 0:
-                    messagebox.showerror("Error", "Delete the resource instead of entering 0.")
-                    break
             except ValueError:
                 messagebox.showerror("Error", "Invalid input. Please enter an integer.")
                 break
@@ -56,7 +53,7 @@ class EditResourcesView(BaseView):
                 insert_query_with_values(query = f"UPDATE CampResources SET amount = ? WHERE camp_id = ? AND name = ?",
                                 values = (resourse_entry_values[i], self.camp_id, resourse_name_values[i],))
             messagebox.showinfo("Information", "Resources updated successfully.")
-            self.master.switch_to_view("plan_detail")
+            self.master.switch_to_view("edit_resources")
 
     
     # delete resource button action        
@@ -143,7 +140,7 @@ class EditResourcesView(BaseView):
             command=self.handle_submit_edit_click,
         )
         
-        self.submit_edit_button.grid(row=0, column=0,)
+        self.submit_edit_button.grid(row=0, column=1,)
            
         # Button to go back
         self.back_button = tk.Button(
@@ -153,7 +150,7 @@ class EditResourcesView(BaseView):
             command=self.handle_back_click,
         )
         
-        self.back_button.grid(row=0, column=1,)
+        self.back_button.grid(row=0, column=0,)
         
         # Gets resources for camp in form via SQL query
         camp_resources = run_query_get_rows(

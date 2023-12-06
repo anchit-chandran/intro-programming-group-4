@@ -42,6 +42,7 @@ class PlanDetailView(BaseView):
         self.instructions_container = ttk.LabelFrame(
             master=self.container,
             text="Instructions for Plan Detail View",
+            width=300,
         )
         self.instructions_container.grid(row=0, column=0, sticky="n", padx=10)
 
@@ -70,8 +71,8 @@ class PlanDetailView(BaseView):
 
         # PLAN INFORMATION
         self.info_container.grid(
-            row=0,
-            column=1,
+            row=1,
+            column=0,
         )
         self.info_frame.pack(
             side="left",
@@ -108,12 +109,12 @@ class PlanDetailView(BaseView):
             text="+ Add Camp",
             command=lambda: self._handle_add_camp_click(),
         )
-        self.add_camp_button.pack(side="left", padx=30)
+        self.add_camp_button.pack(side="right", padx=30)
 
         self.selected_camp_actions_frame = tk.LabelFrame(
             container, text="Selected Camp Actions"
         )
-        self.selected_camp_actions_frame.pack(anchor="w", padx=10)
+        self.selected_camp_actions_frame.pack(side="left", padx=10)
 
         
 
