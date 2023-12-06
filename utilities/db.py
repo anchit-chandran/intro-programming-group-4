@@ -86,7 +86,7 @@ def insert_query_with_values(query: str, values: dict) -> None:
 def create_and_seed_user_table() -> None:
     logging.debug("Creating User table")
     run_query(
-        """CREATE TABLE `User` (
+        """CREATE TABLE IF NOT EXISTS `User` (
             `id` INTEGER PRIMARY KEY,
             `username` TEXT,
             `password` TEXT NOT NULL,
@@ -169,7 +169,7 @@ def create_and_seed_user_table() -> None:
 def create_and_seed_plan_table() -> None:
     logging.debug("Creating Plan table")
     run_query(
-        """CREATE TABLE `Plan` (
+        """CREATE TABLE IF NOT EXISTS `Plan` (
             `id` INTEGER PRIMARY KEY,
             `title` TEXT,
             `description` TEXT,
@@ -218,7 +218,7 @@ def create_and_seed_plan_table() -> None:
 def create_and_seed_camp_table() -> None:
     logging.debug("Creating Camp table")
     run_query(
-        """CREATE TABLE `Camp` (
+        """CREATE TABLE IF NOT EXISTS `Camp` (
         `id` INTEGER PRIMARY KEY,
         `name` TEXT,
         `location` TEXT,
@@ -261,7 +261,7 @@ def create_and_seed_camp_table() -> None:
 def create_and_seed_camp_resources_table() -> None:
     logging.debug("Creating CampResources table")
     run_query(
-        """CREATE TABLE `CampResources` (
+        """CREATE TABLE IF NOT EXISTS `CampResources` (
         `id` INTEGER PRIMARY KEY,
         `name` TEXT,
         `amount` TEXT,
@@ -302,7 +302,7 @@ def create_and_seed_camp_resources_table() -> None:
 def create_and_seed_refugee_family_table() -> None:
     logging.debug("Creating RefugeeFamily table")
     run_query(
-        """CREATE TABLE `RefugeeFamily` (
+        """CREATE TABLE IF NOT EXISTS `RefugeeFamily` (
         `id` INTEGER PRIMARY KEY,
         `main_rep_name` TEXT,
         `main_rep_age` INT,
@@ -371,7 +371,7 @@ def create_and_seed_refugee_family_table() -> None:
 def create_and_seed_messages_table() -> None:
     logging.debug("Creating Messages table")
     run_query(
-        """CREATE TABLE `Messages` (
+        """CREATE TABLE IF NOT EXISTS `Messages` (
         `id` INTEGER PRIMARY KEY,
         `message` TEXT,
         `sent_at` TEXT,
