@@ -105,7 +105,7 @@ class SearchView(BaseView):
 
         self.refugee_family_id_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Main rep name
@@ -118,7 +118,7 @@ class SearchView(BaseView):
 
         self.main_rep_name_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Main rep age
@@ -131,7 +131,7 @@ class SearchView(BaseView):
 
         self.main_rep_age_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Main rep sex
@@ -162,7 +162,7 @@ class SearchView(BaseView):
 
         self.main_rep_home_town_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Number of Adults
@@ -175,7 +175,7 @@ class SearchView(BaseView):
 
         self.n_adults_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Number of Children
@@ -188,7 +188,7 @@ class SearchView(BaseView):
 
         self.n_children_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Number of Missing Members
@@ -201,7 +201,7 @@ class SearchView(BaseView):
 
         self.n_missing_members_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Medical Conditions
@@ -214,7 +214,7 @@ class SearchView(BaseView):
 
         self.medical_conditions_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Is in Camp
@@ -227,7 +227,7 @@ class SearchView(BaseView):
 
         self.is_in_camp_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         self.camp_label = tk.Label(
@@ -255,7 +255,7 @@ class SearchView(BaseView):
 
         self.plan_entry = tk.Entry(
             master=container,
-            width=70,
+            width=35,
         )
 
         # Search
@@ -269,37 +269,37 @@ class SearchView(BaseView):
         self.refugee_family_id_label.grid(row=0, column=0)
         self.refugee_family_id_entry.grid(row=0, column=1)
 
-        self.main_rep_name_label.grid(row=1, column=0)
-        self.main_rep_name_entry.grid(row=1, column=1)
+        self.main_rep_name_label.grid(row=0, column=2)
+        self.main_rep_name_entry.grid(row=0, column=3)
 
-        self.main_rep_age_label.grid(row=2, column=0)
-        self.main_rep_age_entry.grid(row=2, column=1)
+        self.main_rep_age_label.grid(row=1, column=0)
+        self.main_rep_age_entry.grid(row=1, column=1)
 
-        self.main_rep_sex_label.grid(row=3, column=0)
-        self.main_rep_sex_entry.grid(row=3, column=1, sticky='w')
+        self.main_rep_sex_label.grid(row=1, column=2)
+        self.main_rep_sex_entry.grid(row=1, column=3, sticky='w')
 
-        self.main_rep_home_town_label.grid(row=4, column=0)
-        self.main_rep_home_town_entry.grid(row=4, column=1)
+        self.main_rep_home_town_label.grid(row=2, column=0)
+        self.main_rep_home_town_entry.grid(row=2, column=1)
 
-        self.n_adults_label.grid(row=5, column=0)
-        self.n_adults_entry.grid(row=5, column=1)
+        self.n_adults_label.grid(row=2, column=2)
+        self.n_adults_entry.grid(row=2, column=3)
 
-        self.n_children_label.grid(row=6, column=0)
-        self.n_children_entry.grid(row=6, column=1)
+        self.n_children_label.grid(row=3, column=0)
+        self.n_children_entry.grid(row=3, column=1)
 
-        self.n_missing_members_label.grid(row=7, column=0)
-        self.n_missing_members_entry.grid(row=7, column=1)
+        self.n_missing_members_label.grid(row=3, column=2)
+        self.n_missing_members_entry.grid(row=3, column=3)
 
-        self.medical_conditions_label.grid(row=8, column=0)
-        self.medical_conditions_entry.grid(row=8, column=1)
+        self.medical_conditions_label.grid(row=4, column=0)
+        self.medical_conditions_entry.grid(row=4, column=1)
 
-        self.is_in_camp_label.grid(row=9, column=0)
-        self.is_in_camp_entry.grid(row=9, column=1)
+        self.is_in_camp_label.grid(row=4, column=2)
+        self.is_in_camp_entry.grid(row=4, column=3)
 
         self.camp_label.grid(row=10, column=0)
         self.camp_entry.grid(row=10, column=1, sticky="w")
 
-        self.search_button.grid(row=20, column=0, columnspan=2, pady=5)
+        self.search_button.grid(row=20, column=0, columnspan=4, pady=5)
         
     def handle_download_click(self)->None:
         if self.is_table_empty():
@@ -362,8 +362,8 @@ class SearchView(BaseView):
             container=container,
             header_cols=self.header_cols,
             data=results,
-            max_rows=10,
-            treeheight=10,
+            max_rows=5,
+            treeheight=5,
             col_widths=[
                 80,
                 100,
