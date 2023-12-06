@@ -55,7 +55,7 @@ class AllVolunteersView(BaseView):
         # selected volunteer buttons
         self.edit_volunteer_button = tk.Button(
             master=self.selected_vol_action_container,
-            text="📝 Edit Selected volunteer",
+            text="📝 Edit volunteer",
             command=lambda: self._handle_selected_action_button_click(action="edit"),
         )
         self.edit_volunteer_button.pack(
@@ -66,7 +66,7 @@ class AllVolunteersView(BaseView):
 
         self.view_volunteer_button = tk.Button(
             master=self.selected_vol_action_container,
-            text="🔍 View Selected volunteer",
+            text="🔍 View volunteer",
             command=lambda: self._handle_selected_action_button_click(action="view"),
         )
         self.view_volunteer_button.pack(
@@ -77,7 +77,7 @@ class AllVolunteersView(BaseView):
         
         self.toggle_status_volunteer_button = tk.Button(
             master=self.selected_vol_action_container,
-            text="🔚 Toggle Selected User Status",
+            text="🔚 Toggle User Status",
             command=lambda: self._handle_selected_action_button_click(
                 action="toggle_status"
             ),
