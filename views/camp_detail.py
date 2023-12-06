@@ -389,7 +389,7 @@ class CampDetailView(BaseView):
             text="View Departed Refugees",
             command=self.handle_view_departed_click,
         )
-        self.add_refugee_button.pack(side="right")
+        self.add_refugee_button.pack(side="left", padx=5)
 
         # Add refugee button
         self.add_refugee_button = ttk.Button(
@@ -397,15 +397,16 @@ class CampDetailView(BaseView):
             text=" + Add Regugee Family",
             command=self._handle_add_refugee_click,
         )
-        self.add_refugee_button.pack(side="right")
+        self.add_refugee_button.pack(side="left", padx=5)
 
+        # Selected refugee action buttons
+        self.render_selected_refugee_actions(container=self.generic_action_buttons_container)
+        
         # table
         table_container = tk.Frame(
             master=self.all_refugees_container,
         )
         table_container.grid(row=1, column=0)
-        # Selected refugee action buttons
-        self.render_selected_refugee_actions(container=table_container)
 
         # headers list
         self.header_cols = [
@@ -430,13 +431,15 @@ class CampDetailView(BaseView):
                 150,
             ],
             rowheight=20,
+            max_rows=10,
+            treeheight=10,
         )
 
     def render_selected_refugee_actions(self, container) -> None:
         action_frame = tk.LabelFrame(
             master=container, text="Selected Refugee Family Actions"
         )
-        action_frame.pack(side="right")
+        action_frame.pack(side="right", padx=10)
 
         self.view_refugee_button = ttk.Button(
             master=action_frame,
