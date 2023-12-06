@@ -56,7 +56,7 @@ class ProfileView(BaseView):
             self._set_volunteer_instance_data()
             return "view_volunteer"
         elif current_state.get("add_volunteer"):
-            self.instructions_text = "This is the Volunteer Creation View.\n\nPlease note the following when adding a new volunteer:\n\n\t- Username: this must be unique. The indicator on the right will dynamically update and show ✅ if the username is available.\n\n\t- Password: must be >= 8 chars, and contain at least 1 from each of: capital letters, lowercase letters, digits. This CANNOT be changed later!\n\n\t- Date of Birth: must be a valid date before today (babies should not be volunteers!)"
+            self.instructions_text = "This is the Volunteer Creation View.\n\nPlease note the following when adding a new volunteer:\n\n\t- Username: this must be unique. The indicator on the right will dynamically update and show ✅ if the username is available.\n\n\t- Password: must be >= 8 chars, and contain at least 1 from each of: capital letters, lowercase letters, digits. This CANNOT be changed later!\n\n\t- Date of Birth: must be a valid date and age must be >= 18yo (children should not be volunteers!)"
             return "add_volunteer"
         else:
             # viewing self
