@@ -4,7 +4,7 @@ from tkinter import ttk
 from datetime import datetime
 
 # Project imports
-# from constants import config
+from constants import config, instructions
 from utilities.db import run_query_get_rows
 from utilities.formatting import add_border, calculate_max_col_width
 from .base import BaseView
@@ -52,7 +52,7 @@ class DepartedRefugeesView(BaseView):
         """Renders widgets for view"""
 
         # Create container
-        self.container = ttk.Frame(
+        self.container = tk.Frame(
             master=self,
             width=config.SCREEN_WIDTH,
             height=300,
@@ -60,19 +60,16 @@ class DepartedRefugeesView(BaseView):
         self.container.pack(
             fill="both",
             padx=30,
-            pady=100,
+            pady=50,
         )
 
         # Header
-        self.header_container = ttk.Frame(
+        self.header_container = tk.Frame(
             master=self.container,
             width=500,
             height=100,
         )
-        self.header_container.grid(
-            row=0,
-            column=0,
-        )
+        self.header_container.pack()
 
         # back button
         self.go_back_button = ttk.Button(
@@ -80,7 +77,7 @@ class DepartedRefugeesView(BaseView):
             text="GO BACK TO CAMP",
             command=self.handle_back_button,
         )
-        self.go_back_button.grid(row=0, column=0, padx=(0, 30), pady=20, sticky="ne")
+        self.go_back_button.grid(row=0, column=0, padx=0, pady=15, sticky="n")
 
         camp_name = self.get_camp_name()
 
@@ -89,7 +86,21 @@ class DepartedRefugeesView(BaseView):
             text=f"Departed refugees from {camp_name}",
             font=(60),
         )
-        self.header.grid(row=0, column=1, padx=(0, 30), pady=20, sticky="nw")
+        self.header.grid(row=1, column=0, padx=0, pady=0, sticky="new")
+
+        # Instructions label
+        self.instructions_container = ttk.LabelFrame(
+            master=self.container,
+            text="Instructions",
+        )
+        self.instructions_container.pack()
+        self.instructions_label = tk.Label(
+            master=self.instructions_container,
+            text=instructions.INSTRUCTIONS["departed_refugees"],
+            anchor="w",
+            justify="left",
+        )
+        self.instructions_label.pack()
 
         self.render_camp_refugees()
 
@@ -122,9 +133,7 @@ class DepartedRefugeesView(BaseView):
             master=self.container,
             width=1000,
         )
-        self.all_refugees_container.grid(
-            row=4, column=0, columnspan=10, pady=10, sticky="w"
-        )
+        self.all_refugees_container.pack()
 
         # MAKE THE TABLE SCROLLABLE
         # canvas container

@@ -1,4 +1,3 @@
-
 login = "RefugEASE is an the open-source humanitarian aid management system!\n\nPlease use your account details to access the application."
 
 messages_instructions = "Below you can see your messages, separated by resolved and unresolved. You can scroll if there are many. \n\nYou can resolve / unresolve messages by selecting the message and pressing the appropriate button. \n\nNOTE: messages are sorted first by Priority (highest priority at the top), then by most recently received.\n\n- - - Sending Messages - - -\nYou can send messages by clicking the 'New message' button."
@@ -13,8 +12,11 @@ new_resource = "---Input---\nCreate a new resource below.\n\nThe resource name m
 
 edit_resources = "---Input---\nPlease edit existing resource amounts in the form below.\nAdd new Resource types using '+ New resource'. Only whole number amounts are allowed.\n\n ---Submit---\nClick 'Submit changes' to save any edits.\n\nNOTE: newly added resources are already saved."
 
-camp_detail = "Information about this Camp, including its Resources, can be seen here.\n\nNew Refugee Families can be registered using the '+ Add Refugee Family' button.\n\nRefugee Families previously registered but have since left can be viewed using the 'View Departed Refugees' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button."
+camp_detail = "Information pertaining to this camp, including its Resources, Volunteers and Refugee Families can be seen here.\n\n New Refugee Families can be registered using the '+ Add Refugee Family' button.\n\n Note: If the camp has reached full capacity, new refugee registrations will not be accepted. \n\n Access details of registered refugee families that have departed using the 'View Departed Refugee' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button."
 
+departed_refugees = "Information about registered refugee families that have departed\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button."
+
+add_edit_refugee = "Please fill out all the fields in the form.\n\nNOTE:\n\n - age and number of adults, children and missing people must be a valid positive integer \n\n - other fields should not exceed 40 characters max limit\n\n - please enter n/a for medical condition if not applicable"
 
 INSTRUCTIONS = {
     "login": login,
@@ -26,8 +28,8 @@ INSTRUCTIONS = {
     "new_msg": new_msg,
     "new_resource": new_resource,
     "edit_resources": edit_resources,
-    "add_edit_refugee": "",
-    "departed_refugees": "",
+    "add_edit_refugee": add_edit_refugee,
+    "departed_refugees": departed_refugees,
     "refugee_profile": "",
     "search": "",
 }

@@ -7,7 +7,7 @@ import datetime
 import re
 
 # Project imports
-from constants import config
+from constants import config, instructions
 from utilities.db import run_query_get_rows, insert_query_with_values
 from utilities.validators import is_valid_email
 from .base import BaseView
@@ -48,7 +48,7 @@ class AddEditRefugeeView(BaseView):
         self.container.pack(
             fill="both",
             padx=40,
-            pady=(50, 100),
+            pady=(20, 50),
         )
 
         # Header
@@ -75,7 +75,7 @@ class AddEditRefugeeView(BaseView):
         self.instructions_container.pack(side="bottom")
         self.instructions_label = tk.Label(
             master=self.instructions_container,
-            text="All fields are mandatory.\n\nNumber of adults, number of children, age of main representative and number of missing people must be a valid positive integer",
+            text=instructions.INSTRUCTIONS["add_edit_refugee"],
             anchor="w",
             justify="left",
         )
@@ -86,7 +86,7 @@ class AddEditRefugeeView(BaseView):
             master=self.container,
         )
         self.form_container.pack(
-            pady=15,
+            pady=(15, 0),
             fill="both",
             expand=True,
             padx=40,
@@ -731,7 +731,7 @@ class AddEditRefugeeView(BaseView):
             column=on_col,
             padx=30,
             sticky=stick_side,
-            pady=20,
+            pady=(10, 0),
             columnspan=2,
         )
 
