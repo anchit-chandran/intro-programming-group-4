@@ -103,7 +103,19 @@ class PlanDetailView(BaseView):
         self.render_camp_action_buttons(container=self.action_buttons)
         self.render_all_camps(container=self.all_camps_container)
 
+    def handle_pulse_click(self)->None:
+        self.master.switch_to_view('pulse')
+    
     def render_camp_action_buttons(self, container) -> None:
+        
+        self.pulse_button = tk.Button(
+            master=container,
+            text='📊 Pulse',
+            command=self.handle_pulse_click,
+            
+        )
+        self.pulse_button.pack(side='left')
+        
         self.add_camp_button = tk.Button(
             master=container,
             text="+ Add Camp",

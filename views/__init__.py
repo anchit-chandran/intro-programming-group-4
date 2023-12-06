@@ -14,3 +14,4 @@ from .add_edit_refugee import AddEditRefugeeView
 from .departed_refugees import DepartedRefugeesView
 from .refugee_profile_view import RefugeeProfileView
 from .search import SearchView
+from .pulse import PulseView
