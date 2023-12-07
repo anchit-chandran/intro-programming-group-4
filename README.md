@@ -1,6 +1,6 @@
 # RefugEASE
 
-!()[./assets/logo.png]
+![](./assets/logo.png)
 
 ## Getting Started
 
