@@ -41,15 +41,13 @@ class MainApplication(tk.Tk):
             self.reverse_view_map.update({view: view_name})
 
         # DEBUG HELPERS
-        self.DEBUG = True  # (os.environ.get('DEBUG') == 'True') or testing
+        self.DEBUG = False  # (os.environ.get('DEBUG') == 'True') or testing
         if self.DEBUG:
             self.set_global_state(
                 {
                     "user_id": 1,
                     "username": "admin",
                     "is_admin": 1,
-                    "plan_id_to_view": "1",
-                    "camp_id_to_view": "1",
                 }
             )
 
@@ -57,7 +55,7 @@ class MainApplication(tk.Tk):
 
         self.current_view = None
         # Start at LoginView
-        self.switch_to_view("departed_refugees")
+        self.switch_to_view("login")
 
     def switch_to_view(self, new_view: str) -> None:
         "Helper method to overcome python circular import errors"
