@@ -10,7 +10,7 @@ plan_detail = "You can see information about this Plan.\n\nTotal Plan Resources 
 
 new_resource = "---Input---\nCreate a new resource below.\n\nThe resource name must be unique and a max of 20 characters.\n\nUnits must be positive integers.\n\n---Submit---\n\nClick 'Submit new resource' to create the new resource."
 
-edit_resources = "---Input---\nPlease edit existing resource amounts in the form below.\nAdd new Resource types using '+ New resource'. Only whole number amounts are allowed.\n\n ---Submit---\nClick 'Submit changes' to save any edits.\n\nNOTE: newly added resources are already saved."
+edit_resources = "---Input---\nPlease edit existing resource amounts in the form below.\nAdd new Resource types using '+ New resource'. Only whole number amounts are allowed.\n\n ---Submit---\nClick 'Submit changes' to save any edits.\n\nNOTE: newly added resources are already saved.\n\n---Recommendations---\n\nRecommended Units Per Refugee Family Per month:\n\t- Food: 90 units\n\t- Water: 90 units\n\t- Medicine: 30 units"
 
 camp_detail = "Information pertaining to this camp, including its Resources, Volunteers and Refugee Families can be seen here.\n\nNew Refugee Families can be registered using the '+ Add Refugee Family' button.\n\nNote: If the camp has reached full capacity, new refugee registrations will not be accepted. \n\nAccess details of registered refugee families that have departed using the 'View Departed Refugee' button.\n\nTo view or edit a particular Family, select the Family in the table and use the appropriate 'Selected Refugee Family Actions' action button."
 

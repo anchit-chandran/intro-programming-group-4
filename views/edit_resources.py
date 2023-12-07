@@ -161,8 +161,7 @@ class EditResourcesView(BaseView):
         self.instructions_label = tk.Label(
             master=self.instructions_container,
             text=instructions.INSTRUCTIONS['edit_resources'],
-            width = 80,
-            height = 8,
+    
             anchor = "w",
             justify = "left",
         )
