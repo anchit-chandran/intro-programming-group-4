@@ -101,10 +101,62 @@ class DepartedRefugeesView(BaseView):
             justify="left",
         )
         self.instructions_label.pack()
+        
+        self.all_refugees_container = ttk.Frame(
+            master=self.container,
+            width=1000,
+        )
+        
+        self.all_refugees_container.pack(pady=10)
+        
+        self.selected_actions_container = tk.LabelFrame(
+            master= self.all_refugees_container,
+            text='Selected Refugee Actions'
+        )
+        self.selected_actions_container.pack()
+        
+        
+        self.render_selected_refugee_actions(container=self.all_refugees_container)
+        self.render_camp_refugees(container=self.all_refugees_container)
+    
+    def render_selected_refugee_actions(self, container) -> None:
+        action_frame = tk.LabelFrame(
+            master=container, text="Selected Refugee Family Actions"
+        )
+        action_frame.pack(side="top", padx=10)
 
-        self.render_camp_refugees()
+        self.view_refugee_button = ttk.Button(
+            master=action_frame,
+            text="👁️ View",
+            command=lambda: self._handle_selected_refugee_actions_click("view"),
+        )
+        self.view_refugee_button.pack(side="left")
 
-    def render_camp_refugees(self) -> None:
+        self.edit_refugee_button = ttk.Button(
+            master=action_frame,
+            text="✏️ Edit",
+            command=lambda: self._handle_selected_refugee_actions_click("edit"),
+        )
+        self.edit_refugee_button.pack(side="right")
+    
+    def _handle_selected_refugee_actions_click(self, action: str):
+        refugee_row = self.tree.focus()
+        if not refugee_row:
+            self.render_error_popup_window(
+                message="Please select a Refugee Family first!"
+            )
+            return
+
+        # Get selected row data
+        refugee_data = self.tree.item(refugee_row, "values")
+        refugee_id = refugee_data[0]
+
+        if action == "view":
+            self.handle_view_click(refugee_id=refugee_id)
+        elif action == "edit":
+            self.handle_edit_click(refugee_id=refugee_id)
+
+    def render_camp_refugees(self, container) -> None:
         self.all_refugees = self.get_refugees()
 
         
@@ -121,11 +173,7 @@ class DepartedRefugeesView(BaseView):
 
             self.data_to_render.append(data_to_add)
 
-        self.all_refugees_container = ttk.Frame(
-            master=self.container,
-            width=1000,
-        )
-        self.all_refugees_container.pack(pady=10)
+        
 
         # headers list
         self.header_cols = [
@@ -139,7 +187,7 @@ class DepartedRefugeesView(BaseView):
         
         self.render_tree_table(
             header_cols=self.header_cols,
-            container=self.all_refugees_container,
+            container=container,
             data=self.data_to_render
         )
         

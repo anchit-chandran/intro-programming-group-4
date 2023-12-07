@@ -633,7 +633,7 @@ class AddEditRefugeeView(BaseView):
         )
         self.status_label = tk.Label(
             master=self.status_label_container,
-            text="Status",
+            text="Residing in Camp",
         )
         self.status_label.pack(
             side="left",
