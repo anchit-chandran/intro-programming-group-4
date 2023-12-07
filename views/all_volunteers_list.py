@@ -1,6 +1,7 @@
 # Python imports
 import logging
 import tkinter as tk
+from tkinter import messagebox
 
 # Project imports
 from constants import config
@@ -43,7 +44,7 @@ class AllVolunteersView(BaseView):
             command=lambda: self._handle_selected_action_button_click(action="add"),
         )
         self.add_volunteer_button.pack(
-            side="right",
+            side="top",
         )
         
         self.selected_vol_action_container = tk.LabelFrame(
@@ -59,7 +60,7 @@ class AllVolunteersView(BaseView):
             command=lambda: self._handle_selected_action_button_click(action="edit"),
         )
         self.edit_volunteer_button.pack(
-            side="right",
+            side="left",
             padx=10,
             pady=10,
         )
@@ -70,7 +71,7 @@ class AllVolunteersView(BaseView):
             command=lambda: self._handle_selected_action_button_click(action="view"),
         )
         self.view_volunteer_button.pack(
-            side="right",
+            side="left",
             padx=10,
             pady=10,
         )
@@ -83,6 +84,19 @@ class AllVolunteersView(BaseView):
             ),
         )
         self.toggle_status_volunteer_button.pack(
+            side="left",
+            padx=10,
+            pady=10,
+        )
+        
+        self.delete_button = tk.Button(
+            master=self.selected_vol_action_container,
+            text="❌ Delete",
+            command=lambda: self._handle_selected_action_button_click(
+                action="delete"
+            ),
+        )
+        self.delete_button.pack(
             side="right",
             padx=10,
             pady=10,
@@ -113,7 +127,23 @@ class AllVolunteersView(BaseView):
         elif action == "toggle_status":
             self._handle_toggle_status_volunteer(user_id=user_id)
             return
-
+        elif action == 'delete':
+            self._handle_delete(user_id=user_id)
+            return
+    
+    def _handle_delete(self, user_id)->None:
+        title = "🚨 Delete User"
+        message = "Are you sure you want to delete this User?"
+        confirm = messagebox.askokcancel(title=title, message=message)
+        
+        if not confirm:
+            return
+        
+        logging.info(f'Deleteing UserID {user_id}')
+        run_query_get_rows(f"DELETE From User WHERE id={user_id}")
+        
+        self.master.switch_to_view("all_volunteers")
+        
     def render_all_volunteers(self) -> None:
         all_volunteers = self.get_all_volunteers_plans()
         self.data_to_render = self.get_data_for_rendering_table(all_volunteers)
