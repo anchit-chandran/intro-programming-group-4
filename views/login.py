@@ -124,6 +124,8 @@ class LoginView(BaseView):
             return None
 
         # Passes all form validation. Check username + pw correct
+        
+        logging.debug(f'{password=}')
 
         # Query db
         un_pw_correct = run_query_get_rows(

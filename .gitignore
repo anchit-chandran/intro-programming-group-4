@@ -1,3 +1,5 @@
+reports/
+
 # Project specific
 .DS_store
 db
