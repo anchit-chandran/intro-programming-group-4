@@ -1229,9 +1229,6 @@ class ProfileView(BaseView):
         if self._check_is_admin():
             next_view = "all_volunteers"
         else:
-            current_global_state = self.master.get_global_state()
-            current_global_state["camp_id_to_view"] = self.camp_id
-            self.master.set_global_state(current_global_state)
-            next_view = "camp_detail"
+            next_view = "profile"
 
         self.master.switch_to_view(next_view)
