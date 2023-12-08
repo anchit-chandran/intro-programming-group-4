@@ -243,9 +243,7 @@ class ProfileView(BaseView):
         camp_label_text = tk.StringVar(value=camp_label)
 
         # Add volunteer / admin editing volunteer
-        if self.should_render in ["add_volunteer", "edit_volunteer"] and not getattr(
-            self, "volunteer_editing_self", None
-        ):
+        if self.should_render in ["add_volunteer", "edit_volunteer"]:
             self.camp_entry = ttk.Combobox(
                 master=self.user_details_label_container,
                 width=25,
@@ -268,7 +266,7 @@ class ProfileView(BaseView):
                 width=20,
                 state=state
                 if not getattr(self, "volunteer_editing_self", None)
-                else "disabled",  # volunteers can't edit this
+                else "disabled",  
                 text=camp_label_text,
             )
 
