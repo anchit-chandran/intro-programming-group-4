@@ -381,7 +381,7 @@ class SearchView(BaseView):
         where_clauses = []
 
         for field, val in fields_and_values.items():
-            if val:
+            if val!='':
                 if field == "camp_id":
                     val = self._get_camp_id_from_label(val)
 
