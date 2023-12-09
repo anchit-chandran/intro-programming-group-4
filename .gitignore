@@ -1,4 +1,4 @@
-reports/
+reports/*
 
 # Project specific
 .DS_store
