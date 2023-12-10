@@ -740,7 +740,18 @@ class AddEditPlanView(BaseView):
 
     def _render_delete_confirm_popup_window(self) -> None:
         title = "🚨 Delete Plan"
-        message = "Are you sure you want to delete this plan?"
+        
+        assoc_camp_ids_raw = run_query_get_rows(f'SELECT id FROM Camp WHERE plan_id={self.edit_plan_id}')
+        assoc_camp_ids = tuple([item['id'] for item in assoc_camp_ids_raw])
+        
+        assoc_refugee_ids_raw = run_query_get_rows(f'SELECT id FROM RefugeeFamily WHERE camp_id IN {assoc_camp_ids}')
+        assoc_refugee_ids = tuple([item['id'] for item in assoc_refugee_ids_raw])
+        
+        assoc_volunteer_ids_raw = run_query_get_rows(f'SELECT id FROM User WHERE camp_id IN {assoc_camp_ids}')
+        assoc_volunteer_ids = tuple([item['id'] for item in assoc_volunteer_ids_raw])
+        
+        
+        message = f"Are you sure you want to delete this plan?\n\nNOTE: this will delete all associated data, unless re-assigned, including:\n\n\t {len(assoc_volunteer_ids)} Volunteers\n\t {len(assoc_camp_ids)} Camps\n\t {len(assoc_refugee_ids)} RefugeeFamilies"
         confirm = messagebox.askokcancel(title=title, message=message)
         if confirm:
             logging.debug(f"Deleting {self.edit_plan_details['id']=}")
