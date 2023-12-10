@@ -252,9 +252,6 @@ class ProfileView(BaseView):
             if self.should_render == "edit_volunteer" and getattr(
                 self, "is_admin_on_self", None
             ):
-                logging.debug(f"admin editing self")
-                logging.debug(f"{self.should_render=}")
-                logging.debug(f"{user_profile=}")
                 self.camp_entry = tk.Entry(
                     master=self.user_details_label_container,
                     width=25,
