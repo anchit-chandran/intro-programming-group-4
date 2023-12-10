@@ -568,7 +568,14 @@ class AddEditCampView(BaseView):
 
     def _render_delete_confirm_popup_window(self) -> None:
         title = "🚨 Delete Camp"
-        message = "Are you sure you want to delete this camp?"
+        
+        assoc_refugee_ids_raw = run_query_get_rows(f'SELECT id FROM RefugeeFamily WHERE camp_id = {self.camp_id}')
+        assoc_refugee_ids = tuple([item['id'] for item in assoc_refugee_ids_raw])
+        
+        assoc_volunteer_ids_raw = run_query_get_rows(f'SELECT id FROM User WHERE camp_id = {self.camp_id}')
+        assoc_volunteer_ids = tuple([item['id'] for item in assoc_volunteer_ids_raw])
+        
+        message = f"Are you sure you want to delete this camp?\n\nNOTE: this will delete all associated data, unless re-assigned, including:\n\n\t {len(assoc_volunteer_ids)} Volunteers\n\t {len(assoc_refugee_ids)} RefugeeFamilies"
         confirm = messagebox.askokcancel(title=title, message=message)
         if confirm:
             logging.debug(f"Deleting {self.edit_camp_details['id']=}")

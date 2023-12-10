@@ -619,7 +619,6 @@ class AddEditPlanView(BaseView):
                 n_duplicate_plans = run_query_get_rows(
                     f"SELECT COUNT(*) FROM Plan WHERE title='{plan_name}' AND title != '{current_plan_name}'"
                 )[0]["COUNT(*)"]
-                logging.debug(f"{self.is_edit=} and {n_duplicate_plans=}")
 
                 if n_duplicate_plans:  # bc this current plan will already show
                     self.form_is_valid = False
