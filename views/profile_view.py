@@ -44,6 +44,11 @@ class ProfileView(BaseView):
 
             self.instructions_text = "This is the Profile Editing View.\n\nDate of birth must be a valid date and at least 18 years prior to today (children can't be volunteers!).\n\nCamp can be set using the dropdown."
 
+            if current_state.get("is_admin"):
+                self.instructions_text += (
+                    "\n\nNOTE: admins are not associated with any Camps or Plans."
+                )
+
             return "edit_volunteer"
         elif current_state.get("volunteer_id_to_view"):
             self.volunteer_id = current_state.pop("volunteer_id_to_view")
@@ -125,6 +130,10 @@ class ProfileView(BaseView):
             user_profile = run_query_get_rows(
                 f"SELECT * FROM User WHERE id = '{user_id}'"
             )[0]
+
+            if user_profile.get("is_admin"):
+                self.is_admin_on_self = True
+
             (
                 status_profile,
                 firstname,
@@ -239,20 +248,33 @@ class ProfileView(BaseView):
 
         # Add volunteer / admin editing volunteer
         if self.should_render in ["add_volunteer", "edit_volunteer"]:
-            self.camp_entry = ttk.Combobox(
-                master=self.user_details_label_container,
-                width=25,
-                state="readonly",
-            )
-            self.camp_entry["values"] = self.get_all_camp_labels()
+            # Admin editing self if user_profile['is_admin'] is True
+            if self.should_render == "edit_volunteer" and getattr(
+                self, "is_admin_on_self", None
+            ):
+                logging.debug(f"admin editing self")
+                logging.debug(f"{self.should_render=}")
+                logging.debug(f"{user_profile=}")
+                self.camp_entry = tk.Entry(
+                    master=self.user_details_label_container,
+                    width=25,
+                    state="disabled",
+                )
+            else:
+                self.camp_entry = ttk.Combobox(
+                    master=self.user_details_label_container,
+                    width=25,
+                    state="readonly",
+                )
+                self.camp_entry["values"] = self.get_all_camp_labels()
 
-            dropdown_idx = 0
+                dropdown_idx = 0
 
-            if camp_label:
-                camp_id = self._get_camp_id_from_label(camp_label)
-                dropdown_idx = self._find_dropdown_idx_for_camp_id(camp_id=camp_id)
+                if camp_label:
+                    camp_id = self._get_camp_id_from_label(camp_label)
+                    dropdown_idx = self._find_dropdown_idx_for_camp_id(camp_id=camp_id)
 
-            self.camp_entry.current(dropdown_idx)
+                self.camp_entry.current(dropdown_idx)
 
         # all other views
         else:
@@ -261,7 +283,7 @@ class ProfileView(BaseView):
                 width=20,
                 state=state
                 if not getattr(self, "volunteer_editing_self", None)
-                else "disabled",  
+                else "disabled",
                 text=camp_label_text,
             )
 
@@ -682,6 +704,10 @@ class ProfileView(BaseView):
         camp_data = run_query_get_rows(f"SELECT id, plan_id FROM Camp")
 
         labels = []
+        # admins have no camps
+        if getattr(self, "is_admin_on_self", None):
+            labels += ""
+            return labels
         for camp in camp_data:
             labels.append(f"CampID: {camp['id']} (PlanID: {camp['plan_id']})")
 
@@ -794,10 +820,16 @@ class ProfileView(BaseView):
             emergency_contact_number = "No information provided"
 
         campID = user_profile.get("camp_id")
-        camp_data = run_query_get_rows(
-            f"SELECT id, plan_id FROM Camp WHERE id={campID}"
-        )[0]
-        camp_label = f"CampID: {camp_data['id']} (PlanID: {camp_data['plan_id']})"
+
+        # admins don't have camps or plans
+        if getattr(self, "is_admin_on_self", None):
+            camp_label = ""
+
+        else:
+            camp_data = run_query_get_rows(
+                f"SELECT id, plan_id FROM Camp WHERE id={campID}"
+            )[0]
+            camp_label = f"CampID: {camp_data['id']} (PlanID: {camp_data['plan_id']})"
 
         dob_year, dob_month, dob_day = user_profile.get("dob").split("-")
 
@@ -971,7 +1003,11 @@ class ProfileView(BaseView):
         """Inserts values, change screen"""
         logging.debug(f"Inserting {all_values}")
         username = all_values[1]
-        camp_id = self._get_camp_id_from_label(all_values[2])
+        camp_id = (
+            self._get_camp_id_from_label(all_values[2])
+            if not getattr(self, "is_admin_on_self", None)
+            else None
+        )
         status = all_values[3]
         firstname = all_values[4].capitalize()
         lastname = all_values[5].capitalize()
@@ -1141,7 +1177,6 @@ class ProfileView(BaseView):
             "user_id_input": "User ID",
             "password_input": "Password",
             "username_input": "Username",
-            "camp_id_input": "Camp ID",
             "status_input": "Status",
             "firstname_input": "First Name",
             "lastname_input": "Last Name",
@@ -1160,6 +1195,9 @@ class ProfileView(BaseView):
         """Returns True if every inputs_to_check has a value"""
         valid = True
         for ix, inp in enumerate(inputs_to_check):
+            # camp always valid
+            if ix == 2:
+                continue
             inp_stripped = inp.strip()
             if ix == 6:
                 inp_stripped = inp_stripped.replace("-", "")  # dob
