@@ -92,7 +92,7 @@ def create_and_seed_user_table() -> None:
             `password` TEXT NOT NULL,
             `dob` TEXT NOT NULL,
             `sex` INT NOT NULL,
-            `phone_number` INT,
+            `phone_number` TEXT,
             `is_active` INT default 1,
             `is_admin` INT default 0,
             `first_name` TEXT,
