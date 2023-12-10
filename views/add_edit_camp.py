@@ -22,7 +22,6 @@ class AddEditCampView(BaseView):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-
         self.plan_id_for_camp = self.master.get_global_state().get("plan_id_to_view")
         self.camp_id = self.master.get_global_state().get("camp_id_to_edit", None)
         if self.camp_id:
@@ -588,5 +587,7 @@ class AddEditCampView(BaseView):
                                     """,
                 values={"id": self.edit_camp_details["id"]},
             )
+            current_global_state = self.master.get_global_state()
+            camp_id_to_view = current_global_state.pop("camp_id_to_edit")
 
             self.master.switch_to_view("plan_detail")
